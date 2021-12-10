@@ -1,0 +1,2 @@
+# MiniPIX
+Advacam pixelated detector

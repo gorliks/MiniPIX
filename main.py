@@ -13,8 +13,7 @@ import detection as detection
 import localhost_client as localhost, utils
 import data_handling as storage
 
-test_image = '01_gorelick.jpg'
-
+#test_image = '01_gorelick.jpg'
 
 class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
     def __init__(self, demo):

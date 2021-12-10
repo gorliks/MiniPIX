@@ -9,21 +9,15 @@ import traceback, sys
 class WorkerSignals(QObject):
     '''
     Defines the signals available from a running worker thread.
-
     Supported signals are:
-
     finished
         No data
-
     error
         tuple (exctype, value, traceback.format_exc() )
-
     result
         object data returned from processing, anything
-
     progress
         int indicating % progress
-
     '''
     finished = pyqtSignal()
     error = pyqtSignal(tuple)
@@ -34,9 +28,7 @@ class WorkerSignals(QObject):
 class Worker(QRunnable):
     '''
     Worker thread
-
     Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
-
     :param callback: The function callback to run on this worker thread. Supplied args and
                      kwargs will be passed through to the runner.
     :type callback: function
@@ -47,13 +39,13 @@ class Worker(QRunnable):
 
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
-
         # Store constructor arguments (re-used for processing)
         self.fn = fn
         self.args = args
+        print('args = ', self.args)
         self.kwargs = kwargs
+        print('kwargs = ', self.kwargs)
         self.signals = WorkerSignals()
-
         # Add the callback to our kwargs
         self.kwargs['progress_callback'] = self.signals.progress
 
@@ -62,7 +54,6 @@ class Worker(QRunnable):
         '''
         Initialise the runner function with passed args, kwargs.
         '''
-
         # Retrieve args/kwargs here; and fire processing using them
         try:
             result = self.fn(*self.args, **self.kwargs)
@@ -77,14 +68,10 @@ class Worker(QRunnable):
 
 
 class MainWindow(QMainWindow):
-
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
-
         self.counter = 0
-
         layout = QVBoxLayout()
-
         self.l = QLabel("Start")
         b = QPushButton("DANGER!")
         b.pressed.connect(self.oh_no)

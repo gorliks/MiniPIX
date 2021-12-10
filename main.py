@@ -1,6 +1,6 @@
 import qtdesigner_files.minipix_gui as gui_main
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtCore import QObject, QThread, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtWidgets import QFileDialog
 import qimage2ndarray
 
@@ -12,23 +12,33 @@ import datetime
 import detection as detection
 import localhost_client as localhost, utils
 import data_handling as storage
+import threads as threads
 
 #test_image = '01_gorelick.jpg'
 
 class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
     def __init__(self, demo):
         self.demo = demo
+        self.time_counter = 0
         print('mode demo is ', demo)
         super(GUIMainWindow, self).__init__()
         self.setupUi(self)
         self.setup_connections()
+        self.storage = storage.Storage()  # initialise container for data strorage and handling
         self.initialise_hardware()
         self.client = localhost.LocalHostClient()  # initialise communication with the localhost/client/server
         self.DIR = None
+        self.supported_modes = ['TOA', 'TOT', 'EVENT', 'iTOT']
         self.label_image_frames = [self.label_image_frame1, self.label_image_frame2,
                                    self.label_image_frame3, self.label_image_frame4]
-        self.supported_modes = ['TOA', 'TOT', 'EVENT', 'iTOT']
-        self.storage = storage.Storage()  # initialise container for data strorage and handling
+
+        self.threadpool = QThreadPool()
+        print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
+        self.timer = QTimer()
+        self.timer.setInterval(1000) #1 s intervals
+        self.timer.timeout.connect(self._time_counter)
+        self.timer.start()
+
         self.pushButton_abort_stack_collection.setEnabled(False)
         self._abort_clicked_status = False
 
@@ -48,16 +58,27 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.label_messages.setText(directory)
         self.DIR = directory
 
+
     def send_message_to_server(self):
         message = self.plainTextEdit_command_to_server.toPlainText()
         self.client.send_message_to_server(message)
         self.response = self.client.get_response()
         self.label_messages.setText(self.response)
 
+
     def initialise_hardware(self):
         self.device = detection.Detector(demo=self.demo)
         detector_info = self.device.initialise()
         self.label_messages.setText(str(detector_info))
+
+
+    def update_temperature(self):
+        if not self.demo:
+            temperature = self.device.get_temperature()
+        else:
+            temperature = 'demo mode: ' + str((np.random.rand() + 0.05) * 100)
+        self.label_temperature.setText(str(temperature))
+
 
     def setup_acquisition(self):
         print('setting the acquisition parameters')
@@ -70,18 +91,23 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                                       integration_time=integration_time,
                                       energy_threshold_keV=energy_threshold_keV)
 
-    def update_temperature(self):
-        if not self.demo:
-            temperature = self.device.get_temperature()
-        else:
-            temperature = 'demo mode: ' + str((np.random.rand() + 0.05) * 100)
-        self.label_temperature.setText(str(temperature))
 
-    def update_progress_bar(self, n):
-        self.progressBar.setValue(n)
+    def _progress_bar_counter(self, progress_callback):
+        for n in range(0, 5):
+            time.sleep(1)
+            progress_callback.emit(n*10)
+
+    def _worker_result(self, result):
+        pass
+
+    def _update_progress_bar(self, n):
+        print(n)
+        self.progressBar.setValue(int(n))
+
+    def _reset_status_bar(self):
+        self.progressBar.setValue(0)
 
     def get_data(self):
-        # self.label_acquisition_progress.setText('Acquiring')
         self.update_temperature()
         ts = time.time()
         stamp = datetime.datetime.fromtimestamp(ts).strftime('%Y%m%d.%H%M%S')  # make a timestamp for new file
@@ -89,8 +115,21 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             self.DIR = os.getcwd()
             print(self.DIR)
         file_name = self.DIR + '/' + stamp + '.pmf'
-        self.data = self.device.acquire(file_name=file_name,
+
+        ##################### progress bar routine #####################
+        self.integration_time = self.device.settings['integration_time']
+        worker = threads.Worker(self._progress_bar_counter)  # Any other args, kwargs are passed to the run function
+        worker.signals.result.connect(self._worker_result)
+        worker.signals.finished.connect(self._reset_status_bar)
+        worker.signals.progress.connect(self._update_progress_bar)
+        self.threadpool.start(worker) # Execute
+        ################################################################
+
+        self.data = \
+            self.device.acquire(file_name=file_name,
                                         mode=self.comboBox_mode_of_measurement.currentText())
+
+
         for count, mode in enumerate(self.supported_modes):
             _image_by_mode = self.data[mode]
             if type(_image_by_mode) == np.ndarray:
@@ -133,14 +172,16 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                         return
 
         _run_loop()
-        # plot the acquired stack using hyperspy's library
-        self.storage.stack.plot()
+
+        self.storage.stack.plot() # plot the acquired stack using hyperspy's library
         plt.show()
 
         self.pushButton_acquire.setEnabled(True)
         self.pushButton_setup_acquisition.setEnabled(True)
         self.pushButton_check_temperature.setEnabled(True)
         self.pushButton_abort_stack_collection.setEnabled(False)
+
+
 
     def _resize_images(self, Nx=256, Ny=256):
         pass
@@ -151,12 +192,19 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self._abort_clicked_status = True
 
 
+    def _time_counter(self):
+        self.time_counter += 1
+        self.label_counter.setText("runtime: %d sec" % self.time_counter)
+
+
+
 def main(demo):
     app = QtWidgets.QApplication([])
     qt_app = GUIMainWindow(demo)
     app.aboutToQuit.connect(qt_app.disconnect)  # cleanup & teardown
     qt_app.show()
     sys.exit(app.exec_())
+
 
 
 if __name__ == '__main__':

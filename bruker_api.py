@@ -6,23 +6,77 @@ import numpy as np
 #path_to_dll = r'C:\Users\sergeyg\WORK.FILES\Bruker Nano APIs\Device API\Sample\Bruker.API.Devices64.dll'
 path_to_dll = r'C:\Users\sergeyg\Github\Bruker Nano APIs\Device API\Sample\Bruker.API.Devices64.dll'
 
+
 # Type describes one line segment in image for scanning.
-class TSegment(ctypes.Structure):
-    # _pack_ = 1
-    _fields_ = [
-        ('Y', ctypes.c_uint8),
-        ('XStart', ctypes.c_uint8),
-        ('XEnd', ctypes.c_uint8)
-    ]
+# class TSegment(ctypes.Structure):
+#     _pack_ = 1
+#     _fields_ = [
+#         ('Y', ctypes.c_uint8),
+#         ('XStart', ctypes.c_uint8),
+#         ('XEnd', ctypes.c_uint8)
+#     ]
+# Type describes one line segment in image for scanning.
+# class TLineSegment(ctypes.Structure):
+#     _pack_ = 1
+#     _fields_ = [
+#         ('Y', ctypes.c_uint8),
+#         ('XStart', ctypes.c_uint8),
+#         ('XEnd', ctypes.c_uint8)
+#     ]
 
 
 # Specifies a position inside image. Type is used to set or get a beam position.
 class TPoint(ctypes.Structure):
-    # _pack_ = 1
+    _pack_ = 1
     _fields_ = [
         ('X', ctypes.c_uint8),
         ('Y', ctypes.c_uint8)
     ]
+
+
+##############################################################################
+##############################################################################
+
+class TLineSegment(ctypes.Structure):
+    # TLineSegment     = packed record
+    #    Y,XStart,XEnd : word;
+    #  end;
+    # TLineSegmentArray = array[0..8191] of TLineSegment;
+    _pack_ = 1
+    _fields_ = [
+        ('Y', ctypes.c_ushort),
+        ('XStart', ctypes.c_ushort),
+        ('XEnd', ctypes.c_ushort)
+    ]
+
+
+TLineSegmentArray = TLineSegment * 8192
+PLineSegmentArray = ctypes.POINTER(TLineSegmentArray)
+
+
+class TWordPoint(ctypes.Structure):
+    # TWordPoint              = packed record
+    #    X,Y   : word;
+    #   end;
+    # TWordPointArray         = array[0..16381] of TWordPoint;
+    # PWordPointArray         = ^TWordPointArray;
+    _pack_ = 1
+    _fields_ = [
+        ('X', ctypes.c_ushort),
+        ('Y', ctypes.c_ushort)
+    ]
+
+TWordPointArray = TWordPoint * 16382
+PWordPointArray = ctypes.POINTER(TWordPointArray)
+
+# type TWordArray = array [0..16383] of Word;
+TWordArray = ctypes.c_ushort * 16384
+line_buffer = TWordArray()
+line_buffer_ptr = ctypes.pointer(line_buffer)
+
+
+##############################################################################
+##############################################################################
 
 
 def create_point_array(coordinates):
@@ -210,10 +264,11 @@ class Bruker():
         # var Line Counter: DWord): integer;  # number of line scans for that line
 
         channel = 1
-        line_segment = TSegment(Y, 0, line_length)  # Segment to read data for
+        # line_segment = TSegment(Y, 0,line_length)  # Segment to read data for
+        line_segment = TLineSegment(Y, 0, line_length)  # Segment to read data for
         line_counter = 1  # number of line scans for that line
         #
-        Pixel_Array = ctypes.c_uint8 * line_length
+        Pixel_Array = ctypes.c_uint * line_length
         pixel_array = Pixel_Array()
         pixel_ptr = ctypes.pointer(pixel_array)  # Data buffer for line data
 
@@ -242,17 +297,17 @@ if __name__ == '__main__':
     points_rectangular_scan = create_point_array(coordinates)
     bruker.set_points_list(coordinates)
 
+    bruker.set_SEM_to_external_mode(external=True)
     bruker.start_scan()
     bruker.get_scan_state()
     time.sleep(0.2)
     bruker.stop_scan()
     bruker.get_scan_state()
-
     bruker.set_SEM_to_external_mode(external=False)
     bruker.get_SEM_external_mode()
 
     ### TODO read lines into pointer array
-    segment = TSegment(100, 0, 256)
+    segment = TLineSegment(100, 0, 256)
     length_of_array = 6
     Pixel_Array = ctypes.c_uint8 * length_of_array
     # np.random.randint(0, 255, [1,10])
@@ -261,4 +316,52 @@ if __name__ == '__main__':
     pixel_ptr[0]
 
     bruker.get_line_data(Y=100, line_length=256)
+
+
+    if 0:
+        # PixelPtr	   : TWordArray;
+        # (ImageChannel: byte;                # Image channel to use, ‘1’ is first
+        # const Segment: TLineSegment;        # Segment to read data for
+        # LineBuffer: PWordArray;             # Data buffer for line data
+        # var Line Counter: DWord): integer;  # number of line scans for that line
+        # res:=ImageGetLine(Channel,aSeg,@PixelPtr[0],LineCounter);
+
+        Y = 1
+        channel = 1
+        line_length = 255
+        line_segment = TLineSegment(Y, 0, line_length)  # Segment to read data for
+        line_segment_ptr = ctypes.pointer(line_segment)
+        line_counter = 1  # number of line scans for that line
+        #
+        Pixel_Array = ctypes.c_uint * line_length
+        pixel_array = Pixel_Array()
+        pixel_ptr = ctypes.pointer(pixel_array)  # Data buffer for line data
+
+        line_buffer = TWordArray()
+        line_buffer_ptr = ctypes.pointer(line_buffer)
+        output = bruker.bruker.ImageGetLine(channel, line_segment, line_buffer_ptr, line_counter)
+        print(output, '; line data copied to pixel_ptr')
+
+
+    if 0: # test pointers in ctypers python
+        Pixel_Array = ctypes.c_uint * 1
+        pixel_array = Pixel_Array(123)
+        pixel_ptr = ctypes.pointer(pixel_array)  # Data buffer for line data
+
+        print('pixel_array = ', pixel_array)
+        print('first value in the array is ', pixel_array[0])
+        print('pointer is ', pixel_ptr)
+        print('pointer contents are ', pixel_ptr.contents)
+        print('pointer.contents[0] = ', pixel_ptr.contents[0])
+
+
+        def change_value(array_ptr):
+            print('func :: pointer.contents[0] = ', array_ptr.contents[0])
+            print('change value:')
+            array_ptr.contents[0] = 222
+
+
+        change_value(pixel_ptr)
+        print('pointer.contents[0] = ', pixel_ptr.contents[0])
+
 

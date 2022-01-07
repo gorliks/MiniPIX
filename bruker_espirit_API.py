@@ -184,14 +184,15 @@ class Bruker_Espirit():
     def get_sem_data(self):
         # int32_t GetSEMData(uint32_t CID, double& Magnification, double& HighVoltage, double& WorkingDistance)
         self.mag = ctypes.c_double(0) # magnification
-        self.HV  = ctypes.c_double(0) # high voltage in keV
-        self.WD  = ctypes.c_double(0) # working ditance in mm
+        self.high_voltage  = ctypes.c_double(0) # high voltage in keV
+        self.working_distance  = ctypes.c_double(0) # working ditance in mm
         self.mag_ptr = ctypes.pointer(self.mag)
-        self.HV_ptr = ctypes.pointer(self.HV)
-        self.WD_ptr = ctypes.pointer(self.WD)
-        print(f'before : mag = {self.mag}, HV = {self.HV}, WD = {self.WD}')
-        output = self.espirit.GetSEMData(self.CID, self.mag_ptr, self.HV_ptr, self.WD_ptr)
-        print(f'after : mag = {self.mag}, HV = {self.HV}, WD = {self.WD}')
+        self.high_voltage_ptr = ctypes.pointer(self.high_voltage)
+        self.working_distance_ptr = ctypes.pointer(self.working_distance)
+        print(f'before : mag = {self.mag.value}, HV = {self.high_voltage.value}, WD = {self.working_distance.value}')
+        output = \
+            self.espirit.GetSEMData(self.CID, self.mag_ptr, self.high_voltage_ptr, self.working_distance_ptr)
+        print(f'after : mag = {self.mag.value}, HV = {self.high_voltage.value}, WD = {self.working_distance.value}')
         if output==0:
             print('SEM data retrieved successfully\n')
         else:
@@ -233,12 +234,12 @@ class Bruker_Espirit():
         # int32_t GetSEMBCData(uint32_t CID, double& Brightness, double& Contrast)
         self.brightness = ctypes.c_double(0.0) # magnification
         self.contrast   = ctypes.c_double(0.0) # high voltage in keV
-        self.brightness_ptr = ctypes.pointer(self.mag)
-        self.contrast_ptr = ctypes.pointer(self.HV)
-        print(f'before : brightness = {self.brightness}, contrast = {self.contrast}')
+        self.brightness_ptr = ctypes.pointer(self.brightness)
+        self.contrast_ptr = ctypes.pointer(self.contrast)
+        print(f'before : brightness = {self.brightness.value}, contrast = {self.contrast.value}')
         output = \
             self.espirit.GetSEMBCData(self.CID, self.brightness_ptr, self.contrast_ptr)
-        print(f'after : brightness = {self.brightness}, contrast = {self.contrast}')
+        print(f'after : brightness = {self.brightness.value}, contrast = {self.contrast.value}')
         if output==0:
             print('SEM data retrieved successfully\n')
         else:
@@ -252,7 +253,7 @@ class Bruker_Espirit():
         print(f'before : probe current = {self.probe_current}')
         output = \
             self.espirit.GetSEMProbeCurrent(self.CID, self.probe_current_ptr)
-        print(f'after : probe current = {self.probe_current}')
+        print(f'after : probe current = {self.probe_current.value}')
         if output==0:
             print('SEM probe current retrieved successfully\n')
         else:
@@ -263,10 +264,10 @@ class Bruker_Espirit():
         # int32_t GetSEMSpotSize(uint32_t CID, double& SpotSize)
         self.spot_size = ctypes.c_double(0) # probe current
         self.spot_size_ptr = ctypes.pointer(self.spot_size)
-        print(f'before : spot size = {self.spot_size}')
+        print(f'before : spot size = {self.spot_size.value}')
         output = \
             self.espirit.GetSEMSpotSize(self.CID, self.spot_size_ptr)
-        print(f'after : spot size = {self.spot_size}')
+        print(f'after : spot size = {self.spot_size.value}')
         if output==0:
             print('SEM spot size retrieved successfully\n')
         else:
@@ -290,7 +291,8 @@ class Bruker_Espirit():
                                          self.x_pos_ptr, self.y_pos_ptr, self.z_pos_ptr,
                                          self.t_pos_ptr, self.r_pos_ptr)
         if output==0:
-            print(f'SEM position is: x,y,z: ({self.x_pos}, {self.y_pos}, {self.z_pos}); tilt: {self.t_pos};  rotation: {self.r_pos}\n')
+            print(f'SEM position is: x,y,z: ({self.x_pos.value}, {self.y_pos.value}, {self.z_pos.value});'
+                  f' tilt: {self.t_pos.value};  rotation: {self.r_pos.value}\n')
         else:
             print(f'No SEM stage info could be fetched, ERROR code is {output}, {errors[output]}\n')
 
@@ -327,9 +329,12 @@ class Bruker_Espirit():
                                          self.t_min_ptr, self.t_max_ptr,
                                          self.r_min_ptr, self.r_max_ptr)
         if output==0:
-            print(f'SEM stage limits are X:({self.x_min}, {self.x_max}); Y:({self.y_min},{self.y_max}), Z:({self.z_min},{self.z_max}); '
-                  f'tilt: ({self.t_min}, {self.t_max});'
-                  f'rotation: ({self.r_min}, {self.r_max})\n')
+            print(f'SEM stage limits are '
+                  f'X:({self.x_min.value}, {self.x_max.value}); '
+                  f'Y:({self.y_min.value}, {self.y_max.value}), '
+                  f'Z:({self.z_min.value}, {self.z_max.value}); '
+                  f'tilt: ({self.t_min.value}, {self.t_max.value});'
+                  f'rotation: ({self.r_min.value}, {self.r_max.value})\n')
         else:
             print(f'No SEM stage limits could be retrieved, ERROR code is {output}, {errors[output]}\n')
 
@@ -352,7 +357,34 @@ class Bruker_Espirit():
     ##########################################     Settings     ########################################################
     ####################################################################################################################
 
+    def set_sem_parameters(self, mag=0, high_voltage=0, working_distance=0):
+        #### Result := SetSEMData(FCID,Mag,HV,WD); to set three values simultanelously
+        # int32_t SetSEMData(uint32_t CID, double Magnification, double HighVoltage, double WorkingDistance)
+        self.get_sem_data() # get current mag, hv, wd
+        if mag:
+            mag = ctypes.c_double(mag) # if mag parameter provided, use it
+        else:
+            mag = self.mag # otherwise, use the current value on the machine
+        if high_voltage:
+            high_voltage = ctypes.c_double(high_voltage)
+        else:
+            high_voltage = self.high_voltage
+        if working_distance:
+            working_distance = ctypes.c_double(working_distance)
+        else:
+            working_distance = self.working_distance
+        output = \
+            self.espirit.SetSEMData(self.CID, mag, high_voltage, working_distance)
 
+        self.get_sem_data() # get current mag, hv, wd; update the stored values
+
+        if output==0:
+            print(f'SEM set to: mag={self.mag.value}, hv={self.high_voltage.value}, wd={self.working_distance.value}')
+        else:
+            print(f'No success in setting the SEM mag, HV, WD; ERROR code is {output}, {errors[output]}')
+
+
+    ### TODO: this function does not work : -2 : 'IFC_ERROR_WRONG_PARAMETER (execution)',
     def set_sem_magnification(self, mag=100.):
         # int32_t SetSEMParameter(uint32_t CID, char* Params, char* ValueIDs, double* Values)
         # Result := SetSEMParameter(FCID, '', 'Mag', @ Mag);
@@ -368,7 +400,7 @@ class Bruker_Espirit():
         else:
             print(f'No success in setting the SEM magnification, ERROR code is {output}, {errors[output]}')
 
-
+    ### TODO: this function does not work : -2 : 'IFC_ERROR_WRONG_PARAMETER (execution)',
     def set_sem_high_voltage(self, hv=10.):
         # int32_t SetSEMParameter(uint32_t CID, char* Params, char* ValueIDs, double* Values)
         # Result := SetSEMParameter(FCID, '', 'Mag', @ Mag);
@@ -389,7 +421,6 @@ class Bruker_Espirit():
         # int32_t SetSEMProbeCurrent(uint32_t CID, double ProbeCurrent)
         # Result := SetSEMProbeCurrent(FCID,PC);
         probe_current = ctypes.c_double(current)
-        probe_current_ptr = ctypes.pointer(probe_current)
         output = \
             self.espirit.SetSEMProbeCurrent(self.CID, probe_current)
         if output==0:
@@ -415,7 +446,7 @@ class Bruker_Espirit():
         else:
             print(f'No SEM stage could be set, ERROR code is {output}, {errors[output]}')
 
-
+    # There is also a function set_external_scan_mode(self, external=True)
     def set_sem_to_external_mode(self, external=True):
         # int32_t SetSEMExternalOn(uint32_t CID)
         # int32_t SetSEMExternalOff(uint32_t CID)
@@ -437,6 +468,7 @@ class Bruker_Espirit():
         # HVOff: Switches microscopes high voltage off
         # BeamCurrentOff: Switches beam off completely
         # BeamBlank: Blank the electron beam
+        beamOn = ctypes.c_bool(beamOn)
         output = \
             self.espirit.SwitchSEMOff(self.CID, False, False, beamOn)
         if output==0:
@@ -463,7 +495,7 @@ class Bruker_Espirit():
         self.average = ctypes.c_uint32(1)
         self.Ch1     = ctypes.c_bool(False)
         self.Ch2     = ctypes.c_bool(False)
-        #### pointers ####
+        ################## pointers ##################
         self.width_ptr   = ctypes.pointer(self.width)
         self.height_ptr  = ctypes.pointer(self.height)
         self.average_ptr = ctypes.pointer(self.average)
@@ -477,7 +509,8 @@ class Bruker_Espirit():
                                                self.width_ptr, self.height_ptr,
                                                self.average_ptr, self.Ch1_ptr, self.Ch2_ptr)
         if output==0:
-            print(f'Image configuration: width {self.width}; height {self.height}; average {self.average}); Ch1 {self.Ch1};  Ch2: {self.Ch2}\n')
+            print(f'Image configuration: width {self.width.value}; height {self.height.value}; '
+                  f'average {self.average.value}); Ch1 {self.Ch1.value};  Ch2: {self.Ch2.value}\n')
         else:
             print(f'No image configuration could be retrieved, ERROR code is {output}, {errors[output]}\n')
 
@@ -502,11 +535,13 @@ class Bruker_Espirit():
         self.get_field_width() # update field width after magnification change
 
         if output==0:
-            print(f'Image configuration set to: width {self.width}; height {self.height}; average {self.average}); Ch1 {self.Ch1};  Ch2: {self.Ch2}\n')
+            print(f'Image configuration set to: width {self.width.value}; height {self.height.value}; '
+                  f'average {self.average.value}); Ch1 {self.Ch1.value};  Ch2: {self.Ch2.value}\n')
         else:
             print(f'No image configuration could be set, ERROR code is {output}, {errors[output]}\n')
 
 
+    # There is also a function set_sem_to_external_mode(self, external=True)
     def set_external_scan_mode(self, external=True):
         # Use external scan engine which triggers scan generator trough an external signal
         # int32_t ImageSetExternalScan(uint32_t CID, bool UseExternalScan)
@@ -527,7 +562,7 @@ class Bruker_Espirit():
         self.image_info = TRTImageInfoEx()
         self.image_info_ptr = ctypes.pointer(self.image_info)
 
-        self.buffer_size = ctypes.c_uint32(self.width.value * self.height.value + 0) # MemStream.SetSize(W*H+20000); aSize:=MemStream.Size;
+        self.buffer_size = ctypes.c_uint32(self.width.value * self.height.value *4 + 0) # MemStream.SetSize(W*H+20000); aSize:=MemStream.Size;
         self.buffer_size_ptr = ctypes.pointer(self.buffer_size)
 
         # version 1 - void pointer
@@ -535,8 +570,9 @@ class Bruker_Espirit():
 
         # version 2 : array
         IntArray = ctypes.c_uint32 * self.buffer_size.value # int32 array the size of width*height for storing the image
-        #self.image_buffer_ptr = ctypes.POINTER(IntArray)
-        self.image_buffer_ptr = IntArray() # initialise the array
+        self.image_buffer = IntArray() # initialise the array
+        self.image_buffer_ptr = ctypes.pointer(self.image_buffer) # pointer to the image buffer array
+
 
         print(f'before: image info: mag={self.image_info.Magnification}, pixelsize={self.image_info.PixelSizeX}, '
               f'HV={self.image_info.HighVoltage}, WD={self.image_info.WorkingDistance}')
@@ -555,14 +591,13 @@ class Bruker_Espirit():
 
         self.image = np.zeros( self.buffer_size.value )
         for ii in range( self.buffer_size.value ):
-            self.image[ii] = self.image_buffer_ptr[0]
-            #self.image[ii] = self.image_buffer_ptr.contents[ii].value
+            self.image[ii] = self.image_buffer_ptr.contents[ii]
 
-        self.image = np.reshape( (self.height.value, self.width.value) ) # reshape the 1D array into the image shape
+        self.image = np.reshape(self.image, (self.height.value*4, self.width.value) ) # reshape the 1D array into the image shape
 
         if show:
             plt.figure(11)
-            plt.imshow(self.image, cmap='gray')
+            plt.imshow(self.image[0:self.width.value//3, :], cmap='gray')
             plt.show()
 
 
@@ -627,12 +662,11 @@ if __name__ == "__main__":
     bruker.get_field_width()
     bruker.get_sem_stage_range()
 
-    bruker.set_sem_magnification(mag=200.)
-    bruker.set_sem_high_voltage(hv=15.)
+    bruker.set_sem_parameters(mag=100)
     #bruker.move_stage_to_coordinate(x=10e3, y=5e3, z=0)
     bruker.get_image_configuration()
     bruker.set_image_configuration(width=500, height=100, average=1, Ch1=True, Ch2=True)
-    bruker.acquire_image(channel=1,show_progress=False, show=True)
+    bruker.acquire_image(channel=1,show_progress=True, show=True)
     bruker.get_field_width()
 
 

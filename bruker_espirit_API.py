@@ -173,6 +173,27 @@ class Bruker_Espirit():
             print(f'No connection established, ERROR code is {output}, {errors[output]}\n')
 
 
+    def reset_communication(self):
+        output = \
+            self.espirit.ResetSEMCommunication(self.CID)
+        if output==0:
+            print('Communication reset successfully\n')
+        else:
+            print(f'Communication reset unsuccessful, ERROR code is {output}, {errors[output]}\n')
+
+    def get_servers_info(self):
+        # int32_t QueryInfo(uint32_t CID, char* pInfo, int32_t BufSize);
+        # Delivers info about a client/server instance
+        buffer_size = ctypes.c_int32(999)
+        query = ' ' * 1000 # block of memory for 1000 characters
+        self.query = query.encode('utf-8') # bytes, reference, char*
+        output = \
+            self.espirit.QueryInfo(self.CID, self.query, buffer_size)
+        if output==0:
+            print('SEM servers/client: ', str(self.query), '\n')
+        else:
+            print(f'No SEM servers/clients info could be fetched, ERROR code is {output}, {errors[output]}\n')
+
     def close(self):
         self.espirit.CloseClient(self.CID)
 
@@ -470,7 +491,7 @@ class Bruker_Espirit():
         # BeamBlank: Blank the electron beam
         beamOn = ctypes.c_bool(beamOn)
         output = \
-            self.espirit.SwitchSEMOff(self.CID, False, False, beamOn)
+            self.espirit.SwitchSEMOff(self.CID, ctypes.c_bool(False), ctypes.c_bool(False), beamOn)
         if output==0:
             print(f'Beam is ON = ', beamOn, '\n')
         else:
@@ -646,6 +667,56 @@ class Bruker_Espirit():
 
 
 
+    def set_rectangular_measurement_point_by_point(self, x0=0, y0=0, Nx=0, Ny=0, dwell_time=2, detector=None):
+        # int32_t StartPointListMeasurement(uint32_t CID, int32_t SPU, uint32_t SegmentCount, PSegmentList LineSegments, uint32_t RealTime);
+        # CID: Identification code for an actual server/ client instance
+        # SPU: Spectrometer index (1…n)
+        # SegmentCount: Description of points to measure
+        # RealTime: Acquisition time in ms
+        #########################################################################
+        # x0,y0 start corner of the rectangular, Nx,Ny - number of pixels
+        # create segment of each point and expose, continue until done
+        # collect data with external detector
+
+        dwell_time = ctypes.c_uint32(dwell_time)
+        SPU = ctypes.c_uint32(1) # spectrometer channel, 1 is used here
+
+        segment = TSegment()
+        segment.Y      = ctypes.c_uint32(y) # y start
+        segment.XStart = ctypes.c_uint32(x) # x start
+        segment.XCount = ctypes.c_uint32(1) # single pixel line
+
+        segment_count = 1
+        TSegmentList = TSegment * segment_count # array/list of segment with a single element
+        list_of_segments = TSegmentList(segment) # populate the array with a segment
+        list_of_segments_ptr = ctypes.pointer(list_of_segments) # pointer to the list of segments/list with a single segment
+
+        for ii in range(Nx):
+            for jj in range(Ny):
+                # TODO the list pointer does not get updated when the element values are changed....
+                # TODO currently reinitialising the pointer every time the element values are changed
+                # TODO change the content of the pointer directly!
+                segment.XStart = ctypes.c_uint32(x0 + ii)
+                segment.Y      = ctypes.c_uint32(y0 + jj)
+                list_of_segments = TSegmentList(segment)  # populate the array with a segment
+                list_of_segments_ptr = ctypes.pointer(list_of_segments)  # pointer to the list of segments/list with a single segment
+
+                print(f'Exposing point: ({list_of_segments_ptr.contents[0].XStart}, {list_of_segments_ptr.contents[0].Y})')
+
+                # TODO detector ON, start collection of data
+                output = \
+                    self.espirit.StartPointListMeasurement(self.CID, SPU, ctypes.c_uint32(segment_count),
+                                                           list_of_segments_ptr, dwell_time)
+                # TODO detector OFF after beam is OFF
+
+                if output==0:
+                    print(f'Segment starting at ({x},{y}) exposed during dwell of {dwell_time.value} ms\n')
+                else:
+                    print(f'Could not expose segment at ({x},{y}) for dwell of {dwell_time.value} ms\n, ERROR code is {output}, {errors[output]}\n')
+                    break
+
+
+
 
 
 if __name__ == "__main__":
@@ -671,9 +742,12 @@ if __name__ == "__main__":
 
 
     bruker.set_beam_to_point(50,500)
-    bruker.beam_control(beamOn=True)
-    time.sleep(0.005)
-    bruker.beam_control(beamOn=False)
+    # bruker.beam_control(beamOn=True)
+    # time.sleep(0.005)
+    # bruker.beam_control(beamOn=False)
+
+    bruker.set_point_measurement(x=100, y=250, dwell_time=2500)
+    bruker.set_rectangular_measurement_point_by_point(x0=100, y0=50, Nx=5, Ny=3, dwell_time=2500, detector=None)
 
 
     # bruker.close()

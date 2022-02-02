@@ -107,7 +107,7 @@ errors = {-1 : 'IFC_ERROR_IN_EXECUTION',
 
 
 class Bruker_Espirit():
-    def __init__(self, path_to_dll):
+    def __init__(self):
         self.path_to_dll = path_to_dll
 
         self.pServer = ''.encode('utf-8') # Pointer to a server name (if empty the local/default server is referenced)

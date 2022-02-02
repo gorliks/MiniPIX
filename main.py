@@ -13,6 +13,7 @@ import detection as detection
 import localhost_client as localhost, utils
 import data_handling as storage
 import threads as threads
+import bruker_espirit_API as SEM
 
 #test_image = '01_gorelick.jpg'
 
@@ -70,6 +71,8 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.device = detection.Detector(demo=self.demo)
         detector_info = self.device.initialise()
         self.label_messages.setText(str(detector_info))
+        # initialise Bruker API
+        self.bruker = SEM.Bruker_Espirit()
 
 
     def update_temperature(self):

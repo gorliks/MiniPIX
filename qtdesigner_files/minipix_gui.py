@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1220, 822)
+        MainWindow.resize(1041, 822)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -69,7 +69,7 @@ class Ui_MainWindow(object):
         self.label_current_j.setText("")
         self.label_current_j.setObjectName("label_current_j")
         self.tabWidget = QtWidgets.QTabWidget(self.frame_1)
-        self.tabWidget.setGeometry(QtCore.QRect(20, 0, 440, 571))
+        self.tabWidget.setGeometry(QtCore.QRect(5, 0, 440, 571))
         self.tabWidget.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.tabWidget.setObjectName("tabWidget")
         self.tab = QtWidgets.QWidget()
@@ -420,7 +420,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.frame)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1220, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1041, 21))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -444,7 +444,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

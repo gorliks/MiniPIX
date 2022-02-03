@@ -43,6 +43,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_abort_stack_collection.setEnabled(False)
         self._abort_clicked_status = False
 
+
     def setup_connections(self):
         self.label_demo_mode.setText('demo mode: ' + str(self.demo))
         self.pushButton_setup_acquisition.clicked.connect(lambda: self.setup_acquisition())
@@ -52,6 +53,40 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_check_temperature.clicked.connect(lambda: self.update_temperature())
         self.pushButton_collect_stack.clicked.connect(lambda: self.collect_stack())
         self.pushButton_abort_stack_collection.clicked.connect(lambda: self._abort_clicked())
+        #### SEM
+        self.pushButton_open_client.clicked.connect(lambda: self.open_sem_client())
+        self.pushButton_update_SEM_state.clicked.connect(lambda: self.update_sem_state())
+
+
+    def open_sem_client(self):
+        self.bruker.initialise(type='direct') #check which type works
+        self.label_messages.setText(self.bruker.error_message)
+
+
+    def update_sem_state(self):
+        self.bruker.get_sem_data()
+        self.label_messages.setText(self.bruker.error_message)
+        self.bruker.get_sem_brightness_and_contrast()
+        self.label_messages.setText(self.bruker.error_message)
+        self.bruker.get_sem_probe_current()
+        self.label_messages.setText(self.bruker.error_message)
+        self.bruker.get_sem_spot_size()
+        self.label_messages.setText(self.bruker.error_message)
+
+        self.spinBox_magnification.setValue(int(self.bruker.mag.value))
+        self.doubleSpinBox_high_voltage.setValue(self.bruker.high_voltage.value)
+        self.doubleSpinBox_working_distance.setValue(self.bruker.working_distance.value)
+        self.doubleSpinBox_brightness.setValue(self.bruker.brightness.value)
+        self.doubleSpinBox_contrast.setValue(self.bruker.contrast.value)
+        self.doubleSpinBox_probe_current.setValue(self.bruker.probe_current.value)
+        self.doubleSpinBox_spot_size.setValue(self.bruker.spot_size.value)
+
+        self.bruker.get_sem_info()
+        self.bruker.get_sem_capabilities()
+        self.label_messages.setText(self.bruker.error_message)
+        print(self.bruker.Info)
+        print(self.bruker.capabilities)
+
 
     def select_directory(self):
         directory = QFileDialog.getExistingDirectory(self, caption='Select a folder')
@@ -198,6 +233,10 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
     def _time_counter(self):
         self.time_counter += 1
         self.label_counter.setText("runtime: %d sec" % self.time_counter)
+
+
+
+
 
 
 

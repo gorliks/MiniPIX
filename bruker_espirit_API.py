@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-path_to_dll = r'F:\SharedData\MCEM Data - Staff Only\Bruker API\Esprit API\Bruker.API.Esprit64.dll'
+#path_to_dll = r'F:\SharedData\MCEM Data - Staff Only\Bruker API\Esprit API\Bruker.API.Esprit64.dll'
 path_to_dll = r'C:\Users\sergeyg\Github\Bruker Nano APIs\Esprit API\Bruker.API.Esprit64.dll'
 #path_to_dll = r'\\ad.monash.edu\home\User002\sergeyg\Desktop\Minipix\Bruker Nano APIs\Esprit API\Bruker.API.Esprit64.dll'
 
@@ -137,11 +137,15 @@ class Bruker_Espirit():
 
         self.CID = ctypes.c_uint32(123456)       # Identification code for an actual server/client instance
         self.CID_ptr = ctypes.pointer(self.CID)  # Pointer to Identification code for an actual server/client instance
+
+        self.error_message = ''
+
         try:
             self.espirit = ctypes.cdll.LoadLibrary(path_to_dll)
             print(path_to_dll, self.espirit)
         except:
-            print(f'path to dll {path_to_dll} does not exist\n')
+            self.error_message = f'path to dll {path_to_dll} does not exist'
+            print(self.error_message + '\n')
 
 
     def initialise(self, type='Ex'):
@@ -168,9 +172,11 @@ class Bruker_Espirit():
         print(f'after : Connection identification code = {self.CID}')
         if output==0:
             print('Connection established successfully\n')
-            # get current stage coordinates, beam current, etc
+            self.error_message = ''
+            # TODO get all the SEM info, current stage coordinates, beam current, etc
         else:
-            print(f'No connection established, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No connection established, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def reset_communication(self):
@@ -178,8 +184,10 @@ class Bruker_Espirit():
             self.espirit.ResetSEMCommunication(self.CID)
         if output==0:
             print('Communication reset successfully\n')
+            self.error_message = ''
         else:
-            print(f'Communication reset unsuccessful, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'Communication reset unsuccessful, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
     def get_servers_info(self):
         # int32_t QueryInfo(uint32_t CID, char* pInfo, int32_t BufSize);
@@ -191,8 +199,10 @@ class Bruker_Espirit():
             self.espirit.QueryInfo(self.CID, self.query, buffer_size)
         if output==0:
             print('SEM servers/client: ', str(self.query), '\n')
+            self.error_message = ''
         else:
-            print(f'No SEM servers/clients info could be fetched, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No SEM servers/clients info could be fetched, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
     def close(self):
         self.espirit.CloseClient(self.CID)
@@ -215,9 +225,11 @@ class Bruker_Espirit():
             self.espirit.GetSEMData(self.CID, self.mag_ptr, self.high_voltage_ptr, self.working_distance_ptr)
         print(f'after : mag = {self.mag.value}, HV = {self.high_voltage.value}, WD = {self.working_distance.value}')
         if output==0:
+            self.error_message = ''
             print('SEM data retrieved successfully\n')
         else:
-            print(f'No SEM data could be fetched, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No SEM data could be fetched, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def get_sem_info(self):
@@ -232,9 +244,11 @@ class Bruker_Espirit():
         output = \
             self.espirit.GetSEMInfo(self.CID, self.Info, buffer_size)
         if output==0:
+            self.error_message = ''
             print('SEM Info: ', str(self.Info), '\n')
         else:
-            print(f'No SEM info could be fetched, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No SEM info could be fetched, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def get_sem_capabilities(self):
@@ -246,9 +260,11 @@ class Bruker_Espirit():
         output = \
             self.espirit.GetSEMCapabilities(self.CID, self.capabilities, buffer_size)
         if output==0:
+            self.error_message = ''
             print('SEM Capabilities: ', str(self.capabilities), '\n')
         else:
-            print(f'No SEM capabilities could be fetched, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No SEM capabilities could be fetched, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def get_sem_brightness_and_contrast(self):
@@ -262,9 +278,11 @@ class Bruker_Espirit():
             self.espirit.GetSEMBCData(self.CID, self.brightness_ptr, self.contrast_ptr)
         print(f'after : brightness = {self.brightness.value}, contrast = {self.contrast.value}')
         if output==0:
+            self.error_message = ''
             print('SEM data retrieved successfully\n')
         else:
-            print(f'No SEM data could be fetched, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No SEM data could be fetched, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def get_sem_probe_current(self):
@@ -276,9 +294,11 @@ class Bruker_Espirit():
             self.espirit.GetSEMProbeCurrent(self.CID, self.probe_current_ptr)
         print(f'after : probe current = {self.probe_current.value}')
         if output==0:
+            self.error_message = ''
             print('SEM probe current retrieved successfully\n')
         else:
-            print(f'No SEM probe current could be fetched, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No SEM probe current could be fetched, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def get_sem_spot_size(self):
@@ -290,9 +310,11 @@ class Bruker_Espirit():
             self.espirit.GetSEMSpotSize(self.CID, self.spot_size_ptr)
         print(f'after : spot size = {self.spot_size.value}')
         if output==0:
+            self.error_message = ''
             print('SEM spot size retrieved successfully\n')
         else:
-            print(f'No SEM spot size could be fetched, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No SEM spot size could be fetched, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def get_sem_stage_position(self):
@@ -312,10 +334,12 @@ class Bruker_Espirit():
                                          self.x_pos_ptr, self.y_pos_ptr, self.z_pos_ptr,
                                          self.t_pos_ptr, self.r_pos_ptr)
         if output==0:
+            self.error_message = ''
             print(f'SEM position is: x,y,z: ({self.x_pos.value}, {self.y_pos.value}, {self.z_pos.value});'
                   f' tilt: {self.t_pos.value};  rotation: {self.r_pos.value}\n')
         else:
-            print(f'No SEM stage info could be fetched, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No SEM stage info could be fetched, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def get_sem_stage_range(self):
@@ -350,6 +374,7 @@ class Bruker_Espirit():
                                          self.t_min_ptr, self.t_max_ptr,
                                          self.r_min_ptr, self.r_max_ptr)
         if output==0:
+            self.error_message = ''
             print(f'SEM stage limits are '
                   f'X:({self.x_min.value}, {self.x_max.value}); '
                   f'Y:({self.y_min.value}, {self.y_max.value}), '
@@ -357,7 +382,8 @@ class Bruker_Espirit():
                   f'tilt: ({self.t_min.value}, {self.t_max.value});'
                   f'rotation: ({self.r_min.value}, {self.r_max.value})\n')
         else:
-            print(f'No SEM stage limits could be retrieved, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No SEM stage limits could be retrieved, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def get_field_width(self):
@@ -368,9 +394,11 @@ class Bruker_Espirit():
         output = \
             self.espirit.ImageGetFieldWidth(self.CID, self.field_width_ptr)
         if output==0:
+            self.error_message = ''
             print(f'Field width = {self.field_width}\n')
         else:
-            print(f'Field width could not be obtained, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'Field width could not be obtained, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
 
@@ -400,9 +428,11 @@ class Bruker_Espirit():
         self.get_sem_data() # get current mag, hv, wd; update the stored values
 
         if output==0:
+            self.error_message = ''
             print(f'SEM set to: mag={self.mag.value}, hv={self.high_voltage.value}, wd={self.working_distance.value}')
         else:
-            print(f'No success in setting the SEM mag, HV, WD; ERROR code is {output}, {errors[output]}')
+            self.error_message = f'No success in setting the SEM mag, HV, WD; ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     ### TODO: this function does not work : -2 : 'IFC_ERROR_WRONG_PARAMETER (execution)',
@@ -417,9 +447,11 @@ class Bruker_Espirit():
         output = \
             self.espirit.SetSEMParameter(self.CID, '', 'Mag', MAG_ptr)
         if output==0:
+            self.error_message = ''
             print(f'SEM magnification successfully set to {MAG}')
         else:
-            print(f'No success in setting the SEM magnification, ERROR code is {output}, {errors[output]}')
+            self.error_message = f'No success in setting the SEM magnification, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
     ### TODO: this function does not work : -2 : 'IFC_ERROR_WRONG_PARAMETER (execution)',
     def set_sem_high_voltage(self, hv=10.):
@@ -433,9 +465,11 @@ class Bruker_Espirit():
         output = \
             self.espirit.SetSEMParameter(self.CID, '', 'HV', HV_ptr)
         if output==0:
+            self.error_message = ''
             print(f'SEM high voltage successfully set to {HV}\n')
         else:
-            print(f'No success in setting the SEM high voltage, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No success in setting the SEM high voltage, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def set_sem_probe_current(self, current=1e-10):
@@ -445,9 +479,11 @@ class Bruker_Espirit():
         output = \
             self.espirit.SetSEMProbeCurrent(self.CID, probe_current)
         if output==0:
+            self.error_message = ''
             print(f'SEM probe current successfully set to {probe_current}')
         else:
-            print(f'No success in setting the SEM probe current, ERROR code is {output}, {errors[output]}')
+            self.error_message = f'No success in setting the SEM probe current, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def move_stage_to_coordinate(self, x=0, y=0, z=0, t=0, r=0):
@@ -463,9 +499,12 @@ class Bruker_Espirit():
                                          self.x_pos, self.y_pos, self.z_pos,
                                          self.t_pos, self.r_pos)
         if output==0:
+            self.error_message = ''
             print(f'SEM position is: x,y,z: ({self.x_pos}, {self.y_pos}, {self.z_pos}); tilt: {self.t_pos};  rotation: {self.r_pos}')
         else:
-            print(f'No SEM stage could be set, ERROR code is {output}, {errors[output]}')
+            self.error_message = f'No SEM stage could be set, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
+
 
     # There is also a function set_external_scan_mode(self, external=True)
     def set_sem_to_external_mode(self, external=True):
@@ -478,9 +517,11 @@ class Bruker_Espirit():
             output = \
                 self.espirit.SetSEMExternalOff(self.CID)
         if output==0:
+            self.error_message = ''
             print(f'SEM external mode is ', external)
         else:
-            print(f'External/Internal mode could be set, ERROR code is {output}, {errors[output]}')
+            self.error_message = f'External/Internal mode could be set, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def beam_control(self, beamOn=True):
@@ -493,9 +534,11 @@ class Bruker_Espirit():
         output = \
             self.espirit.SwitchSEMOff(self.CID, ctypes.c_bool(False), ctypes.c_bool(False), beamOn)
         if output==0:
+            self.error_message = ''
             print(f'Beam is ON = ', beamOn, '\n')
         else:
-            print(f'Could not turn the beam on/off, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'Could not turn the beam on/off, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     ####################################################################################################################
@@ -530,10 +573,12 @@ class Bruker_Espirit():
                                                self.width_ptr, self.height_ptr,
                                                self.average_ptr, self.Ch1_ptr, self.Ch2_ptr)
         if output==0:
+            self.error_message = ''
             print(f'Image configuration: width {self.width.value}; height {self.height.value}; '
                   f'average {self.average.value}); Ch1 {self.Ch1.value};  Ch2: {self.Ch2.value}\n')
         else:
-            print(f'No image configuration could be retrieved, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No image configuration could be retrieved, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def set_image_configuration(self, width=500, height=300, average=1, Ch1=True, Ch2=True):
@@ -556,10 +601,12 @@ class Bruker_Espirit():
         self.get_field_width() # update field width after magnification change
 
         if output==0:
+            self.error_message = ''
             print(f'Image configuration set to: width {self.width.value}; height {self.height.value}; '
                   f'average {self.average.value}); Ch1 {self.Ch1.value};  Ch2: {self.Ch2.value}\n')
         else:
-            print(f'No image configuration could be set, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'No image configuration could be set, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     # There is also a function set_sem_to_external_mode(self, external=True)
@@ -571,9 +618,11 @@ class Bruker_Espirit():
         output = \
             self.espirit.ImageSetExternalScan(self.CID, self.external_scan)
         if output==0:
+            self.error_message = ''
             print(f'Set external scanning mode to {external} successfully\n')
         else:
-            print(f'Could not set external scanning mode to {external}, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'Could not set external scanning mode to {external}, ERROR code is {output}, {errors[output]}\n'
+            print( self.error_message + '\n')
 
 
     def acquire_image(self, channel=1, show_progress=False, show=False):
@@ -606,13 +655,16 @@ class Bruker_Espirit():
               f'HV={self.image_info.HighVoltage}, WD={self.image_info.WorkingDistance}')
 
         if output==0:
+            self.error_message = ''
             print(f'image acquired successfully\n')
         else:
-            print(f'Could not acquire image, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'Could not acquire image, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
+        # TODO image width_x_height rearrangement from 1D buffer does not work well
         self.image = np.zeros( self.buffer_size.value )
         for ii in range( self.buffer_size.value ):
-            self.image[ii] = self.image_buffer_ptr.contents[ii]
+            self.image[ii] = self.image_buffer_ptr.contents[ii] # populate the 1D array from the buffer pointer
 
         self.image = np.reshape(self.image, (self.height.value*4, self.width.value) ) # reshape the 1D array into the image shape
 
@@ -630,9 +682,11 @@ class Bruker_Espirit():
         output = \
             self.espirit.ImageSetPoint(self.CID, X, Y)
         if output==0:
+            self.error_message = ''
             print(f'Beam position set to ({X.value}, {Y.value})\n')
         else:
-            print(f'Could not position the beam to ({X.value}, {Y.value}), ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'Could not position the beam to ({X.value}, {Y.value}), ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
     def set_point_measurement(self, x=0, y=0, dwell_time=2):
@@ -659,9 +713,11 @@ class Bruker_Espirit():
             self.espirit.StartPointListMeasurement(self.CID, SPU, ctypes.c_uint32(segment_count),
                                                    list_of_segments_ptr, dwell_time)
         if output==0:
+            self.error_message = ''
             print(f'Segment starting at ({x},{y}) exposed during dwell of {dwell_time.value} ms\n')
         else:
-            print(f'Could not expose segment at ({x},{y}) for dwell of {dwell_time.value} ms\n, ERROR code is {output}, {errors[output]}\n')
+            self.error_message = f'Could not expose segment at ({x},{y}) for dwell of {dwell_time.value} ms\n, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
 
@@ -682,8 +738,8 @@ class Bruker_Espirit():
         SPU = ctypes.c_uint32(1) # spectrometer channel, 1 is used here
 
         segment = TSegment()
-        segment.Y      = ctypes.c_uint32(y) # y start
-        segment.XStart = ctypes.c_uint32(x) # x start
+        segment.Y      = ctypes.c_uint32(y0) # y start
+        segment.XStart = ctypes.c_uint32(x0) # x start
         segment.XCount = ctypes.c_uint32(1) # single pixel line
 
         segment_count = 1
@@ -710,9 +766,11 @@ class Bruker_Espirit():
                 # TODO detector OFF after beam is OFF
 
                 if output==0:
-                    print(f'Segment starting at ({x},{y}) exposed during dwell of {dwell_time.value} ms\n')
+                    self.error_message = ''
+                    print(f'Segment starting at ({x0},{y0}) exposed during dwell of {dwell_time.value} ms\n')
                 else:
-                    print(f'Could not expose segment at ({x},{y}) for dwell of {dwell_time.value} ms\n, ERROR code is {output}, {errors[output]}\n')
+                    self.error_message = f'Could not expose segment at ({x0},{y0}) for dwell of {dwell_time.value} ms\n, ERROR code is {output}, {errors[output]}'
+                    print(self.error_message + '\n')
                     break
 
 
@@ -720,7 +778,7 @@ class Bruker_Espirit():
 
 
 if __name__ == "__main__":
-    bruker = Bruker_Espirit(path_to_dll=path_to_dll)
+    bruker = Bruker_Espirit()
     bruker.initialise(type='direct')
 
     bruker.get_sem_data()

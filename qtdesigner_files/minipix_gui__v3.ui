@@ -175,7 +175,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -1105,7 +1105,7 @@
           <string>Height, pixels</string>
          </property>
         </widget>
-        <widget class="QSpinBox" name="spinBox_height_pixells">
+        <widget class="QSpinBox" name="spinBox_height_pixels">
          <property name="geometry">
           <rect>
            <x>90</x>

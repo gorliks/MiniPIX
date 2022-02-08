@@ -56,10 +56,54 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         #### SEM
         self.pushButton_open_client.clicked.connect(lambda: self.open_sem_client())
         self.pushButton_update_SEM_state.clicked.connect(lambda: self.update_sem_state())
+        self.checkBox_external_scan.stateChanged.connect(lambda: self.set_to_external_mode())
+        self.pushButton_read_stage_position.clicked.connect(lambda: self.get_stage_position())
+        self.pushButton_get_image_config.clicked.connect(lambda: self.get_image_configuration())
+        self.pushButton_set_image_config.clicked.connect(lambda: self.set_image_configuration())
 
 
     def open_sem_client(self):
         self.bruker.initialise(type='direct') #check which type works
+        self.label_messages.setText(self.bruker.error_message)
+
+    def get_image_configuration(self):
+        self.bruker.get_image_configuration()
+        self.label_messages.setText(self.bruker.error_message)
+        self.spinBox_width_pixels.setValue(int(self.bruker.width.value))
+        self.spinBox_height_pixels.setValue(int(self.bruker.height.value))
+        self.spinBox_width_pixels.setValue(int(self.bruker.width.value))
+        self.spinBox_average.setValue(int(self.bruker.average.value))
+        self.doubleSpinBox_field_width.setValue(self.bruker.field_width.value)
+        self.checkBox_channel_1.setChecked(self.bruker.Ch1.value)
+        self.checkBox_channel_2.setChecked(self.bruker.Ch2.value)
+
+
+    def set_image_configuration(self):
+        width = self.spinBox_width_pixels.value()
+        height = self.spinBox_height_pixels.value()
+        average = self.spinBox_average.value()
+        Ch1 = self.checkBox_channel_1.isChecked()
+        Ch2 = self.checkBox_channel_2.isChecked()
+        self.bruker.set_image_configuration(width=width, height=height,\
+                                            average=average, Ch1=Ch1, Ch2=Ch1)
+        self.label_messages.setText(self.bruker.error_message)
+
+
+    def get_stage_position(self):
+        self.bruker.get_sem_stage_position()
+        self.label_messages.setText(self.bruker.error_message)
+        self.doubleSpinBox_stage_x.setValue(self.bruker.x_pos.value)
+        self.doubleSpinBox_stage_y.setValue(self.bruker.y_pos.value)
+        self.doubleSpinBox_stage_z.setValue(self.bruker.z_pos.value)
+        self.doubleSpinBox_stage_t.setValue(self.bruker.t_pos.value)
+        self.doubleSpinBox_stage_r.setValue(self.bruker.r_pos.value)
+
+    def set_to_external_mode(self):
+        _state = self.checkBox_external_scan.isChecked()
+        if _state == True:
+            self.bruker.set_external_scan_mode(external=True)
+        else:
+            self.bruker.set_external_scan_mode(external=False)
         self.label_messages.setText(self.bruker.error_message)
 
 

@@ -625,7 +625,7 @@ class Bruker_Espirit():
             print( self.error_message + '\n')
 
 
-    def acquire_image(self, channel=1, show_progress=False, show=False):
+    def acquire_image(self, channel=1, show_progress=False, demo=False):
         # int32_t ImageAquireImage(uint32_t CID, int32_t Ch, bool ShowProgress, void* Buffer, int32_t& BufSize, PRTImageInfoEx ImgInfo)
         # ImageAquireImageEx(FCID, 2, MemStream.Memory, 0, aSize, @ImgInfo)
         #
@@ -666,12 +666,18 @@ class Bruker_Espirit():
         for ii in range( self.buffer_size.value ):
             self.image[ii] = self.image_buffer_ptr.contents[ii] # populate the 1D array from the buffer pointer
 
-        self.image = np.reshape(self.image, (self.height.value*4, self.width.value) ) # reshape the 1D array into the image shape
+        if not demo:
+            self.image = np.reshape(self.image, (self.height.value*4, self.width.value) ) # reshape the 1D array into the image shape
+            # plt.figure(11)
+            # plt.imshow(self.image[0:self.width.value//3, :], cmap='gray')
+            # plt.show()
 
-        if show:
-            plt.figure(11)
-            plt.imshow(self.image[0:self.width.value//3, :], cmap='gray')
-            plt.show()
+        if demo:
+            self.image = np.random.randint(0, 255, [self.height.value, self.width.value])
+
+
+
+
 
 
     def set_beam_to_point(self, x_pos=10, y_pos=10):

@@ -10,7 +10,8 @@ import matplotlib.pyplot as plt
 import datetime
 
 import detection as detection
-import localhost_client as localhost, utils
+import localhost_client as localhost
+import utils
 import data_handling as storage
 import threads as threads
 import bruker_espirit_API as SEM
@@ -60,6 +61,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_read_stage_position.clicked.connect(lambda: self.get_stage_position())
         self.pushButton_get_image_config.clicked.connect(lambda: self.get_image_configuration())
         self.pushButton_set_image_config.clicked.connect(lambda: self.set_image_configuration())
+        self.pushButton_get_image.clicked.connect(lambda: self.get_sem_image())
 
 
     def open_sem_client(self):
@@ -77,6 +79,10 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.checkBox_channel_1.setChecked(self.bruker.Ch1.value)
         self.checkBox_channel_2.setChecked(self.bruker.Ch2.value)
 
+
+    def get_sem_image(self):
+        self.bruker.acquire_image(demo=self.demo)
+        utils.select_point(self.bruker.image)
 
     def set_image_configuration(self):
         width = self.spinBox_width_pixels.value()

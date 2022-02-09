@@ -84,6 +84,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.bruker.acquire_image(demo=self.demo)
         utils.select_point(self.bruker.image)
 
+
     def set_image_configuration(self):
         width = self.spinBox_width_pixels.value()
         height = self.spinBox_height_pixels.value()
@@ -103,6 +104,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.doubleSpinBox_stage_z.setValue(self.bruker.z_pos.value)
         self.doubleSpinBox_stage_t.setValue(self.bruker.t_pos.value)
         self.doubleSpinBox_stage_r.setValue(self.bruker.r_pos.value)
+
 
     def set_to_external_mode(self):
         _state = self.checkBox_external_scan.isChecked()
@@ -181,8 +183,11 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
     def _progress_bar_counter(self, progress_callback):
-        for n in range(0, 5):
-            time.sleep(1)
+        N = 10
+        dt = self.integration_time / N
+        print('dt = ', dt)
+        for n in range(1, N):
+            time.sleep(dt)
             progress_callback.emit(n*10)
 
     def _worker_result(self, result):
@@ -204,8 +209,9 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             print(self.DIR)
         file_name = self.DIR + '/' + stamp + '.pmf'
 
+        self.integration_time = self.device.integration_time    # TODO update device state in settings self.device.settings['integration_time']
+
         ##################### progress bar routine #####################
-        self.integration_time = self.device.settings['integration_time']
         worker = threads.Worker(self._progress_bar_counter)  # Any other args, kwargs are passed to the run function
         worker.signals.result.connect(self._worker_result)
         worker.signals.finished.connect(self._reset_status_bar)
@@ -217,12 +223,12 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             self.device.acquire(file_name=file_name,
                                         mode=self.comboBox_mode_of_measurement.currentText())
 
-
         for count, mode in enumerate(self.supported_modes):
             _image_by_mode = self.data[mode]
             if type(_image_by_mode) == np.ndarray:
                 self.update_image(quadrant=count, image=_image_by_mode)
         return self.data
+
 
     def update_image(self, quadrant, image):
         self.update_temperature()
@@ -232,6 +238,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         else:
             self.label_image_frames[0].setText('No image acquired')
 
+
     def collect_stack(self):
         self.pushButton_abort_stack_collection.setEnabled(True)
         self.pushButton_acquire.setEnabled(False)
@@ -239,6 +246,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_check_temperature.setEnabled(False)
         stack_i = self.spinBox_scan_pixels_i.value()  # scan over sample, no. pixels along X
         stack_j = self.spinBox_scan_pixels_j.value()  # scan over sample, no. pixels along Y
+
         self.storage.initialise(i=stack_i, j=stack_j, Nx=256, Ny=256)  # TODO detector image Nx,Ny settings more generic
 
         # the loop will check if abort button is clicked by checking QtWidgets.QApplication.processEvents()

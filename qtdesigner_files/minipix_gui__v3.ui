@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1041</width>
-    <height>822</height>
+    <height>867</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,7 +46,7 @@
         <rect>
          <x>10</x>
          <y>634</y>
-         <width>411</width>
+         <width>431</width>
          <height>61</height>
         </rect>
        </property>
@@ -116,7 +116,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>716</y>
+         <y>765</y>
          <width>201</width>
          <height>21</height>
         </rect>
@@ -364,7 +364,7 @@
          <property name="geometry">
           <rect>
            <x>17</x>
-           <y>180</y>
+           <y>185</y>
            <width>101</width>
            <height>16</height>
           </rect>
@@ -394,7 +394,7 @@
           <rect>
            <x>117</x>
            <y>182</y>
-           <width>121</width>
+           <width>131</width>
            <height>28</height>
           </rect>
          </property>
@@ -569,7 +569,7 @@
           <rect>
            <x>260</x>
            <y>42</y>
-           <width>55</width>
+           <width>61</width>
            <height>16</height>
           </rect>
          </property>
@@ -670,7 +670,7 @@
           <rect>
            <x>10</x>
            <y>10</y>
-           <width>77</width>
+           <width>81</width>
            <height>20</height>
           </rect>
          </property>
@@ -745,7 +745,7 @@
            <x>10</x>
            <y>170</y>
            <width>101</width>
-           <height>16</height>
+           <height>21</height>
           </rect>
          </property>
          <property name="text">
@@ -807,7 +807,7 @@
            <x>10</x>
            <y>230</y>
            <width>101</width>
-           <height>16</height>
+           <height>21</height>
           </rect>
          </property>
          <property name="text">
@@ -1066,7 +1066,7 @@
         <widget class="QSpinBox" name="spinBox_width_pixels">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>95</x>
            <y>430</y>
            <width>71</width>
            <height>22</height>
@@ -1082,9 +1082,9 @@
         <widget class="QLabel" name="label_30">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>8</x>
            <y>432</y>
-           <width>75</width>
+           <width>81</width>
            <height>16</height>
           </rect>
          </property>
@@ -1095,9 +1095,9 @@
         <widget class="QLabel" name="label_31">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>8</x>
            <y>452</y>
-           <width>75</width>
+           <width>81</width>
            <height>16</height>
           </rect>
          </property>
@@ -1108,7 +1108,7 @@
         <widget class="QSpinBox" name="spinBox_height_pixels">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>95</x>
            <y>450</y>
            <width>71</width>
            <height>22</height>
@@ -1423,7 +1423,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>705</y>
+         <y>760</y>
          <width>431</width>
          <height>31</height>
         </rect>
@@ -1442,7 +1442,7 @@
      <x>0</x>
      <y>0</y>
      <width>1041</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

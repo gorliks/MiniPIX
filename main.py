@@ -200,23 +200,36 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
     def _reset_status_bar(self):
         self.progressBar.setValue(0)
 
-    def get_data(self):
+
+    def get_data(self, save_dir=None, file_name=None):
         self.update_temperature()
         ts = time.time()
-        stamp = datetime.datetime.fromtimestamp(ts).strftime('%Y%m%d.%H%M%S')  # make a timestamp for new file
-        if self.DIR == None:
-            self.DIR = os.getcwd()
-            print(self.DIR)
-        file_name = self.DIR + '/' + stamp + '.pmf'
+        stamp = datetime.datetime.fromtimestamp(ts).strftime('%y%m%d.%H%M%S')  # make a timestamp for new file
+
+        if save_dir:
+            save_dir = save_dir
+        elif self.DIR == None:
+            save_dir = os.getcwd()
+            # self.DIR = r'C:/TEMP'
+
+        if not os.path.isdir(save_dir):
+            os.mkdir(save_dir)
+        print(self.DIR, save_dir)
+
+        if file_name:
+            file_name = save_dir + '/' + file_name + '_' + stamp + '.pmf'
+        else:
+            file_name = save_dir + '/' + stamp + '.pmf'
+        print(file_name)
 
         self.integration_time = self.device.integration_time    # TODO update device state in settings self.device.settings['integration_time']
 
         ##################### progress bar routine #####################
-        worker = threads.Worker(self._progress_bar_counter)  # Any other args, kwargs are passed to the run function
-        worker.signals.result.connect(self._worker_result)
-        worker.signals.finished.connect(self._reset_status_bar)
-        worker.signals.progress.connect(self._update_progress_bar)
-        self.threadpool.start(worker) # Execute
+        # worker = threads.Worker(self._progress_bar_counter)  # Any other args, kwargs are passed to the run function
+        # worker.signals.result.connect(self._worker_result)
+        # worker.signals.finished.connect(self._reset_status_bar)
+        # worker.signals.progress.connect(self._update_progress_bar)
+        # self.threadpool.start(worker) # Execute
         ################################################################
 
         self.data = \
@@ -240,6 +253,9 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
     def collect_stack(self):
+        ts = time.time()
+        stamp = datetime.datetime.fromtimestamp(ts).strftime('%y%m%d.%H%M%S')  # make a timestamp for new file
+        self.sample_id = self.plainTextEdit_sample_name.toPlainText()
         self.pushButton_abort_stack_collection.setEnabled(True)
         self.pushButton_acquire.setEnabled(False)
         self.pushButton_setup_acquisition.setEnabled(False)
@@ -249,16 +265,28 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
         self.storage.initialise(i=stack_i, j=stack_j, Nx=256, Ny=256)  # TODO detector image Nx,Ny settings more generic
 
+        if self.DIR:
+            self.stack_dir = self.DIR + '/stack_' + self.sample_id + '_' + stamp
+        else:
+            # self.stack_dir = 'C:/TEMP/' + self.sample_id + '_' + stamp
+            self.stack_dir = os.getcwd() + '/stack_' + self.sample_id + '_' + stamp
+
+
         # the loop will check if abort button is clicked by checking QtWidgets.QApplication.processEvents()
-        # if the abort button was clicked, _return_ will break the loop
+        # if the abort button was clicked, _return_ will break the _run_loop
         # TODO use threads for more elegant solution
         def _run_loop():
+            pixel_counter = 0
             for ii in range(stack_i):
                 for jj in range(stack_j):
                     print(ii, jj)
                     self.label_current_i.setText(f'{ii + 1} of {stack_i}')
                     self.label_current_j.setText(f'{jj + 1} of {stack_j}')
-                    self.data = self.get_data()
+
+                    file_name = '%06d_'%pixel_counter + str(ii) + '_' + str(jj)
+
+                    self.data = self.get_data(save_dir=self.stack_dir, file_name=file_name)
+
                     self.storage.stack.data[ii][jj] = self.data['TOA']  # populate the stack
                     self.repaint()  # update the GUI to show the progress
                     QtWidgets.QApplication.processEvents()
@@ -266,6 +294,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                         print('Abort clicked')
                         self._abort_clicked_status = False  # reinitialise back to False
                         return
+                    pixel_counter += 1
 
         _run_loop()
 

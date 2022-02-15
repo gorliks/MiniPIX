@@ -639,6 +639,7 @@ class Bruker_Espirit():
         #self.image_buffer_ptr = ctypes.c_void_p() # void* Buffer
 
         # version 2 : array
+        # TODO check different ctypes: c_uint, c_int, c_uint64
         IntArray = ctypes.c_uint32 * self.buffer_size.value # int32 array the size of width*height for storing the image
         self.image_buffer = IntArray() # initialise the array
         self.image_buffer_ptr = ctypes.pointer(self.image_buffer) # pointer to the image buffer array

@@ -136,32 +136,6 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QLabel" name="label_current_i">
-       <property name="geometry">
-        <rect>
-         <x>126</x>
-         <y>386</y>
-         <width>55</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_current_j">
-       <property name="geometry">
-        <rect>
-         <x>216</x>
-         <y>387</y>
-         <width>55</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
       <widget class="QTabWidget" name="tabWidget">
        <property name="geometry">
         <rect>
@@ -365,7 +339,7 @@
           <rect>
            <x>17</x>
            <y>185</y>
-           <width>101</width>
+           <width>91</width>
            <height>16</height>
           </rect>
          </property>
@@ -379,7 +353,7 @@
            <x>17</x>
            <y>200</y>
            <width>101</width>
-           <height>41</height>
+           <height>21</height>
           </rect>
          </property>
          <property name="text">
@@ -433,7 +407,7 @@
           <rect>
            <x>20</x>
            <y>340</y>
-           <width>111</width>
+           <width>101</width>
            <height>16</height>
           </rect>
          </property>
@@ -531,6 +505,32 @@
          </property>
          <property name="value">
           <number>3</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_current_i">
+         <property name="geometry">
+          <rect>
+           <x>135</x>
+           <y>320</y>
+           <width>55</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_current_j">
+         <property name="geometry">
+          <rect>
+           <x>225</x>
+           <y>320</y>
+           <width>55</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </widget>

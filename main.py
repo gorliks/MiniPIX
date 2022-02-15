@@ -48,7 +48,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
     def setup_connections(self):
         self.label_demo_mode.setText('demo mode: ' + str(self.demo))
         self.pushButton_setup_acquisition.clicked.connect(lambda: self.setup_acquisition())
-        self.pushButton_acquire.clicked.connect(lambda: self.get_data())
+        self.pushButton_acquire.clicked.connect(lambda: self.single_acquisition())
         self.pushButton_send_to_server.clicked.connect(lambda: self.send_message_to_server())
         self.pushButton_select_directory.clicked.connect(lambda: self.select_directory())
         self.pushButton_check_temperature.clicked.connect(lambda: self.update_temperature())
@@ -182,23 +182,10 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                                       energy_threshold_keV=energy_threshold_keV)
 
 
-    def _progress_bar_counter(self, progress_callback):
-        N = 10
-        dt = self.integration_time / N
-        print('dt = ', dt)
-        for n in range(1, N):
-            time.sleep(dt)
-            progress_callback.emit(n*10)
 
-    def _worker_result(self, result):
-        pass
-
-    def _update_progress_bar(self, n):
-        print(n)
-        self.progressBar.setValue(int(n))
-
-    def _reset_status_bar(self):
-        self.progressBar.setValue(0)
+    def single_acquisition(self):
+        self.setup_acquisition()
+        self.get_data()
 
 
     def get_data(self, save_dir=None, file_name=None):
@@ -253,6 +240,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
     def collect_stack(self):
+        self.setup_acquisition() # update the acquisition parameters
         ts = time.time()
         stamp = datetime.datetime.fromtimestamp(ts).strftime('%y%m%d.%H%M%S')  # make a timestamp for new file
         self.sample_id = self.plainTextEdit_sample_name.toPlainText()
@@ -308,6 +296,25 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
 
+
+    def _progress_bar_counter(self, progress_callback):
+        N = 10
+        dt = self.integration_time / N
+        print('dt = ', dt)
+        for n in range(1, N):
+            time.sleep(dt)
+            progress_callback.emit(n*10)
+
+    def _worker_result(self, result):
+        pass
+
+    def _update_progress_bar(self, n):
+        print(n)
+        self.progressBar.setValue(int(n))
+
+    def _reset_status_bar(self):
+        self.progressBar.setValue(0)
+
     def _resize_images(self, Nx=256, Ny=256):
         pass
 
@@ -315,7 +322,6 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         print('------------ abort clicked --------------')
         self.pushButton_abort_stack_collection.setEnabled(False)
         self._abort_clicked_status = True
-
 
     def _time_counter(self):
         self.time_counter += 1

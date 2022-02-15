@@ -109,7 +109,7 @@ def acquire(device, number_of_frames=1, integration_time=0.1, file_name=''):
         data = utils.read_data_file( response_file_name + '_' + mode + '.pmf' )
         DATA[mode] = data # either np.array or None
     return DATA
-
+    #
     #
     #hardware
     #rc = self.device.doSimpleAcquisition(number_of_frames,

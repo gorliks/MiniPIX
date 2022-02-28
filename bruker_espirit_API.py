@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-#path_to_dll = r'F:\SharedData\MCEM Data - Staff Only\Bruker API\Esprit API\Bruker.API.Esprit64.dll'
-path_to_dll = r'C:\Users\sergeyg\Github\Bruker Nano APIs\Esprit API\Bruker.API.Esprit64.dll'
+path_to_dll = r'F:\SharedData\MCEM Data - Staff Only\Bruker API\Esprit API\Bruker.API.Esprit64.dll'
+#path_to_dll = r'C:\Users\sergeyg\Github\Bruker Nano APIs\Esprit API\Bruker.API.Esprit64.dll'
 #path_to_dll = r'\\ad.monash.edu\home\User002\sergeyg\Desktop\Minipix\Bruker Nano APIs\Esprit API\Bruker.API.Esprit64.dll'
 
 AnsiChar = ctypes.c_char * 8
@@ -63,8 +63,6 @@ class TSegment(ctypes.Structure):
         ('XStart', ctypes.c_uint32),
         ('XCount', ctypes.c_uint32)
     ]
-
-
 
 
 errors = {-1 : 'IFC_ERROR_IN_EXECUTION',
@@ -149,7 +147,6 @@ class Bruker_Espirit():
 
 
     def initialise(self, type='Ex'):
-        print('before : Connection identification code = ', self.CID)
         # Starting an application requires a valid password. References to a connection takes place
         # always via an identification code (CID) delivered by the OpenClient function.
         # int32_t OpenClient(   char* pServer, char* pUser, char* pPassword, bool StartNew, bool GUI, uint32_t& CID)
@@ -158,13 +155,16 @@ class Bruker_Espirit():
         #
         if type=='direct':
             print('Connecting directly to the client')
-            output = self.espirit.OpenClient(self.pServer, self.pUser, self.pPassword, self.StartNew, self.GUI, self.CID_ptr)
+            output = \
+                self.espirit.OpenClient(self.pServer, self.pUser, self.pPassword, self.StartNew, self.GUI, self.CID_ptr)
         elif type=='Ex':
             print('Connecting to the client : external mode')
-            output = self.espirit.OpenClientEx(self.pServer, self.pUser, self.pPassword, self.StartNew, self.GUI, self.CID_ptr)
+            output = \
+                self.espirit.OpenClientEx(self.pServer, self.pUser, self.pPassword, self.StartNew, self.GUI, self.CID_ptr)
         elif type == 'TCP':
             print('Connecting to the client : TCP mode')
-            output = self.espirit.OpenClientTCP(self.pServer, self.pUser, self.pPassword, self.pHost, self.port, self.Options, self.CID_ptr)
+            output = \
+                self.espirit.OpenClientTCP(self.pServer, self.pUser, self.pPassword, self.pHost, self.port, self.Options, self.CID_ptr)
         else:
             print('Connecting to the client : external mode')
             output = self.espirit.OpenClientEx(self.pServer, self.pUser, self.pPassword, self.Options_ptr, self.CID_ptr)
@@ -189,14 +189,17 @@ class Bruker_Espirit():
             self.error_message = f'Communication reset unsuccessful, ERROR code is {output}, {errors[output]}'
             print( self.error_message + '\n')
 
+
     def get_servers_info(self):
         # int32_t QueryInfo(uint32_t CID, char* pInfo, int32_t BufSize);
         # Delivers info about a client/server instance
         buffer_size = ctypes.c_int32(999)
         query = ' ' * 1000 # block of memory for 1000 characters
         self.query = query.encode('utf-8') # bytes, reference, char*
+
         output = \
             self.espirit.QueryInfo(self.CID, self.query, buffer_size)
+
         if output==0:
             print('SEM servers/client: ', str(self.query), '\n')
             self.error_message = ''
@@ -204,13 +207,16 @@ class Bruker_Espirit():
             self.error_message = f'No SEM servers/clients info could be fetched, ERROR code is {output}, {errors[output]}'
             print( self.error_message + '\n')
 
+
     def close(self):
         self.espirit.CloseClient(self.CID)
+
 
 
     ####################################################################################################################
     ########################################     Getting info     ######################################################
     ####################################################################################################################
+
 
     def get_sem_data(self):
         # int32_t GetSEMData(uint32_t CID, double& Magnification, double& HighVoltage, double& WorkingDistance)
@@ -220,10 +226,11 @@ class Bruker_Espirit():
         self.mag_ptr = ctypes.pointer(self.mag)
         self.high_voltage_ptr = ctypes.pointer(self.high_voltage)
         self.working_distance_ptr = ctypes.pointer(self.working_distance)
-        print(f'before : mag = {self.mag.value}, HV = {self.high_voltage.value}, WD = {self.working_distance.value}')
+
         output = \
             self.espirit.GetSEMData(self.CID, self.mag_ptr, self.high_voltage_ptr, self.working_distance_ptr)
-        print(f'after : mag = {self.mag.value}, HV = {self.high_voltage.value}, WD = {self.working_distance.value}')
+
+        print(f'mag = {self.mag.value}, HV = {self.high_voltage.value}, WD = {self.working_distance.value}')
         if output==0:
             self.error_message = ''
             print('SEM data retrieved successfully\n')
@@ -241,8 +248,10 @@ class Bruker_Espirit():
         buffer_size = ctypes.c_int32(999)
         info = ' ' * 1000 # block of memory for 1000 characters
         self.Info = info.encode('utf-8') # bytes, reference, char*
+
         output = \
             self.espirit.GetSEMInfo(self.CID, self.Info, buffer_size)
+
         if output==0:
             self.error_message = ''
             print('SEM Info: ', str(self.Info), '\n')
@@ -257,8 +266,10 @@ class Bruker_Espirit():
         buffer_size = ctypes.c_int32(999)
         capabilities = ' ' * 1000 # block of memory for 1000 characters
         self.capabilities = capabilities.encode('utf-8') # bytes, reference, char*
+
         output = \
             self.espirit.GetSEMCapabilities(self.CID, self.capabilities, buffer_size)
+
         if output==0:
             self.error_message = ''
             print('SEM Capabilities: ', str(self.capabilities), '\n')
@@ -273,10 +284,12 @@ class Bruker_Espirit():
         self.contrast   = ctypes.c_double(0.0) # high voltage in keV
         self.brightness_ptr = ctypes.pointer(self.brightness)
         self.contrast_ptr = ctypes.pointer(self.contrast)
-        print(f'before : brightness = {self.brightness.value}, contrast = {self.contrast.value}')
+
         output = \
             self.espirit.GetSEMBCData(self.CID, self.brightness_ptr, self.contrast_ptr)
-        print(f'after : brightness = {self.brightness.value}, contrast = {self.contrast.value}')
+
+        print(f'brightness = {self.brightness.value}, contrast = {self.contrast.value}')
+
         if output==0:
             self.error_message = ''
             print('SEM data retrieved successfully\n')
@@ -289,10 +302,12 @@ class Bruker_Espirit():
         # int32_t GetSEMProbeCurrent(uint32_t CID, double& ProbeCurrent)
         self.probe_current = ctypes.c_double(0) # probe current
         self.probe_current_ptr = ctypes.pointer(self.probe_current)
-        print(f'before : probe current = {self.probe_current}')
+
         output = \
             self.espirit.GetSEMProbeCurrent(self.CID, self.probe_current_ptr)
-        print(f'after : probe current = {self.probe_current.value}')
+
+        print(f'probe current = {self.probe_current.value}')
+
         if output==0:
             self.error_message = ''
             print('SEM probe current retrieved successfully\n')
@@ -305,10 +320,12 @@ class Bruker_Espirit():
         # int32_t GetSEMSpotSize(uint32_t CID, double& SpotSize)
         self.spot_size = ctypes.c_double(0) # probe current
         self.spot_size_ptr = ctypes.pointer(self.spot_size)
-        print(f'before : spot size = {self.spot_size.value}')
+
         output = \
             self.espirit.GetSEMSpotSize(self.CID, self.spot_size_ptr)
-        print(f'after : spot size = {self.spot_size.value}')
+
+        print(f'spot size = {self.spot_size.value}')
+
         if output==0:
             self.error_message = ''
             print('SEM spot size retrieved successfully\n')
@@ -329,10 +346,12 @@ class Bruker_Espirit():
         self.z_pos_ptr = ctypes.pointer(self.z_pos)
         self.t_pos_ptr = ctypes.pointer(self.t_pos)
         self.r_pos_ptr = ctypes.pointer(self.r_pos)
+
         output = \
             self.espirit.GetSEMStageData(self.CID,
                                          self.x_pos_ptr, self.y_pos_ptr, self.z_pos_ptr,
                                          self.t_pos_ptr, self.r_pos_ptr)
+
         if output==0:
             self.error_message = ''
             print(f'SEM position is: x,y,z: ({self.x_pos.value}, {self.y_pos.value}, {self.z_pos.value});'
@@ -373,6 +392,7 @@ class Bruker_Espirit():
                                          self.z_min_ptr, self.z_max_ptr,
                                          self.t_min_ptr, self.t_max_ptr,
                                          self.r_min_ptr, self.r_max_ptr)
+
         if output==0:
             self.error_message = ''
             print(f'SEM stage limits are '
@@ -391,8 +411,10 @@ class Bruker_Espirit():
         # Reads image field width from scan settings and SEM mag.
         self.field_width = ctypes.c_double(0)  # Width of the scanned area in mm
         self.field_width_ptr = ctypes.pointer(self.field_width)
+
         output = \
             self.espirit.ImageGetFieldWidth(self.CID, self.field_width_ptr)
+
         if output==0:
             self.error_message = ''
             print(f'Field width = {self.field_width}\n')
@@ -405,6 +427,7 @@ class Bruker_Espirit():
     ####################################################################################################################
     ##########################################     Settings     ########################################################
     ####################################################################################################################
+
 
     def set_sem_parameters(self, mag=0, high_voltage=0, working_distance=0):
         #### Result := SetSEMData(FCID,Mag,HV,WD); to set three values simultanelously
@@ -422,6 +445,7 @@ class Bruker_Espirit():
             working_distance = ctypes.c_double(working_distance)
         else:
             working_distance = self.working_distance
+
         output = \
             self.espirit.SetSEMData(self.CID, mag, high_voltage, working_distance)
 
@@ -444,14 +468,17 @@ class Bruker_Espirit():
         #### Also --> Result := SetSEMData(FCID,Mag,HV,WD); to set three values simultanelously
         MAG = ctypes.c_double(mag)
         MAG_ptr = ctypes.pointer(MAG)
+
         output = \
             self.espirit.SetSEMParameter(self.CID, '', 'Mag', MAG_ptr)
+
         if output==0:
             self.error_message = ''
             print(f'SEM magnification successfully set to {MAG}')
         else:
             self.error_message = f'No success in setting the SEM magnification, ERROR code is {output}, {errors[output]}'
             print( self.error_message + '\n')
+
 
     ### TODO: this function does not work : -2 : 'IFC_ERROR_WRONG_PARAMETER (execution)',
     def set_sem_high_voltage(self, hv=10.):
@@ -462,8 +489,10 @@ class Bruker_Espirit():
         #### Also --> Result := SetSEMData(FCID,Mag,HV,WD); to set three values simultanelously\
         HV = ctypes.c_double(hv)
         HV_ptr = ctypes.pointer(HV)
+
         output = \
             self.espirit.SetSEMParameter(self.CID, '', 'HV', HV_ptr)
+
         if output==0:
             self.error_message = ''
             print(f'SEM high voltage successfully set to {HV}\n')
@@ -476,8 +505,10 @@ class Bruker_Espirit():
         # int32_t SetSEMProbeCurrent(uint32_t CID, double ProbeCurrent)
         # Result := SetSEMProbeCurrent(FCID,PC);
         probe_current = ctypes.c_double(current)
+
         output = \
             self.espirit.SetSEMProbeCurrent(self.CID, probe_current)
+
         if output==0:
             self.error_message = ''
             print(f'SEM probe current successfully set to {probe_current}')
@@ -494,10 +525,12 @@ class Bruker_Espirit():
         self.z_pos = ctypes.c_double(z) # z
         self.t_pos = ctypes.c_double(t) # tilt
         self.r_pos = ctypes.c_double(r)  # rotation
+
         output = \
             self.espirit.SetSEMStageData(self.CID,
                                          self.x_pos, self.y_pos, self.z_pos,
                                          self.t_pos, self.r_pos)
+
         if output==0:
             self.error_message = ''
             print(f'SEM position is: x,y,z: ({self.x_pos}, {self.y_pos}, {self.z_pos}); tilt: {self.t_pos};  rotation: {self.r_pos}')
@@ -506,8 +539,8 @@ class Bruker_Espirit():
             print( self.error_message + '\n')
 
 
-    # There is also a function set_external_scan_mode(self, external=True)
     def set_sem_to_external_mode(self, external=True):
+        # There is also a function set_external_scan_mode(self, external=True)
         # int32_t SetSEMExternalOn(uint32_t CID)
         # int32_t SetSEMExternalOff(uint32_t CID)
         if external==True:
@@ -516,6 +549,7 @@ class Bruker_Espirit():
         else:
             output = \
                 self.espirit.SetSEMExternalOff(self.CID)
+
         if output==0:
             self.error_message = ''
             print(f'SEM external mode is ', external)
@@ -531,8 +565,10 @@ class Bruker_Espirit():
         # BeamCurrentOff: Switches beam off completely
         # BeamBlank: Blank the electron beam
         beamOn = ctypes.c_bool(beamOn)
+
         output = \
             self.espirit.SwitchSEMOff(self.CID, ctypes.c_bool(False), ctypes.c_bool(False), beamOn)
+
         if output==0:
             self.error_message = ''
             print(f'Beam is ON = ', beamOn, '\n')
@@ -541,9 +577,11 @@ class Bruker_Espirit():
             print( self.error_message + '\n')
 
 
+
     ####################################################################################################################
     ###########################################     Imaging     ########################################################
     ####################################################################################################################
+
 
     def get_image_configuration(self):
         # int32_t ImageGetConfiguration(uint32_t CID, uint32_t & Width, uint32_t & Height, uint32_t & Average, bool & Ch1, bool & Ch2)
@@ -572,6 +610,7 @@ class Bruker_Espirit():
             self.espirit.ImageGetConfiguration(self.CID,
                                                self.width_ptr, self.height_ptr,
                                                self.average_ptr, self.Ch1_ptr, self.Ch2_ptr)
+
         if output==0:
             self.error_message = ''
             print(f'Image configuration: width {self.width.value}; height {self.height.value}; '
@@ -593,6 +632,7 @@ class Bruker_Espirit():
         self.average = ctypes.c_uint32(average)
         self.Ch1     = ctypes.c_bool(Ch1)
         self.Ch2     = ctypes.c_bool(Ch2)
+
         output = \
             self.espirit.ImageSetConfiguration(self.CID,
                                                self.width, self.height,
@@ -609,14 +649,16 @@ class Bruker_Espirit():
             print( self.error_message + '\n')
 
 
-    # There is also a function set_sem_to_external_mode(self, external=True)
     def set_external_scan_mode(self, external=True):
+        # There is also a function set_sem_to_external_mode(self, external=True)
         # Use external scan engine which triggers scan generator trough an external signal
         # int32_t ImageSetExternalScan(uint32_t CID, bool UseExternalScan)
         # ImageSetExternalScan(FCID,MapExternalScanCheckBox.Checked);
         self.external_scan = ctypes.c_bool(external)
+
         output = \
             self.espirit.ImageSetExternalScan(self.CID, self.external_scan)
+
         if output==0:
             self.error_message = ''
             print(f'Set external scanning mode to {external} successfully\n')
@@ -632,27 +674,29 @@ class Bruker_Espirit():
         self.image_info = TRTImageInfoEx()
         self.image_info_ptr = ctypes.pointer(self.image_info)
 
-        self.buffer_size = ctypes.c_uint32(self.width.value * self.height.value *4 + 0) # MemStream.SetSize(W*H+20000); aSize:=MemStream.Size;
+        extra_buffer_for_image = 200000
+        self.buffer_size = ctypes.c_uint32(self.width.value * self.height.value + extra_buffer_for_image) # MemStream.SetSize(W*H+20000); aSize:=MemStream.Size;
         self.buffer_size_ptr = ctypes.pointer(self.buffer_size)
+
+        self.channel = ctypes.c_uint32(channel)
+        show_progress = ctypes.c_bool(show_progress)
 
         # version 1 - void pointer
         #self.image_buffer_ptr = ctypes.c_void_p() # void* Buffer
 
         # version 2 : array
         # TODO check different ctypes: c_uint, c_int, c_uint64
-        IntArray = ctypes.c_uint32 * self.buffer_size.value # int32 array the size of width*height for storing the image
+        # the image has 8 bit depth (0..255) hence ctypes.c_uint8
+        IntArray = ctypes.c_uint8 * self.buffer_size.value # int8 array the size of width*height+extra for storing the image
         self.image_buffer = IntArray() # initialise the array
         self.image_buffer_ptr = ctypes.pointer(self.image_buffer) # pointer to the image buffer array
 
-
-        print(f'before: image info: mag={self.image_info.Magnification}, pixelsize={self.image_info.PixelSizeX}, '
-              f'HV={self.image_info.HighVoltage}, WD={self.image_info.WorkingDistance}')
-
         output = \
             self.espirit.ImageAquireImage(self.CID,
-                                          channel, show_progress,
+                                          self.channel, show_progress,
                                           self.image_buffer_ptr, self.buffer_size_ptr, self.image_info_ptr)
-        print(f'after: image info: mag={self.image_info.Magnification}, pixelsize={self.image_info.PixelSizeX}, '
+
+        print(f'image info: mag={self.image_info.Magnification}, pixelsize={self.image_info.PixelSizeX}, '
               f'HV={self.image_info.HighVoltage}, WD={self.image_info.WorkingDistance}')
 
         if output==0:
@@ -662,13 +706,15 @@ class Bruker_Espirit():
             self.error_message = f'Could not acquire image, ERROR code is {output}, {errors[output]}'
             print( self.error_message + '\n')
 
-        # TODO image width_x_height rearrangement from 1D buffer does not work well
         self.image = np.zeros( self.buffer_size.value )
         for ii in range( self.buffer_size.value ):
             self.image[ii] = self.image_buffer_ptr.contents[ii] # populate the 1D array from the buffer pointer
 
+        # remove the zeros in the extra buffer for image
+        self.image = self.image[ : -extra_buffer_for_image]
+
         if not demo:
-            self.image = np.reshape(self.image, (self.height.value*4, self.width.value) ) # reshape the 1D array into the image shape
+            self.image = np.reshape(self.image, (self.height.value, self.width.value) ) # reshape the 1D array into the image shape
             # plt.figure(11)
             # plt.imshow(self.image[0:self.width.value//3, :], cmap='gray')
             # plt.show()
@@ -678,7 +724,9 @@ class Bruker_Espirit():
 
 
 
-
+    ####################################################################################################################
+    ########################################     Beam control     ######################################################
+    ####################################################################################################################
 
 
     def set_beam_to_point(self, x_pos=10, y_pos=10):
@@ -686,8 +734,10 @@ class Bruker_Espirit():
         # Pixel X Y value of the current image to set the electron beam to
         X = ctypes.c_uint32(x_pos)
         Y = ctypes.c_uint32(y_pos)
+
         output = \
             self.espirit.ImageSetPoint(self.CID, X, Y)
+
         if output==0:
             self.error_message = ''
             print(f'Beam position set to ({X.value}, {Y.value})\n')
@@ -719,15 +769,13 @@ class Bruker_Espirit():
         output = \
             self.espirit.StartPointListMeasurement(self.CID, SPU, ctypes.c_uint32(segment_count),
                                                    list_of_segments_ptr, dwell_time)
+
         if output==0:
             self.error_message = ''
             print(f'Segment starting at ({x},{y}) exposed during dwell of {dwell_time.value} ms\n')
         else:
             self.error_message = f'Could not expose segment at ({x},{y}) for dwell of {dwell_time.value} ms\n, ERROR code is {output}, {errors[output]}'
             print( self.error_message + '\n')
-
-
-
 
 
     def set_rectangular_measurement_point_by_point(self, x0=0, y0=0, Nx=0, Ny=0, dwell_time=2, detector=None):

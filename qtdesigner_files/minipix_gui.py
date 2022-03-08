@@ -358,6 +358,9 @@ class Ui_MainWindow(object):
         self.pushButton_get_image = QtWidgets.QPushButton(self.tab_2)
         self.pushButton_get_image.setGeometry(QtCore.QRect(250, 490, 110, 24))
         self.pushButton_get_image.setObjectName("pushButton_get_image")
+        self.checkBox_beam_blank = QtWidgets.QCheckBox(self.tab_2)
+        self.checkBox_beam_blank.setGeometry(QtCore.QRect(380, 430, 73, 16))
+        self.checkBox_beam_blank.setObjectName("checkBox_beam_blank")
         self.tabWidget.addTab(self.tab_2, "")
         self.horizontalLayout.addWidget(self.frame_1)
         self.frame = QtWidgets.QFrame(self.centralwidget)
@@ -417,7 +420,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.frame)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1041, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1041, 21))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -441,7 +444,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -509,6 +512,7 @@ class Ui_MainWindow(object):
         self.pushButton_get_image_config.setText(_translate("MainWindow", "Get image config"))
         self.pushButton_set_image_config.setText(_translate("MainWindow", "Set image config"))
         self.pushButton_get_image.setText(_translate("MainWindow", "Get image"))
+        self.checkBox_beam_blank.setText(_translate("MainWindow", "Blank"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Bruker"))
         self.label_measurement_type1.setText(_translate("MainWindow", "TOA"))
         self.label_measurement_type2.setText(_translate("MainWindow", "TOT"))

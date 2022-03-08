@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-path_to_dll = r'F:\SharedData\MCEM Data - Staff Only\Bruker API\Esprit API\Bruker.API.Esprit64.dll'
-#path_to_dll = r'C:\Users\sergeyg\Github\Bruker Nano APIs\Esprit API\Bruker.API.Esprit64.dll'
+#path_to_dll = r'F:\SharedData\MCEM Data - Staff Only\Bruker API\Esprit API\Bruker.API.Esprit64.dll'
+path_to_dll = r'C:\Users\sergeyg\Github\Bruker Nano APIs\Esprit API\Bruker.API.Esprit64.dll'
 #path_to_dll = r'\\ad.monash.edu\home\User002\sergeyg\Desktop\Minipix\Bruker Nano APIs\Esprit API\Bruker.API.Esprit64.dll'
 
 AnsiChar = ctypes.c_char * 8
@@ -137,6 +137,9 @@ class Bruker_Espirit():
         self.CID_ptr = ctypes.pointer(self.CID)  # Pointer to Identification code for an actual server/client instance
 
         self.error_message = ''
+
+        self.beam_x_pos = 0
+        self.beam_y_pos = 0
 
         try:
             self.espirit = ctypes.cdll.LoadLibrary(path_to_dll)
@@ -713,14 +716,14 @@ class Bruker_Espirit():
         # remove the zeros in the extra buffer for image
         self.image = self.image[ : -extra_buffer_for_image]
 
+        if demo:
+            self.image = np.random.randint(0, 255, [self.height.value, self.width.value])
+
         if not demo:
             self.image = np.reshape(self.image, (self.height.value, self.width.value) ) # reshape the 1D array into the image shape
             # plt.figure(11)
             # plt.imshow(self.image[0:self.width.value//3, :], cmap='gray')
             # plt.show()
-
-        if demo:
-            self.image = np.random.randint(0, 255, [self.height.value, self.width.value])
 
 
 
@@ -741,9 +744,19 @@ class Bruker_Espirit():
         if output==0:
             self.error_message = ''
             print(f'Beam position set to ({X.value}, {Y.value})\n')
+            # update the (x,y) beam position coordinates TODO find a function to retrieve the actual beam position
+            self.beam_x_pos = X.value
+            self.beam_y_pos = Y.value
         else:
             self.error_message = f'Could not position the beam to ({X.value}, {Y.value}), ERROR code is {output}, {errors[output]}'
             print( self.error_message + '\n')
+
+
+    def beam_blank(self):
+        # blank the beam by moving it to a far-away pixel such that
+        # it is no longer dwelling on the sample
+        # TODO check pixel limits
+        self.set_beam_to_point(x_pos=3000, y_pos=3000)
 
 
     def set_point_measurement(self, x=0, y=0, dwell_time=2):

@@ -28,6 +28,7 @@ class Detector():
         }
         self.detector_info = ''
 
+
     def initialise(self, type='TPX3'):
         self.full_name = None
         self.width = None
@@ -49,8 +50,10 @@ class Detector():
             print('Detector info: ', self.detector_info)
         return self.detector_info
 
+
     def set_acquisition_mode(self, mode='TOATOT'):
         hardware.set_acquisition_mode(device=self.device, mode=mode)
+
 
     def set_number_of_frames(self, number_of_frames=1):
         if int(number_of_frames) > 0:
@@ -59,6 +62,7 @@ class Detector():
             self.number_of_frames = 1
         print(f'Number of frames set to {self.number_of_frames}')
         hardware.set_number_of_frames(self.device, number_of_frames=self.number_of_frames)
+
 
     def set_integration_time(self, integration_time=0.1):
         if float(integration_time) > 0:
@@ -69,12 +73,14 @@ class Detector():
         print(f'Integration time set to {self.integration_time}')
         hardware.set_integration_time(device=self.device, integration_time=integration_time)
 
+
     def set_threshold_energy(self, energy_threshold_keV=2.0):  # TODO check the maximum threshold energy, perhaps available from the device readout
         if not self.demo:
             hardware.set_threshold_energy(device=self.device, energy_threshold_keV=energy_threshold_keV)
         else:
             print(f'Energy threshold = {energy_threshold_keV} keV')
         # device.setThreshold(0, 5, pixet.PX_THLFLAG_ENERGY) FLAG energy in keV seems to be "2"
+
 
     def get_temperature(self):
         if not self.demo:
@@ -83,6 +89,7 @@ class Detector():
             temperature = 278.15
         print(f'Temperature = {temperature} C')
         return temperature
+
 
     def setup_acquisition(self, mode, number_of_frames, integration_time, energy_threshold_keV):
         self.set_acquisition_mode(mode=mode)
@@ -94,7 +101,7 @@ class Detector():
     def acquire(self, mode, file_name=''):
         print(' detection: acquire: mode =  ', mode )
 
-        if not self.demo: # data from the detector
+        if not self.demo: # data from the detector, not simulated data
             print('detection: filename = ', file_name)
             data = hardware.acquire(device=self.device,
                                     number_of_frames=self.number_of_frames,

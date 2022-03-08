@@ -62,6 +62,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_get_image_config.clicked.connect(lambda: self.get_image_configuration())
         self.pushButton_set_image_config.clicked.connect(lambda: self.set_image_configuration())
         self.pushButton_get_image.clicked.connect(lambda: self.get_sem_image())
+        self.checkBox_beam_blank.stateChanged.connect(lambda: self.beam_blank())
 
 
     def open_sem_client(self):
@@ -109,14 +110,31 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
     def set_to_external_mode(self):
         _state = self.checkBox_external_scan.isChecked()
         if _state == True:
+            print('setting SEM to external mode')
+            self.bruker.set_sem_to_external_mode(external=True)
             self.bruker.set_external_scan_mode(external=True)
         else:
+            print('setting SEM to internal mode')
+            self.bruker.set_sem_to_external_mode(external=False)
             self.bruker.set_external_scan_mode(external=False)
         self.label_messages.setText(self.bruker.error_message)
 
 
+    def beam_blank(self):
+        _state = self.checkBox_beam_blank.isChecked()
+        if _state == True:
+            print('blanking the beam by moving it far away')
+            self.bruker.beam_blank()
+        else:
+            print('moving the beam from blank position to the previously stored x,y point')
+            self.bruker.set_beam_to_point(x_pos=self.bruker.beam_x_pos, y_pos=self.bruker.beam_y_pos)
+        self.label_messages.setText(self.bruker.error_message)
+
+
     def update_sem_state(self):
+        # get all the possible sem data and copy the result to the corresponding slots in GUI
         self.bruker.get_sem_data()
+
         self.label_messages.setText(self.bruker.error_message)
         self.bruker.get_sem_brightness_and_contrast()
         self.label_messages.setText(self.bruker.error_message)
@@ -138,6 +156,8 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.label_messages.setText(self.bruker.error_message)
         print(self.bruker.Info)
         print(self.bruker.capabilities)
+
+
 
 
     def select_directory(self):
@@ -343,4 +363,4 @@ def main(demo):
 
 
 if __name__ == '__main__':
-    main(demo=True)
+    main(demo=False)

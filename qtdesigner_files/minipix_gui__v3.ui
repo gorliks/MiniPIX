@@ -1260,6 +1260,19 @@
           <string>Get image</string>
          </property>
         </widget>
+        <widget class="QCheckBox" name="checkBox_beam_blank">
+         <property name="geometry">
+          <rect>
+           <x>380</x>
+           <y>430</y>
+           <width>73</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Blank</string>
+         </property>
+        </widget>
        </widget>
       </widget>
      </widget>
@@ -1442,7 +1455,7 @@
      <x>0</x>
      <y>0</y>
      <width>1041</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

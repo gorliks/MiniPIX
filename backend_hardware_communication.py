@@ -10,6 +10,7 @@ def send_message_to_server(message):
     response = client.get_response()
     return response
 
+
 def initialise(device):
     # hardware
     # full_name = device.fullName()
@@ -24,6 +25,7 @@ def initialise(device):
     message = "info?"
     detector_info = send_message_to_server(message)
     return detector_info
+
 
 def set_acquisition_mode(device, mode='TOATOT'):
     if mode == 'TOATOT' or mode == 'TOA & TOT':
@@ -68,9 +70,11 @@ def set_number_of_frames(device, number_of_frames=1):
     message = "number_of_frames=" + str(number_of_frames)
     response = send_message_to_server(message)
 
+
 def set_integration_time(device, integration_time=0.1):
     message = "integration_time=" + str(integration_time)
     response = send_message_to_server(message)
+
 
 def set_threshold_energy(device, energy_threshold_keV=2.0):
     #hardware option
@@ -79,6 +83,7 @@ def set_threshold_energy(device, energy_threshold_keV=2.0):
     #
     message = "energy_threshold_keV=" + str(energy_threshold_keV)
     response = send_message_to_server(message)
+
 
 def get_temperature(device):
     message = "temperature?"
@@ -110,20 +115,19 @@ def acquire(device, number_of_frames=1, integration_time=0.1, file_name=''):
         DATA[mode] = data # either np.array or None
     return DATA
     #
-    #
-    #hardware
-    #rc = self.device.doSimpleAcquisition(number_of_frames,
+    # #hardware
+    # rc = self.device.doSimpleAcquisition(number_of_frames,
     #                                     integration_time,
     #                                     pixet.PX_FTYPE_AUTODETECT,
     #                                     file_name)
-    #acqCount = self.device.acqFrameCount()  # number of measured acquisitions (frames)
-    #for index in range(acqCount):
+    # acqCount = self.device.acqFrameCount()  # number of measured acquisitions (frames)
+    # for index in range(acqCount):
     #   frame = self.device.acqFrameRefInc(index)  # get frame with index from last acquisition series
     #   # get frame data to python array/list:
     #   data = frame.data()
     #   data = np.array(data)
     #   data = data.reshape((256, 256))
-    #return data
+    # return data
 
 
 

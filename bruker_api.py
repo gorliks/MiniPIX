@@ -25,6 +25,19 @@ path_to_dll = r'C:\Users\sergeyg\Github\Bruker Nano APIs\Device API\Sample\Bruke
 #     ]
 
 
+errors = {-1 : 'ERROR_UNSPECIFIED',
+         -2 : 'ERROR_WRONG_PARAMETER',
+         -3 : 'ERROR_DEVICE_NOT_INITIALIZED',
+         -4 : 'ERROR_DSP_ERROR',
+         -5 : 'ERROR_BUFFER_TOO_SMALL',
+         -6 : 'ERROR_SCAN_ACTIVE',
+         -7 : 'ERROR_INVALID_MEMORYBLOCK',
+         -8 : 'ERROR_BUFFER_OVERFLOW',
+         -9 : 'ERROR_LOG_NOT_AVAILABLE',
+         -10 : 'ERROR_FILE_NOT_EXISTS'
+}
+
+
 # Specifies a position inside image. Type is used to set or get a beam position.
 class TPoint(ctypes.Structure):
     _pack_ = 1
@@ -36,6 +49,7 @@ class TPoint(ctypes.Structure):
 
 ##############################################################################
 ##############################################################################
+
 
 class TLineSegment(ctypes.Structure):
     # TLineSegment     = packed record
@@ -66,6 +80,7 @@ class TWordPoint(ctypes.Structure):
         ('Y', ctypes.c_ushort)
     ]
 
+
 TWordPointArray = TWordPoint * 16382
 PWordPointArray = ctypes.POINTER(TWordPointArray)
 
@@ -89,7 +104,6 @@ def create_point_array(coordinates):
         y = coordinates[ii][1]
         points[ii].X = x
         points[ii].Y = y
-    #
     return points
 
 
@@ -112,6 +126,7 @@ def create_rectangle(x0, y0, x1, y1):
     return coordinates
 
 
+
 class Bruker():
     def __init__(self, path_to_dll):
         self.path_to_dll = path_to_dll
@@ -121,6 +136,7 @@ class Bruker():
         except:
             print(f'path to dll {path_to_dll} does not exist')
 
+
     def initialise(self):
         output = self.bruker.InitializeIOScan()  # establishes connection between IOScan device and user program.
         if output == 0:
@@ -128,6 +144,7 @@ class Bruker():
             print('Connection to Bruker API established')
         else:
             print('Connection failed')
+
 
     def get_image_configuration_properties(self):
         # ImageWidth,
@@ -142,6 +159,7 @@ class Bruker():
         # Tilt: TValueDescription;
         output = self.bruker.ImageGetConfigurationProperties()
         return output
+
 
     def get_image_configuration(self):
         output = self.bruker.ImageGetConfiguration()
@@ -184,15 +202,18 @@ class Bruker():
                                                    counter_mode=counter_mode, pixel_time=pixel_time)
         print(output)
 
+
     def set_point(self, x=10, y=20):
         # set beam position
         point = TPoint(x, y)
         output = self.bruker.ImageSetPoint(point)
         print(f'setting point ({x}, {y}) output=', output)
 
+
     def get_point(self):
         point = self.bruker.ImageGetPoint()
         print('point set to ', point)
+
 
     def set_points_list(self, coordinates):
         # set list of beam positions
@@ -200,6 +221,7 @@ class Bruker():
         points = create_point_array(coordinates)
         output = self.bruker.ImageSetPointList(N, points)
         print(output, '; setiing an array of points coordinates')
+
 
     def set_scan_mode(self, type='set_point'):
         # 0 = normal image scan
@@ -218,6 +240,7 @@ class Bruker():
             output = self.bruker.ImageSetAcquisitionMode(0)
             print(output, '; Error in scanning mode settings, setting to nornal mode')
 
+
     def get_scan_mode(self):
         # 0 = normal image scan
         # 1 = ‘SetPoint’ is used to change scan position
@@ -225,9 +248,11 @@ class Bruker():
         output = self.ImageGetAcquisitionMode()
         print('Acquisition mode = ', output)
 
+
     def start_scan(self):
         output = self.bruker.ImageStart()
         print(output, '; scan started')
+
 
     def stop_scan(self, stop_position=0):
         # determines where to stop the scan:
@@ -237,6 +262,7 @@ class Bruker():
         output = self.bruker.ImageStop(stop_position)
         print(output, '; scan stopped')
 
+
     def get_scan_state(self):
         # current scan state:
         # 0 = scan stopped
@@ -245,15 +271,18 @@ class Bruker():
         output = self.bruker.ImageGetState()
         print('current scan state = ', output)
 
+
     def set_SEM_to_external_mode(self, external=False):
         # true: set SEM to external scan
         # false: set SEM to internal scan
         output = self.bruker.ImageSetSEMExternMode(external)
         print(output, '; setting external SEM mode to ', str(external))
 
+
     def get_SEM_external_mode(self):
         output = self.bruker.ImageGetSEMExternMode()
         print(output, '; SEM mode is set to ', output)
+
 
     def get_line_data(self, Y, line_length=256):
         # PixelPtr	   : TWordArray;
@@ -262,7 +291,6 @@ class Bruker():
         # const Segment: TLineSegment;        # Segment to read data for
         # LineBuffer: PWordArray;             # Data buffer for line data
         # var Line Counter: DWord): integer;  # number of line scans for that line
-
         channel = 1
         # line_segment = TSegment(Y, 0,line_length)  # Segment to read data for
         line_segment = TLineSegment(Y, 0, line_length)  # Segment to read data for

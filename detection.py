@@ -6,6 +6,7 @@ import datetime
 # path_to_pixet = r'C:\Program Files\PIXet Pro'
 # sys.path.append(path_to_pixet)
 # import pypixet
+# pypixet.start()
 # pixet = pypixet.pixet
 # print( pixet.pixetVersion() )
 
@@ -17,7 +18,6 @@ class Detector():
         self.devices = []
         self.device = None
         self.path_to_pixet = r'C:\Program Files\PIXet Pro'
-        self.dictionary_of_settings = {'mode' : 'TOATOT'}
         self.demo = demo
         self.initialised = False
         self.settings = {
@@ -29,15 +29,26 @@ class Detector():
         self.detector_info = ''
 
 
-    def initialise(self, type='TPX3'):
+    def initialise(self):
         self.full_name = None
         self.width = None
         self.pixel_count = None
         self.chip_count = None
         self.chip_id = None
-        if not self.demo:
-            self.detector_info = hardware.initialise(device=self.device)
+
+        if self.demo == False:
+            # hardware
+            # get all connected devices
+            self.devices = hardware.initialise(path_to_pixet=self.path_to_pixet)
+            # select the fist connected device
+            self.device = self.devices[0]
+            if self.device:
+                self.initialised = True
+            self.detector_info = hardware.get_detector_info(self.device)
+            print(self.detector_info)
+
         else:
+            # demo mode
             print('Demo mode, no detector connected')
             print('Device full name:', self.full_name)
             print('Width x height  :', self.width, ' x ', self.width)
@@ -48,11 +59,13 @@ class Detector():
                     'chip_count': self.chip_count, 'chip_id': self.chip_id}
             print('Initialised to ', self.demo, 'mode')
             print('Detector info: ', self.detector_info)
+
         return self.detector_info
 
 
     def set_acquisition_mode(self, mode='TOATOT'):
         hardware.set_acquisition_mode(device=self.device, mode=mode)
+        self.settings['mode'] = mode
 
 
     def set_number_of_frames(self, number_of_frames=1):
@@ -62,6 +75,9 @@ class Detector():
             self.number_of_frames = 1
         print(f'Number of frames set to {self.number_of_frames}')
         hardware.set_number_of_frames(self.device, number_of_frames=self.number_of_frames)
+        #
+        # update settings library
+        self.settings['number_of_frames'] = self.number_of_frames
 
 
     def set_integration_time(self, integration_time=0.1):
@@ -72,9 +88,12 @@ class Detector():
             self.integration_time = 0.1
         print(f'Integration time set to {self.integration_time}')
         hardware.set_integration_time(device=self.device, integration_time=integration_time)
+        # update settings library
+        self.settings['integration_time'] = self.integration_time
 
 
-    def set_threshold_energy(self, energy_threshold_keV=2.0):  # TODO check the maximum threshold energy, perhaps available from the device readout
+    def set_threshold_energy(self, energy_threshold_keV=2.0):
+        # TODO check the maximum threshold energy, perhaps available from the device readout
         if not self.demo:
             hardware.set_threshold_energy(device=self.device, energy_threshold_keV=energy_threshold_keV)
         else:
@@ -100,14 +119,15 @@ class Detector():
 
     def acquire(self, mode, file_name=''):
         print(' detection: acquire: mode =  ', mode )
-
+        #
         if not self.demo: # data from the detector, not simulated data
-            print('detection: filename = ', file_name)
+            print('detection filename = ', file_name)
             data = hardware.acquire(device=self.device,
                                     number_of_frames=self.number_of_frames,
                                     integration_time=self.integration_time,
                                     file_name=file_name)
 
+        #
         else: # simulated data,
             modes = ['TOA',      'TOT',       'EVENT',       'iTOT']
             data = {'TOA': None, 'TOT': None, 'EVENT': None, 'iTOT': None}

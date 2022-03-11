@@ -21,10 +21,13 @@ def parse_command(command):
 def convert_dictionary_string_to_dictionary(dictionary_string):
     return json.loads(dictionary_string)
 
+
 def read_data_file(file_name):
+    file_name = file_name.replace('\\', '/')
     if os.path.isfile(file_name):
         data = np.loadtxt(  file_name  )
     else:
+        print('file not found')
         data = None
     return data
 

@@ -224,9 +224,9 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         print(self.DIR, save_dir)
 
         if file_name:
-            file_name = save_dir + '/' + file_name + '_' + stamp + '.pmf'
+            file_name = save_dir + '/' + file_name + '_' + stamp
         else:
-            file_name = save_dir + '/' + stamp + '.pmf'
+            file_name = save_dir + '/' + stamp
         print(file_name)
 
         self.integration_time = self.device.integration_time    # TODO update device state in settings self.device.settings['integration_time']

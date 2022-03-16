@@ -4,6 +4,8 @@ from PyQt5.QtCore import QObject, QThread, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtWidgets import QFileDialog
 import qimage2ndarray
 
+from importlib import reload  # Python 3.4+
+
 import sys, time, os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -54,6 +56,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_check_temperature.clicked.connect(lambda: self.update_temperature())
         self.pushButton_collect_stack.clicked.connect(lambda: self.collect_stack())
         self.pushButton_abort_stack_collection.clicked.connect(lambda: self._abort_clicked())
+        self.pushButton_initialise_detector.clicked.connect(lambda: self.initialise_detector())
         #### SEM
         self.pushButton_open_client.clicked.connect(lambda: self.open_sem_client())
         self.pushButton_update_SEM_state.clicked.connect(lambda: self.update_sem_state())
@@ -68,6 +71,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
     def open_sem_client(self):
         self.bruker.initialise(type='direct') #check which type works
         self.label_messages.setText(self.bruker.error_message)
+
 
     def get_image_configuration(self):
         self.bruker.get_image_configuration()
@@ -182,6 +186,13 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.bruker = SEM.Bruker_Espirit()
 
 
+    def initialise_detector(self):
+        reload(detection)
+        self.device = detection.Detector(demo=self.demo)
+        detector_info = self.device.initialise()
+        self.label_messages.setText(str(detector_info))
+
+
     def update_temperature(self):
         if not self.demo:
             temperature = self.device.get_temperature()
@@ -192,11 +203,13 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
     def setup_acquisition(self):
         print('setting the acquisition parameters')
+        type = self.comboBox_type_of_measurement.currentText()
         mode = self.comboBox_mode_of_measurement.currentText()
         number_of_frames = self.spinBox_number_of_frames.value()
         integration_time = self.spinBox_integration_time.value()
         energy_threshold_keV = self.spinBox_energy_threshold.value()
-        self.device.setup_acquisition(mode=mode,
+        self.device.setup_acquisition(type=type,
+                                      mode=mode,
                                       number_of_frames=number_of_frames,
                                       integration_time=integration_time,
                                       energy_threshold_keV=energy_threshold_keV)
@@ -238,15 +251,26 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         # worker.signals.progress.connect(self._update_progress_bar)
         # self.threadpool.start(worker) # Execute
         ################################################################
+        self.pushButton_acquire.setEnabled(False)
+        self.pushButton_setup_acquisition.setEnabled(False)
+        self.pushButton_check_temperature.setEnabled(False)
+        self.repaint()  # update the GUI to show the progress
 
         self.data = \
             self.device.acquire(file_name=file_name,
+                                        type=self.comboBox_type_of_measurement.currentText(),
                                         mode=self.comboBox_mode_of_measurement.currentText())
+
+        self.pushButton_acquire.setEnabled(True)
+        self.pushButton_setup_acquisition.setEnabled(True)
+        self.pushButton_check_temperature.setEnabled(True)
+        self.repaint()  # update the GUI to show the progress
 
         for count, mode in enumerate(self.supported_modes):
             _image_by_mode = self.data[mode]
             if type(_image_by_mode) == np.ndarray:
                 self.update_image(quadrant=count, image=_image_by_mode)
+
         return self.data
 
 

@@ -3,6 +3,9 @@ import numpy as np
 import backend_hardware_communication as hardware
 import datetime
 
+from importlib import reload  # Python 3.4+
+reload(hardware)
+
 # path_to_pixet = r'C:\Program Files\PIXet Pro'
 # sys.path.append(path_to_pixet)
 # import pypixet
@@ -21,6 +24,7 @@ class Detector():
         self.demo = demo
         self.initialised = False
         self.settings = {
+            'type' : 'Frames',
             'mode' : 'TOATOT',
             'number_of_frames' : 1,
             'integration_time' : 1.0,
@@ -42,9 +46,15 @@ class Detector():
             self.devices = hardware.initialise(path_to_pixet=self.path_to_pixet)
             # select the fist connected device
             self.device = self.devices[0]
-            if self.device:
+            print('detection: device = ', self.device)
+            if self.device == 'no device connected':
+                self.initialised = False
+                self.detector_info = {'full_name': 'None', 'width': 'None',
+                                 'pixel_count': 'None', 'chip_count': 'None',
+                                 'chip_id': 'None'}
+            elif self.device:
                 self.initialised = True
-            self.detector_info = hardware.get_detector_info(self.device)
+                self.detector_info = hardware.get_detector_info(self.device)
             print(self.detector_info)
 
         else:
@@ -61,6 +71,11 @@ class Detector():
             print('Detector info: ', self.detector_info)
 
         return self.detector_info
+
+
+    def set_acquisition_type(self, type='Frames'):
+        hardware.set_acquisition_type(device=self.device, type=type)
+        self.settings['type'] = type
 
 
     def set_acquisition_mode(self, mode='TOATOT'):
@@ -104,21 +119,23 @@ class Detector():
     def get_temperature(self):
         if not self.demo:
             temperature = hardware.get_temperature(device=self.device)
+            temperature = round(temperature, 2)
         else:
             temperature = 278.15
         print(f'Temperature = {temperature} C')
         return temperature
 
 
-    def setup_acquisition(self, mode, number_of_frames, integration_time, energy_threshold_keV):
+    def setup_acquisition(self, type, mode, number_of_frames, integration_time, energy_threshold_keV):
+        self.set_acquisition_type(type=type)
         self.set_acquisition_mode(mode=mode)
         self.set_number_of_frames(number_of_frames=number_of_frames)
         self.set_integration_time(integration_time=integration_time)
         self.set_threshold_energy(energy_threshold_keV=energy_threshold_keV)
 
 
-    def acquire(self, mode, file_name=''):
-        print(' detection: acquire: mode =  ', mode )
+    def acquire(self, type, mode, file_name=''):
+        print('detection: acquire: mode =  ', mode)
         #
         if not self.demo: # data from the detector, not simulated data
             print('detection filename = ', file_name)
@@ -129,6 +146,7 @@ class Detector():
 
         #
         else: # simulated data,
+            types = ['Frames', 'Pixels', 'Test pulses']
             modes = ['TOA',      'TOT',       'EVENT',       'iTOT']
             data = {'TOA': None, 'TOT': None, 'EVENT': None, 'iTOT': None}
             print('demo mode, waiting for ', self.integration_time)

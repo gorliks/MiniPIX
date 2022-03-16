@@ -7,7 +7,7 @@ type_of_communication = 'hardware'
 # type_of_communication = 'localhost'
 # type_of_communication = 'demo'
 
-
+# global, need pixet for e.g. mode definitions, pixet.PX_TPX3_OPM_TOATOT
 path_to_pixet = r'C:\Program Files\PIXet Pro'
 sys.path.append(path_to_pixet)
 import pypixet
@@ -29,8 +29,10 @@ def initialise(path_to_pixet):
         pixet = pypixet.pixet
         print( pixet.pixetVersion() )
         devices = pixet.devicesByType(pixet.PX_DEVTYPE_TPX3)
-        if not devices:
-            raise "No devices connected"
+        print('low level: devices = ', devices)
+        if devices == []:
+            print('No device connected')
+            devices = ['no device connected']
     #
     elif type_of_communication == 'localhost':
         devices=[0,1,3]
@@ -55,6 +57,17 @@ def get_detector_info(device):
             send_message_to_server(message)
     #
     return detector_info
+
+
+def set_acquisition_type(device, type='Frames'):
+    if type=='Frames':
+        acquision_type = pixet.PX_ACQTYPE_FRAMES
+    if type=='Test pulses':
+        acquision_type = pixet.PX_ACQTYPE_TESTPULSES
+    else:
+        acquision_type = pixet.PX_ACQTYPE_FRAMES
+    print('setting acquisition type to ', type, 'pixet = ', acquision_type)
+    return acquision_type
 
 
 def set_acquisition_mode(device, mode='TOATOT'):
@@ -152,7 +165,7 @@ def acquire(device, number_of_frames=1, integration_time=0.1, file_name=''):
                                             integration_time,
                                             pixet.PX_FTYPE_AUTODETECT,
                                             file_name)
-        # each frames is saved into a file after acquisition
+        #  frames are saved into a file after acquisition
         acqCount = device.acqFrameCount()  # number of measured acquisitions (frames)
         integrated_frame = np.zeros( (256, 256) )
         for index in range(acqCount):
@@ -172,8 +185,7 @@ def acquire(device, number_of_frames=1, integration_time=0.1, file_name=''):
             # if the file is not found, the image data will be None in the returned dictionary
             # when trying to plot the data, if None, the gui will skip the plotting
             print(file_name_template + '_' + mode + '.pmf')
-            data = utils.read_data_file( file_name_template + '_' + mode + '.pmf' )
-            print(data)
+            data = utils.read_data_file(file_name_template + '_' + mode + '.pmf' )
             DATA[mode] = data # either np.array or None
 
     elif type_of_communication == 'localhost':

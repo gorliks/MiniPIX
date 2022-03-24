@@ -74,12 +74,20 @@ class Detector():
 
 
     def set_acquisition_type(self, type='Frames'):
-        hardware.set_acquisition_type(device=self.device, type=type)
+        if not self.demo:
+            hardware.set_acquisition_type(device=self.device,
+                                          type=type)
+        else:
+            print(f'demo mode, acquisition mode = {type}')
         self.settings['type'] = type
 
 
     def set_acquisition_mode(self, mode='TOATOT'):
-        hardware.set_acquisition_mode(device=self.device, mode=mode)
+        if not self.demo:
+            hardware.set_acquisition_mode(device=self.device,
+                                          mode=mode)
+        else:
+            print(f'demo mode, acquisition mode = {mode}')
         self.settings['mode'] = mode
 
 
@@ -89,7 +97,12 @@ class Detector():
         else:
             self.number_of_frames = 1
         print(f'Number of frames set to {self.number_of_frames}')
-        hardware.set_number_of_frames(self.device, number_of_frames=self.number_of_frames)
+
+        if not self.demo:
+            hardware.set_number_of_frames(self.device,
+                                          number_of_frames=self.number_of_frames)
+        else:
+            print(f'demo mode, number of frames = {number_of_frames}')
         #
         # update settings library
         self.settings['number_of_frames'] = self.number_of_frames
@@ -102,18 +115,26 @@ class Detector():
             print('Wrong setting of integration time, setting to 0.1 sec')
             self.integration_time = 0.1
         print(f'Integration time set to {self.integration_time}')
-        hardware.set_integration_time(device=self.device, integration_time=integration_time)
+
+        if not self.demo:
+            hardware.set_integration_time(device=self.device,
+                                          integration_time=integration_time)
+        else:
+            print(f'demo mode, integration time = {integration_time}')
         # update settings library
         self.settings['integration_time'] = self.integration_time
 
 
     def set_threshold_energy(self, energy_threshold_keV=2.0):
         # TODO check the maximum threshold energy, perhaps available from the device readout
+        self.energy_threshold = energy_threshold_keV
         if not self.demo:
-            hardware.set_threshold_energy(device=self.device, energy_threshold_keV=energy_threshold_keV)
+            hardware.set_threshold_energy(device=self.device,
+                                          energy_threshold_keV=energy_threshold_keV)
+            # device.setThreshold(0, 5, pixet.PX_THLFLAG_ENERGY) FLAG energy in keV seems to be "2"
         else:
-            print(f'Energy threshold = {energy_threshold_keV} keV')
-        # device.setThreshold(0, 5, pixet.PX_THLFLAG_ENERGY) FLAG energy in keV seems to be "2"
+            print(f'demo mode, Energy threshold = {energy_threshold_keV} keV')
+        self.settings['energy_threshold_keV'] = self.energy_threshold
 
 
     def get_temperature(self):

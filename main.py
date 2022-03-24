@@ -46,6 +46,8 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_abort_stack_collection.setEnabled(False)
         self._abort_clicked_status = False
 
+        self.data_in_quadrant = [ [], [], [], []  ]
+
 
     def setup_connections(self):
         self.label_demo_mode.setText('demo mode: ' + str(self.demo))
@@ -57,6 +59,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_collect_stack.clicked.connect(lambda: self.collect_stack())
         self.pushButton_abort_stack_collection.clicked.connect(lambda: self._abort_clicked())
         self.pushButton_initialise_detector.clicked.connect(lambda: self.initialise_detector())
+        self.comboBox_image_log_scale.currentIndexChanged.connect( lambda: self.change_image_scale())
         #### SEM
         self.pushButton_open_client.clicked.connect(lambda: self.open_sem_client())
         self.pushButton_update_SEM_state.clicked.connect(lambda: self.update_sem_state())
@@ -191,6 +194,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.device = detection.Detector(demo=self.demo)
         detector_info = self.device.initialise()
         self.label_messages.setText(str(detector_info))
+        self.pushButton_initialise_detector.setStyleSheet("background-color: green")
 
 
     def update_temperature(self):
@@ -270,6 +274,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             _image_by_mode = self.data[mode]
             if type(_image_by_mode) == np.ndarray:
                 self.update_image(quadrant=count, image=_image_by_mode)
+                self.data_in_quadrant[count] = _image_by_mode # keep the last measurement in memory
 
         return self.data
 
@@ -281,6 +286,22 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             self.label_image_frames[quadrant].setPixmap(QtGui.QPixmap(image_to_display))
         else:
             self.label_image_frames[0].setText('No image acquired')
+
+
+    def change_image_scale(self):
+        _type = self.comboBox_image_log_scale.currentText()
+        print('image scale lin/log ->', _type)
+        if _type == 'Logarithm':
+            print('LOG')
+            for count, mode in enumerate(self.supported_modes):
+                if type(self.data_in_quadrant[count]) == np.ndarray:
+                    _image_log = np.log(self.data_in_quadrant[count]+1)
+                    self.update_image(quadrant=count, image=_image_log)
+        else:
+            print('LIN')
+            for count, mode in enumerate(self.supported_modes):
+                self.update_image(quadrant=count, image=(self.data_in_quadrant[count]))
+
 
 
     def collect_stack(self):
@@ -317,7 +338,10 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
                     file_name = '%06d_'%pixel_counter + str(ii) + '_' + str(jj)
 
+                    self.bruker.set_beam_to_point(x_pos=ii, y_pos=jj)
                     self.data = self.get_data(save_dir=self.stack_dir, file_name=file_name)
+                    self.bruker.beam_blank()
+
 
                     self.storage.stack.data[ii][jj] = self.data['TOA']  # populate the stack
                     self.repaint()  # update the GUI to show the progress
@@ -387,4 +411,4 @@ def main(demo):
 
 
 if __name__ == '__main__':
-    main(demo=False)
+    main(demo=True)

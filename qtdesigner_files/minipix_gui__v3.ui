@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1041</width>
-    <height>867</height>
+    <width>1050</width>
+    <height>810</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1540,6 +1540,26 @@
         <string/>
        </property>
       </widget>
+      <widget class="QComboBox" name="comboBox_image_log_scale">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>580</y>
+         <width>111</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>Linear</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Logarithm</string>
+        </property>
+       </item>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -1549,7 +1569,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1041</width>
+     <width>1050</width>
      <height>26</height>
     </rect>
    </property>

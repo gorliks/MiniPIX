@@ -28,20 +28,25 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         super(GUIMainWindow, self).__init__()
         self.setupUi(self)
         self.setup_connections()
-        self.storage = storage.Storage()  # initialise container for data strorage and handling
         self.initialise_hardware()
         self.client = localhost.LocalHostClient()  # initialise communication with the localhost/client/server
         self.DIR = None
+
         self.supported_modes = ['TOA', 'TOT', 'EVENT', 'iTOT']
+        self.storage_dict = dict.fromkeys(self.supported_modes) # initialise the dictionary for data sorted by modes
+        for supported_mode in self.supported_modes:
+            self.storage_dict[supported_mode] = storage.Storage()  # initialise container for data storage and handling
+
         self.label_image_frames = [self.label_image_frame1, self.label_image_frame2,
                                    self.label_image_frame3, self.label_image_frame4]
 
-        self.threadpool = QThreadPool()
-        print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
-        self.timer = QTimer()
-        self.timer.setInterval(1000) #1 s intervals
-        self.timer.timeout.connect(self._time_counter)
-        self.timer.start()
+        # timer on a separate thread
+        # self.threadpool = QThreadPool()
+        # print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
+        # self.timer = QTimer()
+        # self.timer.setInterval(1000) #1 s intervals
+        # self.timer.timeout.connect(self._time_counter)
+        # self.timer.start()
 
         self.pushButton_abort_stack_collection.setEnabled(False)
         self._abort_clicked_status = False
@@ -69,10 +74,12 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_set_image_config.clicked.connect(lambda: self.set_image_configuration())
         self.pushButton_get_image.clicked.connect(lambda: self.get_sem_image())
         self.checkBox_beam_blank.stateChanged.connect(lambda: self.beam_blank())
+        self.pushButton_set_beam_position.clicked.connect(lambda: self.set_beam_to_position())
 
 
     def open_sem_client(self):
         self.bruker.initialise(type='direct') #check which type works
+        self.spinBox_CID.setValue(int(self.bruker.CID.value))
         self.label_messages.setText(self.bruker.error_message)
 
 
@@ -90,6 +97,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
     def get_sem_image(self):
         self.bruker.acquire_image(demo=self.demo)
+        self.label_messages.setText(self.bruker.error_message)
         utils.select_point(self.bruker.image)
 
 
@@ -112,6 +120,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.doubleSpinBox_stage_z.setValue(self.bruker.z_pos.value)
         self.doubleSpinBox_stage_t.setValue(self.bruker.t_pos.value)
         self.doubleSpinBox_stage_r.setValue(self.bruker.r_pos.value)
+        self.label_messages.setText(self.bruker.error_message)
 
 
     def set_to_external_mode(self):
@@ -163,6 +172,18 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.label_messages.setText(self.bruker.error_message)
         print(self.bruker.Info)
         print(self.bruker.capabilities)
+
+
+    def set_beam_to_position(self):
+        x_pos = self.spinBox_beam_x.value()
+        y_pos = self.spinBox_beam_y.value()
+        print(f'Move beam to ({x_pos}, {y_pos}) setting SEM to external mode')
+        self.bruker.set_sem_to_external_mode(external=True)
+        self.label_messages.setText(self.bruker.error_message)
+        self.bruker.set_external_scan_mode(external=True)
+        self.label_messages.setText(self.bruker.error_message)
+        self.bruker.set_beam_to_point(x_pos=x_pos, y_pos=y_pos)
+        self.label_messages.setText(self.bruker.error_message)
 
 
 
@@ -217,7 +238,16 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                                       number_of_frames=number_of_frames,
                                       integration_time=integration_time,
                                       energy_threshold_keV=energy_threshold_keV)
-
+        self.active_modes = dict.fromkeys(self.supported_modes) # initialise the dictionary for data sorted by modes
+        self.active_modes = dict.fromkeys(self.active_modes, False) # initialise the modes to False
+        if mode == 'TOATOT' or mode == 'TOA & TOT':
+            self.active_modes['TOA'] = True
+            self.active_modes['TOT'] = True
+        elif mode == 'TOA':
+            self.active_modes['TOA'] = True
+        elif mode == 'EVENT_iTOT':
+            self.active_modes['EVENT'] = True
+            self.active_modes['iTOT']  = True
 
 
     def single_acquisition(self):
@@ -316,14 +346,16 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         stack_i = self.spinBox_scan_pixels_i.value()  # scan over sample, no. pixels along X
         stack_j = self.spinBox_scan_pixels_j.value()  # scan over sample, no. pixels along Y
 
-        self.storage.initialise(i=stack_i, j=stack_j, Nx=256, Ny=256)  # TODO detector image Nx,Ny settings more generic
+        # reinitialise the data storage
+        for supported_mode in self.supported_modes:
+            self.storage_dict[supported_mode] = storage.Storage()  # initialise container for data storage and handling
+            if self.active_modes[supported_mode] == True: # check if the mode is activated
+                self.storage_dict[supported_mode].initialise(i=stack_i, j=stack_j, Nx=256, Ny=256)  # TODO detector image Nx,Ny settings more generic
 
         if self.DIR:
             self.stack_dir = self.DIR + '/stack_' + self.sample_id + '_' + stamp
         else:
-            # self.stack_dir = 'C:/TEMP/' + self.sample_id + '_' + stamp
             self.stack_dir = os.getcwd() + '/stack_' + self.sample_id + '_' + stamp
-
 
         # the loop will check if abort button is clicked by checking QtWidgets.QApplication.processEvents()
         # if the abort button was clicked, _return_ will break the _run_loop
@@ -342,10 +374,15 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                     self.data = self.get_data(save_dir=self.stack_dir, file_name=file_name)
                     self.bruker.beam_blank()
 
+                    for supported_mode in self.supported_modes:
+                        # self.storage.stack.data[ii][jj] = self.data['TOA']  # populate the stack
+                        if self.active_modes[supported_mode] == True:
+                            self.storage_dict[supported_mode].stack.data[ii][jj] = \
+                                self.data[supported_mode]
 
-                    self.storage.stack.data[ii][jj] = self.data['TOA']  # populate the stack
                     self.repaint()  # update the GUI to show the progress
                     QtWidgets.QApplication.processEvents()
+
                     if self._abort_clicked_status == True:
                         print('Abort clicked')
                         self._abort_clicked_status = False  # reinitialise back to False
@@ -354,7 +391,12 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
         _run_loop()
 
-        self.storage.stack.plot() # plot the acquired stack using hyperspy's library
+        for supported_mode in self.supported_modes:
+            # self.storage.stack.plot() # plot the acquired stack using hyperspy's library
+            if self.active_modes[supported_mode] == True:
+                self.storage_dict[supported_mode].stack.plot()
+                plt.title(supported_mode)
+
         plt.show()
 
         self.pushButton_acquire.setEnabled(True)

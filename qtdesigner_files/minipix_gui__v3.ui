@@ -66,7 +66,7 @@
          <x>10</x>
          <y>704</y>
          <width>121</width>
-         <height>40</height>
+         <height>31</height>
         </rect>
        </property>
        <property name="plainText">
@@ -77,7 +77,7 @@
        <property name="geometry">
         <rect>
          <x>140</x>
-         <y>710</y>
+         <y>705</y>
          <width>93</width>
          <height>28</height>
         </rect>
@@ -142,14 +142,14 @@
          <x>5</x>
          <y>0</y>
          <width>440</width>
-         <height>571</height>
+         <height>611</height>
         </rect>
        </property>
        <property name="layoutDirection">
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -232,11 +232,6 @@
          <item>
           <property name="text">
            <string>EVENT_iTOT</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>TOT_not_TOA</string>
           </property>
          </item>
         </widget>
@@ -604,7 +599,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>510</y>
+           <y>550</y>
            <width>110</width>
            <height>28</height>
           </rect>
@@ -974,7 +969,7 @@
           <rect>
            <x>10</x>
            <y>350</y>
-           <width>171</width>
+           <width>175</width>
            <height>24</height>
           </rect>
          </property>
@@ -1142,7 +1137,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>410</y>
+           <y>400</y>
            <width>101</width>
            <height>16</height>
           </rect>
@@ -1162,7 +1157,7 @@
          <property name="geometry">
           <rect>
            <x>95</x>
-           <y>430</y>
+           <y>420</y>
            <width>71</width>
            <height>22</height>
           </rect>
@@ -1178,7 +1173,7 @@
          <property name="geometry">
           <rect>
            <x>8</x>
-           <y>432</y>
+           <y>422</y>
            <width>81</width>
            <height>16</height>
           </rect>
@@ -1191,7 +1186,7 @@
          <property name="geometry">
           <rect>
            <x>8</x>
-           <y>452</y>
+           <y>442</y>
            <width>81</width>
            <height>16</height>
           </rect>
@@ -1204,7 +1199,7 @@
          <property name="geometry">
           <rect>
            <x>95</x>
-           <y>450</y>
+           <y>440</y>
            <width>71</width>
            <height>22</height>
           </rect>
@@ -1233,7 +1228,7 @@
          <property name="geometry">
           <rect>
            <x>190</x>
-           <y>432</y>
+           <y>422</y>
            <width>51</width>
            <height>16</height>
           </rect>
@@ -1246,7 +1241,7 @@
          <property name="geometry">
           <rect>
            <x>240</x>
-           <y>430</y>
+           <y>420</y>
            <width>71</width>
            <height>22</height>
           </rect>
@@ -1262,7 +1257,7 @@
          <property name="geometry">
           <rect>
            <x>190</x>
-           <y>450</y>
+           <y>440</y>
            <width>51</width>
            <height>16</height>
           </rect>
@@ -1275,7 +1270,7 @@
          <property name="geometry">
           <rect>
            <x>240</x>
-           <y>450</y>
+           <y>440</y>
            <width>71</width>
            <height>22</height>
           </rect>
@@ -1288,7 +1283,7 @@
          <property name="geometry">
           <rect>
            <x>330</x>
-           <y>430</y>
+           <y>420</y>
            <width>77</width>
            <height>20</height>
           </rect>
@@ -1304,7 +1299,7 @@
          <property name="geometry">
           <rect>
            <x>330</x>
-           <y>450</y>
+           <y>440</y>
            <width>77</width>
            <height>20</height>
           </rect>
@@ -1320,7 +1315,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>490</y>
+           <y>470</y>
            <width>110</width>
            <height>24</height>
           </rect>
@@ -1333,7 +1328,7 @@
          <property name="geometry">
           <rect>
            <x>130</x>
-           <y>490</y>
+           <y>470</y>
            <width>110</width>
            <height>24</height>
           </rect>
@@ -1346,7 +1341,7 @@
          <property name="geometry">
           <rect>
            <x>250</x>
-           <y>490</y>
+           <y>470</y>
            <width>110</width>
            <height>24</height>
           </rect>
@@ -1359,13 +1354,104 @@
          <property name="geometry">
           <rect>
            <x>380</x>
-           <y>430</y>
+           <y>420</y>
            <width>73</width>
            <height>16</height>
           </rect>
          </property>
          <property name="text">
           <string>Blank</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_35">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>532</y>
+           <width>51</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>beam x:</string>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="spinBox_beam_x">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>530</y>
+           <width>71</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="maximum">
+          <number>3000</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_36">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>552</y>
+           <width>51</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>beam y:</string>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="spinBox_beam_y">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>550</y>
+           <width>71</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="maximum">
+          <number>3000</number>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_set_beam_position">
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>529</y>
+           <width>41</width>
+           <height>44</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Set</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_37">
+         <property name="geometry">
+          <rect>
+           <x>260</x>
+           <y>100</y>
+           <width>55</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>CID</string>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="spinBox_CID">
+         <property name="geometry">
+          <rect>
+           <x>290</x>
+           <y>98</y>
+           <width>111</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="maximum">
+          <number>100000000</number>
          </property>
         </widget>
        </widget>

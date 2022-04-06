@@ -717,6 +717,7 @@ class Bruker_Espirit():
         self.image = self.image[ : -extra_buffer_for_image]
 
         if demo:
+            print('this is demo mode, image generated')
             self.image = np.random.randint(0, 255, [self.height.value, self.width.value])
 
         if not demo:

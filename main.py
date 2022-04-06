@@ -58,7 +58,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.label_demo_mode.setText('demo mode: ' + str(self.demo))
         self.pushButton_setup_acquisition.clicked.connect(lambda: self.setup_acquisition())
         self.pushButton_acquire.clicked.connect(lambda: self.single_acquisition())
-        self.pushButton_send_to_server.clicked.connect(lambda: self.send_message_to_server())
+        # self.pushButton_send_to_server.clicked.connect(lambda: self.send_message_to_server())
         self.pushButton_select_directory.clicked.connect(lambda: self.select_directory())
         self.pushButton_check_temperature.clicked.connect(lambda: self.update_temperature())
         self.pushButton_collect_stack.clicked.connect(lambda: self.collect_stack())
@@ -75,6 +75,11 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_get_image.clicked.connect(lambda: self.get_sem_image())
         self.checkBox_beam_blank.stateChanged.connect(lambda: self.beam_blank())
         self.pushButton_set_beam_position.clicked.connect(lambda: self.set_beam_to_position())
+        self.pushButton_plot_SEM_image.clicked.connect(lambda: self.plot_sem_image())
+        self.pushButton_save_SEM_image.clicked.connect(lambda: self.save_sem_image())
+
+
+
 
 
     def open_sem_client(self):
@@ -99,6 +104,47 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.bruker.acquire_image(demo=self.demo)
         self.label_messages.setText(self.bruker.error_message)
         utils.select_point(self.bruker.image)
+
+
+    def plot_sem_image(self, cmap='gray'):
+        try:
+            self.bruker.image
+        except AttributeError:
+            print('image does not exist yet')
+            self.label_messages.setText('SEM image does not exist')
+        else:
+            utils.select_point(self.bruker.image)
+
+
+    def save_sem_image(self):
+        _save_ascii = self.checkBox_save_ascii.isChecked()
+        try:
+            self.bruker.image
+        except AttributeError:
+            print('image does not exist yet')
+            self.label_messages.setText('SEM image does not exist')
+        else:
+            ts = time.time()
+            stamp = datetime.datetime.fromtimestamp(ts).strftime('%y%m%d.%H%M%S')  # make a timestamp for new file
+            if self.DIR == None:
+                save_dir = os.getcwd()
+            else:
+                save_dir = self.DIR
+            if not os.path.isdir(save_dir):
+                os.mkdir(save_dir)
+            print(self.DIR, save_dir)
+
+            file_name_image = save_dir + '/' + 'SEM' + '_' + stamp + '.png'
+            utils.select_point(self.bruker.image)
+            plt.savefig(file_name_image)
+
+            if _save_ascii == True:
+                file_name_txt = save_dir + '/' + 'SEM' + '_' + stamp + '.txt'
+                np.savetxt(file_name_txt, self.bruker.image, fmt='%d')
+
+
+
+
 
 
     def set_image_configuration(self):
@@ -195,11 +241,11 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.DIR = directory
 
 
-    def send_message_to_server(self):
-        message = self.plainTextEdit_command_to_server.toPlainText()
-        self.client.send_message_to_server(message)
-        self.response = self.client.get_response()
-        self.label_messages.setText(self.response)
+    # def send_message_to_server(self):
+    #     message = self.plainTextEdit_command_to_server.toPlainText()
+    #     self.client.send_message_to_server(message)
+    #     self.response = self.client.get_response()
+    #     self.label_messages.setText(self.response)
 
 
     def initialise_hardware(self):

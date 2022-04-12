@@ -67,3 +67,32 @@ def select_point(image):
     fig.canvas.mpl_connect("button_press_event", on_click)
     plt.show()
     return np.flip(coords[-2:], axis=0)  # coordintes in x, y format
+
+
+
+def get_Nx_Ny_from_indices(files_dir, files):
+    N = len(files)
+    print('Number of files = ', N)
+    files = [file_name.replace(files_dir, '') for file_name in files ]
+    X = []
+    Y = []
+    for file_name in files:
+        temp = file_name.split('_')
+        x = temp[1]
+        y = temp[2]
+        X.append(int(x))
+        Y.append(int(y))
+    X = np.array(X)
+    Y = np.array(Y)
+    Nx = X.max()
+    Ny = Y.max()
+    print(Nx, Ny)
+    return Nx+1, Ny+1
+
+
+def get_indices_from_file_name(file_dir, file_name):
+    file_name = file_name.replace(file_dir, '')
+    temp = file_name.split('_')
+    i = temp[1]
+    j = temp[2]
+    return int(i), int(j)

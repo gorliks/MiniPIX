@@ -10,6 +10,7 @@ import sys, time, os
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime
+import glob
 
 import detection as detection
 import localhost_client as localhost
@@ -65,6 +66,8 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_abort_stack_collection.clicked.connect(lambda: self._abort_clicked())
         self.pushButton_initialise_detector.clicked.connect(lambda: self.initialise_detector())
         self.comboBox_image_log_scale.currentIndexChanged.connect( lambda: self.change_image_scale())
+        self.pushButton_open_file.clicked.connect(lambda: self.open_file())
+        self.pushButton_open_stack.clicked.connect(lambda: self.open_stack())
         #### SEM
         self.pushButton_open_client.clicked.connect(lambda: self.open_sem_client())
         self.pushButton_update_SEM_state.clicked.connect(lambda: self.update_sem_state())
@@ -234,11 +237,89 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
 
+
     def select_directory(self):
         directory = QFileDialog.getExistingDirectory(self, caption='Select a folder')
         print(directory)
         self.label_messages.setText(directory)
         self.DIR = directory
+
+
+    def open_file(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getOpenFileName(self,
+                                                   "QFileDialog.getOpenFileName()",
+                                                   "","PMF files (*.pmf);;All Files (*)", options=options)
+        if file_name:
+            print(file_name)
+            try:
+                metadata_file_name = file_name + '.dsc'
+                image = np.loadtxt(file_name)
+                if '_ToA' in file_name:
+                    quadrant = 0
+                    print('0')
+                elif '_ToT' in file_name:
+                    quadrant = 1
+                    print('1')
+                elif '_Event' in file_name:
+                    quadrant = 2
+                    print('2')
+                elif '_iToT' in file_name:
+                    quadrant = 3
+                    print('3')
+                else:
+                    print('File or mode not supported')
+                self.update_image(quadrant=quadrant, image=image)
+
+            except:
+                print('Could not read the file, or something else is wrong')
+
+
+    def open_stack(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getOpenFileName(self,
+                                                   "QFileDialog.getOpenFileName()",
+                                                   "", "PMF files (*.pmf);;All Files (*)", options=options)
+        if file_name:
+            print(file_name)
+            file_dir = os.path.dirname(file_name)
+            print(file_dir)
+            try:
+                if '_ToA' in file_name:
+                    selected_mode = 'TOA'
+                    files = sorted(glob.glob(file_dir + '/' + '*_ToA.pmf'))
+                elif '_ToT' in file_name:
+                    selected_mode = 'TOT'
+                    files = sorted(glob.glob(file_dir + '/' + '*_ToT.pmf'))
+                elif '_Event' in file_name:
+                    selected_mode = 'EVENT'
+                    files = sorted(glob.glob(file_dir + '/' + '*_Event.pmf'))
+                elif '_iToT' in file_name:
+                    selected_mode = 'iTOT'
+                    files = sorted(glob.glob(file_dir + '/' + '*_iTOT.pmf'))
+                else:
+                    print('File or mode not supported')
+
+                Nx, Ny = utils.get_Nx_Ny_from_indices(file_dir, files)
+
+                self.storage_dict[selected_mode] = storage.Storage()  # initialise container for data storage and handling
+                self.storage_dict[selected_mode].initialise(i=Nx, j=Ny,
+                                                            Nx=256, Ny=256)  # TODO detector image Nx,Ny settings more generic
+
+                for file_name in files:
+                    image = np.loadtxt(file_name)
+                    ii, jj = utils.get_indices_from_file_name(file_dir, file_name)
+                    self.storage_dict[selected_mode].stack.data[ii][jj] = image
+
+
+                self.storage_dict[selected_mode].stack.plot()
+                plt.title(selected_mode)
+                plt.show()
+
+            except:
+                print('Could not read the file, or something else is wrong')
 
 
     # def send_message_to_server(self):

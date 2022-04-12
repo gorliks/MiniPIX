@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1040, 793)
+        MainWindow.resize(1047, 791)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -173,6 +173,9 @@ class Ui_MainWindow(object):
         self.pushButton_initialise_detector = QtWidgets.QPushButton(self.tab)
         self.pushButton_initialise_detector.setGeometry(QtCore.QRect(10, 550, 110, 28))
         self.pushButton_initialise_detector.setObjectName("pushButton_initialise_detector")
+        self.pushButton_open_stack = QtWidgets.QPushButton(self.tab)
+        self.pushButton_open_stack.setGeometry(QtCore.QRect(300, 410, 93, 28))
+        self.pushButton_open_stack.setObjectName("pushButton_open_stack")
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -476,10 +479,13 @@ class Ui_MainWindow(object):
         self.label_demo_mode.setText("")
         self.label_demo_mode.setWordWrap(True)
         self.label_demo_mode.setObjectName("label_demo_mode")
+        self.pushButton_open_file = QtWidgets.QPushButton(self.frame)
+        self.pushButton_open_file.setGeometry(QtCore.QRect(130, 580, 93, 25))
+        self.pushButton_open_file.setObjectName("pushButton_open_file")
         self.horizontalLayout.addWidget(self.frame)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1040, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1047, 26))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -503,7 +509,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -535,6 +541,7 @@ class Ui_MainWindow(object):
         self.label_28.setText(_translate("MainWindow", "Type"))
         self.label_34.setText(_translate("MainWindow", "Bias, V"))
         self.pushButton_initialise_detector.setText(_translate("MainWindow", "Initialise detector"))
+        self.pushButton_open_stack.setText(_translate("MainWindow", "Open stack"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Minipix"))
         self.label_11.setText(_translate("MainWindow", "Server"))
         self.label_12.setText(_translate("MainWindow", "User"))
@@ -590,6 +597,7 @@ class Ui_MainWindow(object):
         self.label_8.setText(_translate("MainWindow", "TextLabel"))
         self.comboBox_image_log_scale.setItemText(0, _translate("MainWindow", "Linear"))
         self.comboBox_image_log_scale.setItemText(1, _translate("MainWindow", "Logarithm"))
+        self.pushButton_open_file.setText(_translate("MainWindow", "Open file"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
         self.actionSave.setText(_translate("MainWindow", "Save"))

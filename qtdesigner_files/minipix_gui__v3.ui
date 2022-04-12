@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1040</width>
-    <height>793</height>
+    <width>1047</width>
+    <height>791</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -99,7 +99,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -556,6 +556,19 @@
          </property>
          <property name="text">
           <string>Initialise detector</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_open_stack">
+         <property name="geometry">
+          <rect>
+           <x>300</x>
+           <y>410</y>
+           <width>93</width>
+           <height>28</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Open stack</string>
          </property>
         </widget>
        </widget>
@@ -1659,6 +1672,19 @@
         <bool>true</bool>
        </property>
       </widget>
+      <widget class="QPushButton" name="pushButton_open_file">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>580</y>
+         <width>93</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Open file</string>
+       </property>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -1668,7 +1694,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1040</width>
+     <width>1047</width>
      <height>26</height>
     </rect>
    </property>

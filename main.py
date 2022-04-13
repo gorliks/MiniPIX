@@ -8,7 +8,13 @@ from importlib import reload  # Python 3.4+
 
 import sys, time, os
 import numpy as np
+
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as _FigureCanvas
+from matplotlib.backends.backend_qt5agg import (
+    NavigationToolbar2QT as _NavigationToolbar,
+)
+
 import datetime
 import glob
 
@@ -28,7 +34,14 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         print('mode demo is ', demo)
         super(GUIMainWindow, self).__init__()
         self.setupUi(self)
+        self.setStyleSheet("""QPushButton {
+        border: 1px solid lightgray;
+        border-radius: 5px;
+        background-color: #e3e3e3;
+        }""")
+
         self.setup_connections()
+        self.initialise_image_frames()
         self.initialise_hardware()
         self.client = localhost.LocalHostClient()  # initialise communication with the localhost/client/server
         self.DIR = None
@@ -82,7 +95,61 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_save_SEM_image.clicked.connect(lambda: self.save_sem_image())
 
 
+    def initialise_image_frames(self):
+        self.figure_TOA = plt.figure()
+        plt.axis("off")
+        plt.tight_layout()
+        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
+        self.canvas_TOA  = _FigureCanvas(self.figure_TOA)
+        self.toolbar_TOA = _NavigationToolbar(self.canvas_TOA, self)
+        #
+        self.label_image_frame1.setLayout(QtWidgets.QVBoxLayout())
+        self.label_image_frame1.layout().addWidget(self.toolbar_TOA)
+        self.label_image_frame1.layout().addWidget(self.canvas_TOA)
 
+
+        self.figure_TOT = plt.figure()
+        plt.axis("off")
+        plt.tight_layout()
+        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
+        self.canvas_TOT = _FigureCanvas(self.figure_TOT)
+        self.toolbar_TOT = _NavigationToolbar(self.canvas_TOT, self)
+        #
+        self.label_image_frame2.setLayout(QtWidgets.QVBoxLayout())
+        self.label_image_frame2.layout().addWidget(self.toolbar_TOT)
+        self.label_image_frame2.layout().addWidget(self.canvas_TOT)
+
+
+        self.figure_EVENT = plt.figure()
+        plt.axis("off")
+        plt.tight_layout()
+        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
+        self.canvas_EVENT = _FigureCanvas(self.figure_EVENT)
+        self.toolbar_EVENT = _NavigationToolbar(self.canvas_EVENT, self)
+        #
+        self.label_image_frame3.setLayout(QtWidgets.QVBoxLayout())
+        self.label_image_frame3.layout().addWidget(self.toolbar_EVENT)
+        self.label_image_frame3.layout().addWidget(self.canvas_EVENT)
+
+
+        self.figure_iTOT = plt.figure()
+        plt.axis("off")
+        plt.tight_layout()
+        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
+        self.canvas_iTOT = _FigureCanvas(self.figure_iTOT)
+        self.toolbar_iTOT = _NavigationToolbar(self.canvas_iTOT, self)
+        #
+        self.label_image_frame4.setLayout(QtWidgets.QVBoxLayout())
+        self.label_image_frame4.layout().addWidget(self.toolbar_iTOT)
+        self.label_image_frame4.layout().addWidget(self.canvas_iTOT)
+
+        # self.supported_modes = ['TOA', 'TOT', 'EVENT', 'iTOT']
+        self.canvases = [self.canvas_TOA, self.canvas_TOT,
+                         self.canvas_EVENT, self.canvas_iTOT]
+        self.toolbars = [self.toolbar_TOA, self.toolbar_TOT,
+                         self.toolbar_EVENT, self.toolbar_iTOT]
+        self.figures   = [self.figure_TOA, self.figure_TOT,
+                         self.figure_EVENT, self.figure_iTOT]
 
 
     def open_sem_client(self):
@@ -253,27 +320,27 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                                                    "","PMF files (*.pmf);;All Files (*)", options=options)
         if file_name:
             print(file_name)
-            try:
-                metadata_file_name = file_name + '.dsc'
-                image = np.loadtxt(file_name)
-                if '_ToA' in file_name:
-                    quadrant = 0
-                    print('0')
-                elif '_ToT' in file_name:
-                    quadrant = 1
-                    print('1')
-                elif '_Event' in file_name:
-                    quadrant = 2
-                    print('2')
-                elif '_iToT' in file_name:
-                    quadrant = 3
-                    print('3')
-                else:
-                    print('File or mode not supported')
-                self.update_image(quadrant=quadrant, image=image)
+            #try:
+            metadata_file_name = file_name + '.dsc'
+            image = np.loadtxt(file_name)
+            if '_ToA' in file_name:
+                quadrant = 0
+                print('0')
+            elif '_ToT' in file_name:
+                quadrant = 1
+                print('1')
+            elif '_Event' in file_name:
+                quadrant = 2
+                print('2')
+            elif '_iToT' in file_name:
+                quadrant = 3
+                print('3')
+            else:
+                print('File or mode not supported')
+            self.update_image(quadrant=quadrant, image=image)
 
-            except:
-                print('Could not read the file, or something else is wrong')
+            # except:
+            #     print('Could not read the file, or something else is wrong')
 
 
     def open_stack(self):
@@ -436,13 +503,34 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         return self.data
 
 
+    # def update_image(self, quadrant, image):
+    #     self.update_temperature()
+    #     image_to_display = qimage2ndarray.array2qimage(image.copy())
+    #     if quadrant in range(0, 4):
+    #         self.label_image_frames[quadrant].setPixmap(QtGui.QPixmap(image_to_display))
+    #     else:
+    #         self.label_image_frames[0].setText('No image acquired')
+
+
     def update_image(self, quadrant, image):
         self.update_temperature()
-        image_to_display = qimage2ndarray.array2qimage(image.copy())
+
         if quadrant in range(0, 4):
-            self.label_image_frames[quadrant].setPixmap(QtGui.QPixmap(image_to_display))
+            ###self.label_image_frames[quadrant].setPixmap(QtGui.QPixmap(image_to_display))
+            self.figures[quadrant].clear()
+            self.figures[quadrant].patch.set_facecolor(
+                (240 / 255, 240 / 255, 240 / 255))
+            ax_ = self.figures[quadrant].add_subplot(111)
+            ax_.set_title("test")
+            self.label_image_frames[quadrant].layout().addWidget(self.canvases[quadrant])
+            ax_.get_xaxis().set_visible(False)
+            ax_.get_yaxis().set_visible(False)
+            ax_.imshow(image, cmap='gray')
+            self.canvases[quadrant].draw()
+
         else:
             self.label_image_frames[0].setText('No image acquired')
+
 
 
     def change_image_scale(self):
@@ -565,7 +653,9 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.label_counter.setText("runtime: %d sec" % self.time_counter)
 
 
-
+    def disconnect(self):
+        print('Closing down and cleaning up')
+        # TODO closing connections, SEM, camera etc
 
 
 

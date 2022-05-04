@@ -8,12 +8,15 @@ from importlib import reload  # Python 3.4+
 
 import sys, time, os
 import numpy as np
+import h5py
+import hyperspy.api as hs
+import kikuchipy as kp
 
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as _FigureCanvas
-from matplotlib.backends.backend_qt5agg import (
-    NavigationToolbar2QT as _NavigationToolbar,
-)
+# from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as _FigureCanvas
+# from matplotlib.backends.backend_qt5agg import (
+#     NavigationToolbar2QT as _NavigationToolbar,
+# )
 
 import datetime
 import glob
@@ -41,7 +44,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         }""")
 
         self.setup_connections()
-        self.initialise_image_frames()
+        #self.initialise_image_frames()
         self.initialise_hardware()
         self.client = localhost.LocalHostClient()  # initialise communication with the localhost/client/server
         self.DIR = None
@@ -81,6 +84,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.comboBox_image_log_scale.currentIndexChanged.connect( lambda: self.change_image_scale())
         self.pushButton_open_file.clicked.connect(lambda: self.open_file())
         self.pushButton_open_stack.clicked.connect(lambda: self.open_stack())
+        self.pushButton_set_EBSD_detector.clicked.connect(lambda: self.setup_EBSD_detector())
         #### SEM
         self.pushButton_open_client.clicked.connect(lambda: self.open_sem_client())
         self.pushButton_update_SEM_state.clicked.connect(lambda: self.update_sem_state())
@@ -95,61 +99,62 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_save_SEM_image.clicked.connect(lambda: self.save_sem_image())
 
 
-    def initialise_image_frames(self):
-        self.figure_TOA = plt.figure()
-        plt.axis("off")
-        plt.tight_layout()
-        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
-        self.canvas_TOA  = _FigureCanvas(self.figure_TOA)
-        self.toolbar_TOA = _NavigationToolbar(self.canvas_TOA, self)
-        #
-        self.label_image_frame1.setLayout(QtWidgets.QVBoxLayout())
-        self.label_image_frame1.layout().addWidget(self.toolbar_TOA)
-        self.label_image_frame1.layout().addWidget(self.canvas_TOA)
-
-
-        self.figure_TOT = plt.figure()
-        plt.axis("off")
-        plt.tight_layout()
-        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
-        self.canvas_TOT = _FigureCanvas(self.figure_TOT)
-        self.toolbar_TOT = _NavigationToolbar(self.canvas_TOT, self)
-        #
-        self.label_image_frame2.setLayout(QtWidgets.QVBoxLayout())
-        self.label_image_frame2.layout().addWidget(self.toolbar_TOT)
-        self.label_image_frame2.layout().addWidget(self.canvas_TOT)
-
-
-        self.figure_EVENT = plt.figure()
-        plt.axis("off")
-        plt.tight_layout()
-        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
-        self.canvas_EVENT = _FigureCanvas(self.figure_EVENT)
-        self.toolbar_EVENT = _NavigationToolbar(self.canvas_EVENT, self)
-        #
-        self.label_image_frame3.setLayout(QtWidgets.QVBoxLayout())
-        self.label_image_frame3.layout().addWidget(self.toolbar_EVENT)
-        self.label_image_frame3.layout().addWidget(self.canvas_EVENT)
-
-
-        self.figure_iTOT = plt.figure()
-        plt.axis("off")
-        plt.tight_layout()
-        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
-        self.canvas_iTOT = _FigureCanvas(self.figure_iTOT)
-        self.toolbar_iTOT = _NavigationToolbar(self.canvas_iTOT, self)
-        #
-        self.label_image_frame4.setLayout(QtWidgets.QVBoxLayout())
-        self.label_image_frame4.layout().addWidget(self.toolbar_iTOT)
-        self.label_image_frame4.layout().addWidget(self.canvas_iTOT)
-
-        # self.supported_modes = ['TOA', 'TOT', 'EVENT', 'iTOT']
-        self.canvases = [self.canvas_TOA, self.canvas_TOT,
-                         self.canvas_EVENT, self.canvas_iTOT]
-        self.toolbars = [self.toolbar_TOA, self.toolbar_TOT,
-                         self.toolbar_EVENT, self.toolbar_iTOT]
-        self.figures   = [self.figure_TOA, self.figure_TOT,
-                         self.figure_EVENT, self.figure_iTOT]
+    # TODO fix pop-up plot bugs
+    # def initialise_image_frames(self):
+    #     self.figure_TOA = plt.figure(10)
+    #     plt.axis("off")
+    #     plt.tight_layout()
+    #     plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
+    #     self.canvas_TOA  = _FigureCanvas(self.figure_TOA)
+    #     self.toolbar_TOA = _NavigationToolbar(self.canvas_TOA, self)
+    #     #
+    #     self.label_image_frame1.setLayout(QtWidgets.QVBoxLayout())
+    #     self.label_image_frame1.layout().addWidget(self.toolbar_TOA)
+    #     self.label_image_frame1.layout().addWidget(self.canvas_TOA)
+    #
+    #
+    #     self.figure_TOT = plt.figure(11)
+    #     plt.axis("off")
+    #     plt.tight_layout()
+    #     plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
+    #     self.canvas_TOT  = _FigureCanvas(self.figure_TOT)
+    #     self.toolbar_TOT = _NavigationToolbar(self.canvas_TOT, self)
+    #     #
+    #     self.label_image_frame2.setLayout(QtWidgets.QVBoxLayout())
+    #     self.label_image_frame2.layout().addWidget(self.toolbar_TOT)
+    #     self.label_image_frame2.layout().addWidget(self.canvas_TOT)
+    #
+    #
+    #     self.figure_EVENT = plt.figure(12)
+    #     plt.axis("off")
+    #     plt.tight_layout()
+    #     plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
+    #     self.canvas_EVENT  = _FigureCanvas(self.figure_EVENT)
+    #     self.toolbar_EVENT = _NavigationToolbar(self.canvas_EVENT, self)
+    #     #
+    #     self.label_image_frame3.setLayout(QtWidgets.QVBoxLayout())
+    #     self.label_image_frame3.layout().addWidget(self.toolbar_EVENT)
+    #     self.label_image_frame3.layout().addWidget(self.canvas_EVENT)
+    #
+    #
+    #     self.figure_iTOT = plt.figure(13)
+    #     plt.axis("off")
+    #     plt.tight_layout()
+    #     plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
+    #     self.canvas_iTOT  = _FigureCanvas(self.figure_iTOT)
+    #     self.toolbar_iTOT = _NavigationToolbar(self.canvas_iTOT, self)
+    #     #
+    #     self.label_image_frame4.setLayout(QtWidgets.QVBoxLayout())
+    #     self.label_image_frame4.layout().addWidget(self.toolbar_iTOT)
+    #     self.label_image_frame4.layout().addWidget(self.canvas_iTOT)
+    #
+    #     # self.supported_modes = ['TOA', 'TOT', 'EVENT', 'iTOT']
+    #     self.canvases = [self.canvas_TOA, self.canvas_TOT,
+    #                      self.canvas_EVENT, self.canvas_iTOT]
+    #     self.toolbars = [self.toolbar_TOA, self.toolbar_TOT,
+    #                      self.toolbar_EVENT, self.toolbar_iTOT]
+    #     self.figures   = [self.figure_TOA, self.figure_TOT,
+    #                      self.figure_EVENT, self.figure_iTOT]
 
 
     def open_sem_client(self):
@@ -317,27 +322,62 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         options |= QFileDialog.DontUseNativeDialog
         file_name, _ = QFileDialog.getOpenFileName(self,
                                                    "QFileDialog.getOpenFileName()",
-                                                   "","PMF files (*.pmf);;All Files (*)", options=options)
+                                                   "","PMF files (*.pmf);;h5 files (*.h5);;All Files (*)",
+                                                   options=options)
         if file_name:
             print(file_name)
-            #try:
-            metadata_file_name = file_name + '.dsc'
-            image = np.loadtxt(file_name)
-            if '_ToA' in file_name:
-                quadrant = 0
-                print('0')
-            elif '_ToT' in file_name:
-                quadrant = 1
-                print('1')
-            elif '_Event' in file_name:
-                quadrant = 2
-                print('2')
-            elif '_iToT' in file_name:
-                quadrant = 3
-                print('3')
+
+            # data format files saved by PiXet detector
+            if file_name.lower().endswith('.pmf'):
+                metadata_file_name = file_name + '.dsc'
+                image = np.loadtxt(file_name)
+                if '_ToA' in file_name:
+                    quadrant = 0
+                    print('0')
+                elif '_ToT' in file_name:
+                    quadrant = 1
+                    print('1')
+                elif '_Event' in file_name:
+                    quadrant = 2
+                    print('2')
+                elif '_iToT' in file_name:
+                    quadrant = 3
+                    print('3')
+                else:
+                    print('File or mode not supported')
+                    self.label_messages.setText('File or mode not supported')
+                self.update_image(quadrant=quadrant, image=image)
+
+                try:
+                    self.detectorEBSD.plot(pattern=image)
+                    plt.show()
+                except:
+                    self.label_messages.setText('EBSD detector is not set')
+
+            # data format h5
+            elif file_name.lower().endswith('.h5'):
+                with h5py.File(file_name, 'r') as f:
+                    acqTime = list(f['Frame_0']['MetaData']['Acq time'])
+                    threshold = list(f['Frame_0']['MetaData']['Threshold'])
+                    data = f['Frame_0']['Data']
+                    data = np.reshape(data, (256, 256))
+                    print('acq time = ', acqTime, 'threshold = ', threshold)
+                self.update_image(quadrant=0, image=data)
+
+            # for example numpy array data, or txt format
             else:
-                print('File or mode not supported')
-            self.update_image(quadrant=quadrant, image=image)
+                try:
+                    image = np.loadtxt(file_name)
+                    self.update_image(quadrant=0, image=image)
+                except:
+                    self.label_messages.setText('File or mode not supported')
+
+                try:
+                    self.detectorEBSD.plot(pattern=image)
+                    plt.show()
+                except:
+                    self.label_messages.setText('EBSD detector is not set')
+
 
             # except:
             #     print('Could not read the file, or something else is wrong')
@@ -380,6 +420,22 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                     ii, jj = utils.get_indices_from_file_name(file_dir, file_name)
                     self.storage_dict[selected_mode].stack.data[ii][jj] = image
 
+                # convert hs.signals.Signal2D BaseSignal to EBSD (EBSDMasterPattern or VirtualBSEImage)
+                self.storage_dict[selected_mode].stack.set_signal_type("EBSD")
+
+                # TODO static background file or metadata needed to perform this operation
+                # static_bg (Union[None, ndarray, Array]) – Static background pattern. If None is passed (default) we try to read it from the signal metadata
+                # if self.checkBox_remove_static_background.isChecked():
+                #     print('removing the static background')
+                #     self.storage_dict[selected_mode].stack.remove_static_background(operation="subtract",
+                #                                                                     static_bg= ???
+                #                                                                     relative=True)
+                if self.checkBox_remove_dynamic_background.isChecked():
+                    print('removing the dynamic background')
+                    self.storage_dict[selected_mode].stack.remove_dynamic_background(operation="subtract",  # Default
+                                                                                     filter_domain="frequency",  # Default
+                                                                                     std=8,  # Default is 1/8 of the pattern
+                                                                                     truncate=4 )
 
                 self.storage_dict[selected_mode].stack.plot()
                 plt.title(selected_mode)
@@ -410,6 +466,35 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         detector_info = self.device.initialise()
         self.label_messages.setText(str(detector_info))
         self.pushButton_initialise_detector.setStyleSheet("background-color: green")
+
+
+    def setup_EBSD_detector(self):
+        convention = self.comboBox_convention.currentText()
+        Nx = self.spinBox_chip_pixels_x.value()
+        Ny = self.spinBox_chip_pixels_y.value()
+        shape = (Nx, Ny)
+        pc_x = self.doubleSpinBox_pc_x.value()
+        pc_y = self.doubleSpinBox_pc_y.value()
+        pc_z = self.doubleSpinBox_pc_x.value()
+        px_size = self.doubleSpinBox_detector_pixel_size.value()
+        binning = self.spinBox_binning.value()
+        tilt = self.doubleSpinBox_detector_tilt.value()
+        sample_tilt = self.doubleSpinBox_sample_tilt.value()
+        print(convention, shape, (pc_x,pc_y,pc_z), px_size, binning, tilt, sample_tilt)
+        self.detectorEBSD = kp.detectors.EBSDDetector(
+            shape=shape,
+            pc=[pc_x, pc_y, pc_z],
+            convention=convention,
+            px_size=px_size,  # microns
+            binning=binning,
+            tilt=tilt,
+            sample_tilt=sample_tilt
+        )
+        print(self.detectorEBSD)
+        self.pushButton_set_EBSD_detector.setStyleSheet("background-color: green")
+
+
+
 
 
     def update_temperature(self):
@@ -503,33 +588,54 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         return self.data
 
 
-    # def update_image(self, quadrant, image):
-    #     self.update_temperature()
-    #     image_to_display = qimage2ndarray.array2qimage(image.copy())
-    #     if quadrant in range(0, 4):
-    #         self.label_image_frames[quadrant].setPixmap(QtGui.QPixmap(image_to_display))
-    #     else:
-    #         self.label_image_frames[0].setText('No image acquired')
-
-
     def update_image(self, quadrant, image):
         self.update_temperature()
-
+        image_to_display = qimage2ndarray.array2qimage(image.copy())
         if quadrant in range(0, 4):
-            ###self.label_image_frames[quadrant].setPixmap(QtGui.QPixmap(image_to_display))
-            self.figures[quadrant].clear()
-            self.figures[quadrant].patch.set_facecolor(
-                (240 / 255, 240 / 255, 240 / 255))
-            ax_ = self.figures[quadrant].add_subplot(111)
-            ax_.set_title("test")
-            self.label_image_frames[quadrant].layout().addWidget(self.canvases[quadrant])
-            ax_.get_xaxis().set_visible(False)
-            ax_.get_yaxis().set_visible(False)
-            ax_.imshow(image, cmap='gray')
-            self.canvases[quadrant].draw()
-
+            self.label_image_frames[quadrant].setPixmap(QtGui.QPixmap(image_to_display))
         else:
             self.label_image_frames[0].setText('No image acquired')
+
+
+    # TODO fix bugs with plotting data and using pop-up plots
+    # def update_image(self, quadrant, image):
+    #     self.update_temperature()
+    #
+    #     if quadrant in range(0, 4):
+    #         ###### added ######
+    #         # plt.axis("off")
+    #         # if self.canvases[quadrant]:
+    #             #self.label_image_frames[quadrant].layout().removeWidget(self.canvases[quadrant])
+    #             #self.label_image_frames[quadrant].layout().removeWidget(self.toolbars[quadrant])
+    #             # self.canvases[quadrant].deleteLater()
+    #             # self.toolbars[quadrant].deleteLater()
+    #         # self.canvases[quadrant] = _FigureCanvas(self.figures[quadrant])
+    #         ###### end added ######
+    #
+    #
+    #         self.figures[quadrant].clear()
+    #         self.figures[quadrant].patch.set_facecolor(
+    #             (240 / 255, 240 / 255, 240 / 255))
+    #         ax_ = self.figures[quadrant].add_subplot(111)
+    #         # ax_.set_title("test")
+    #
+    #
+    #
+    #         #### added ######
+    #         # self.toolbars[quadrant] = _NavigationToolbar(self.canvases[quadrant], self)
+    #         # self.label_image_frames[quadrant].layout().addWidget(self.toolbars[quadrant])
+    #         ##### end added ######
+    #
+    #
+    #
+    #         # self.label_image_frames[quadrant].layout().addWidget(self.canvases[quadrant])
+    #         ax_.get_xaxis().set_visible(False)
+    #         ax_.get_yaxis().set_visible(False)
+    #         ax_.imshow(image, cmap='gray')
+    #         self.canvases[quadrant].draw()
+    #
+    #     else:
+    #         self.label_image_frames[0].setText('No image acquired')
 
 
 
@@ -560,6 +666,8 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_check_temperature.setEnabled(False)
         stack_i = self.spinBox_scan_pixels_i.value()  # scan over sample, no. pixels along X
         stack_j = self.spinBox_scan_pixels_j.value()  # scan over sample, no. pixels along Y
+        x0 =  self.spinBox_x0.value() # start scan from pixel x0
+        y0 =  self.spinBox_y0.value() # start scan from pixel y0
 
         # reinitialise the data storage
         for supported_mode in self.supported_modes:
@@ -579,13 +687,14 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             pixel_counter = 0
             for ii in range(stack_i):
                 for jj in range(stack_j):
-                    print(ii, jj)
+                    print(x0+ii, y0+jj)
                     self.label_current_i.setText(f'{ii + 1} of {stack_i}')
                     self.label_current_j.setText(f'{jj + 1} of {stack_j}')
 
                     file_name = '%06d_'%pixel_counter + str(ii) + '_' + str(jj)
 
-                    self.bruker.set_beam_to_point(x_pos=ii, y_pos=jj)
+                    self.bruker.set_beam_to_point(x_pos = x0+ii, y_pos= y0+jj)
+                    # get_data, get_data also does update_image
                     self.data = self.get_data(save_dir=self.stack_dir, file_name=file_name)
                     self.bruker.beam_blank()
 
@@ -606,9 +715,24 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
         _run_loop()
 
+        # Plot the stacks
         for supported_mode in self.supported_modes:
             # self.storage.stack.plot() # plot the acquired stack using hyperspy's library
             if self.active_modes[supported_mode] == True:
+                # convert hs.signals.Signal2D BaseSignal to EBSD (EBSDMasterPattern or VirtualBSEImage)
+                self.storage_dict[supported_mode].stack.set_signal_type("EBSD")
+
+                if self.checkBox_remove_static_background.isChecked():
+                    print('removing the static background')
+                    self.storage_dict[supported_mode].stack.remove_static_background(operation="subtract", relative=True)
+                if self.checkBox_remove_dynamic_background.isChecked():
+                    print('removing the dynamic background')
+                    self.storage_dict[supported_mode].stack.remove_dynamic_background(
+                                                    operation="subtract",  # Default
+                                                    filter_domain="frequency",  # Default
+                                                    std=8,  # Default is 1/8 of the pattern width
+                                                    truncate=4,  # Default
+)
                 self.storage_dict[supported_mode].stack.plot()
                 plt.title(supported_mode)
 

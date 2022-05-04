@@ -61,13 +61,13 @@ def get_detector_info(device):
 
 def set_acquisition_type(device, type='Frames'):
     if type=='Frames':
-        acquision_type = pixet.PX_ACQTYPE_FRAMES
+        acquisition_type = pixet.PX_ACQTYPE_FRAMES
     if type=='Test pulses':
-        acquision_type = pixet.PX_ACQTYPE_TESTPULSES
+        acquisition_type = pixet.PX_ACQTYPE_TESTPULSES
     else:
-        acquision_type = pixet.PX_ACQTYPE_FRAMES
-    print('setting acquisition type to ', type, 'pixet = ', acquision_type)
-    return acquision_type
+        acquisition_type = pixet.PX_ACQTYPE_FRAMES
+    print('setting acquisition type to ', type, 'pixet = ', acquisition_type)
+    return acquisition_type
 
 
 def set_acquisition_mode(device, mode='TOATOT'):
@@ -218,4 +218,64 @@ def close():
         raise
 
 
+if __name__ == '__main__':
+    path_to_pixet = r'C:\Program Files\PIXet Pro'
+    sys.path.append(path_to_pixet)
+    import pypixet
 
+    pixet = pypixet.pixet
+    pypixet.start()
+
+    print(pixet.pixetVersion())
+    devices = pixet.devicesByType(pixet.PX_DEVTYPE_TPX3)
+
+    device = devices[0]
+    # device.setOperationMode(pixet.PX_TPX3_OPM_EVENT_ITOT)
+    device.setOperationMode(pixet.PX_TPX3_OPM_TOATOT)
+
+    # make integral acquisition 100 frames, 0.1 s and save to file
+    # device.doSimpleIntegralAcquisition(100, 0.1, pixet.PX_FTYPE_AUTODETECT, "test2.pmf")
+    # make data driven acquisition for 5 seconds and save to file:
+    # device.doAdvancedAcquisition(1, 1, pixet.PX_ACQTYPE_DATADRIVEN, pixet.PX_ACQMODE_NORMAL, pixet.PX_FTYPE_AUTODETECT, 0, "test.t3pa")
+
+
+
+    # make data driven acquisition and process the pixels in the script. Note: if you want to process
+    # the data online you cannot save the data in the acquisition function. You can save them later by calling
+    # pixels.save()
+    # acqCount = 10
+    # acqTime = 0.1 # in seconds, 0.1 s
+    # acqType = pixet.PX_ACQTYPE_FRAMES # pixet.PX_ACQTYPE_DATADRIVEN, pixet.PX_ACQTYPE_TESTPULSES
+    # acqMode = pixet.PX_ACQMODE_NORMAL # pixet.PX_ACQMODE_TRG_HWSTART, pixet.PX_ACQMODE_TDI, ...
+    # fileType = pixet.PX_FTYPE_AUTODETECT
+    # fileFlags = 0
+    # outputFile = "test.pmf"
+    # device.doAdvancedAcquisition(acqCount, acqTime, acqType, acqMode, fileType, fileFlags, outputFile)
+    #
+
+    device.doAdvancedAcquisition(10, 0.1, pixet.PX_ACQTYPE_DATADRIVEN, pixet.PX_ACQMODE_NORMAL, pixet.PX_FTYPE_AUTODETECT, 0, "")
+
+    TPX3_INDEX = 0
+    TPX3_TOT = 1
+    TPX3_TOA = 2
+
+    # get tpx3 pixels:
+    pixels = device.lastAcqPixelsRefInc()
+    pixelCount = pixels.totalPixelCount()
+    pixelData = pixels.pixels()
+    print("PixelCount: %d " % pixelCount)
+
+    # get first pixel values:
+    matrixIndex = pixelData[TPX3_INDEX][0]
+    event = pixelData[TPX3_TOT][0]
+    itot = pixelData[TPX3_TOA][0]
+
+    # get second pixel values:
+    matrixIndex = pixelData[TPX3_INDEX][1]
+    event = pixelData[TPX3_TOT][1]
+    itot = pixelData[TPX3_TOA][1]
+
+    # save data to a file
+    pixels.save("/tmp/test2.t3pa", pixet.PX_FTYPE_AUTODETECT, 0)
+
+    pixels.destroy()

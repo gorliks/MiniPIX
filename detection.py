@@ -171,7 +171,7 @@ class Detector():
             modes = ['TOA',      'TOT',       'EVENT',       'iTOT']
             data = {'TOA': None, 'TOT': None, 'EVENT': None, 'iTOT': None}
             print('demo mode, waiting for ', self.integration_time)
-            #time.sleep(self.integration_time)
+            time.sleep(self.integration_time)
             if mode == 'TOATOT' or mode == 'TOA & TOT':
                 simulated_image = np.random.randint(0, 255, [256, 256])
                 data['TOA'] = simulated_image
@@ -196,3 +196,4 @@ class Detector():
 
 if __name__ == '__main__':
    print('detection')
+

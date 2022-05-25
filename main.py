@@ -590,6 +590,14 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
     def update_image(self, quadrant, image):
         self.update_temperature()
+        _convention_ = self.comboBox_image_convention.currentText()
+        if _convention_ == 'TEM convention':
+            image  = np.flipud(image)
+        elif _convention_ == 'EBSD convention':
+            image = np.flipud(image)
+            image = np.fliplr(image)
+        else:
+            pass
         image_to_display = qimage2ndarray.array2qimage(image.copy())
         if quadrant in range(0, 4):
             self.label_image_frames[quadrant].setPixmap(QtGui.QPixmap(image_to_display))

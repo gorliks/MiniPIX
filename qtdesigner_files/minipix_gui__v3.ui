@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1186</width>
+    <width>1169</width>
     <height>791</height>
    </rect>
   </property>
@@ -99,7 +99,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -2018,8 +2018,8 @@
       <widget class="QComboBox" name="comboBox_image_log_scale">
        <property name="geometry">
         <rect>
-         <x>0</x>
-         <y>580</y>
+         <x>570</x>
+         <y>680</y>
          <width>111</width>
          <height>22</height>
         </rect>
@@ -2072,6 +2072,31 @@
         <string>Initialise detector</string>
        </property>
       </widget>
+      <widget class="QComboBox" name="comboBox_image_convention">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>580</y>
+         <width>131</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>Raw data</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>EBSD convention</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>TEM convention</string>
+        </property>
+       </item>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -2081,8 +2106,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1186</width>
-     <height>21</height>
+     <width>1169</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

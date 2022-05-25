@@ -588,7 +588,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         return self.data
 
 
-    def update_image(self, quadrant, image):
+    def update_image(self, quadrant, image, update_current_image=True):
         self.update_temperature()
         _convention_ = self.comboBox_image_convention.currentText()
         if _convention_ == 'TEM convention':
@@ -598,6 +598,8 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             image = np.fliplr(image)
         else:
             pass
+        if update_current_image:
+            self.data_in_quadrant[quadrant] = image
         image_to_display = qimage2ndarray.array2qimage(image.copy())
         if quadrant in range(0, 4):
             self.label_image_frames[quadrant].setPixmap(QtGui.QPixmap(image_to_display))
@@ -655,11 +657,15 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             for count, mode in enumerate(self.supported_modes):
                 if type(self.data_in_quadrant[count]) == np.ndarray:
                     _image_log = np.log(self.data_in_quadrant[count]+1)
-                    self.update_image(quadrant=count, image=_image_log)
+                    _image_log = _image_log/_image_log.max() * 255
+                    _image_log = _image_log.astype(dtype='uint8')
+                    self.update_image(quadrant=count, image=_image_log, update_current_image=False)
         else:
             print('LIN')
             for count, mode in enumerate(self.supported_modes):
-                self.update_image(quadrant=count, image=(self.data_in_quadrant[count]))
+                if type(self.data_in_quadrant[count]) == np.ndarray:
+                    print(count, self.data_in_quadrant[count].shape)
+                    self.update_image(quadrant=count, image=(self.data_in_quadrant[count]))
 
 
 

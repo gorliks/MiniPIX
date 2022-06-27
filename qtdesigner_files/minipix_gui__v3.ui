@@ -237,7 +237,7 @@
           <double>10000000.000000000000000</double>
          </property>
          <property name="value">
-          <double>1.100000000000000</double>
+          <double>0.100000000000000</double>
          </property>
         </widget>
         <widget class="QPushButton" name="pushButton_select_directory">
@@ -324,7 +324,7 @@
         <widget class="QPlainTextEdit" name="plainTextEdit_sample_name">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>95</x>
            <y>254</y>
            <width>311</width>
            <height>31</height>
@@ -337,8 +337,8 @@
         <widget class="QLabel" name="label_5">
          <property name="geometry">
           <rect>
-           <x>0</x>
-           <y>260</y>
+           <x>2</x>
+           <y>258</y>
            <width>91</width>
            <height>16</height>
           </rect>
@@ -618,6 +618,32 @@
          </property>
          <property name="text">
           <string>y0</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_save_in_h5_format">
+         <property name="geometry">
+          <rect>
+           <x>300</x>
+           <y>370</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>save h5</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_save_in_hspy_format">
+         <property name="geometry">
+          <rect>
+           <x>300</x>
+           <y>390</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>save hspy</string>
          </property>
         </widget>
        </widget>
@@ -1796,7 +1822,7 @@
           <rect>
            <x>20</x>
            <y>280</y>
-           <width>131</width>
+           <width>191</width>
            <height>20</height>
           </rect>
          </property>
@@ -1822,7 +1848,7 @@
           <rect>
            <x>20</x>
            <y>260</y>
-           <width>131</width>
+           <width>181</width>
            <height>20</height>
           </rect>
          </property>

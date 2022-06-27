@@ -229,7 +229,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         Ch1 = self.checkBox_channel_1.isChecked()
         Ch2 = self.checkBox_channel_2.isChecked()
         self.bruker.set_image_configuration(width=width, height=height,\
-                                            average=average, Ch1=Ch1, Ch2=Ch1)
+                                            average=average, Ch1=Ch1, Ch2=Ch2)
         self.label_messages.setText(self.bruker.error_message)
 
 
@@ -326,7 +326,9 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                                                    options=options)
         if file_name:
             print(file_name)
-
+            #################################################
+            ################ data format pmf ################
+            #################################################
             # data format files saved by PiXet detector
             if file_name.lower().endswith('.pmf'):
                 metadata_file_name = file_name + '.dsc'
@@ -354,7 +356,9 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                 except:
                     self.label_messages.setText('EBSD detector is not set')
 
-            # data format h5
+            ################################################
+            ################ data format h5 ################
+            ################################################
             elif file_name.lower().endswith('.h5'):
                 with h5py.File(file_name, 'r') as f:
                     acqTime = list(f['Frame_0']['MetaData']['Acq time'])
@@ -364,6 +368,10 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                     print('acq time = ', acqTime, 'threshold = ', threshold)
                 self.update_image(quadrant=0, image=data)
 
+
+            #####################################################
+            ################ data format unknown ################
+            #####################################################
             # for example numpy array data, or txt format
             else:
                 try:
@@ -388,61 +396,90 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         options |= QFileDialog.DontUseNativeDialog
         file_name, _ = QFileDialog.getOpenFileName(self,
                                                    "QFileDialog.getOpenFileName()",
-                                                   "", "PMF files (*.pmf);;All Files (*)", options=options)
+                                                   "", "PMF files (*.pmf);;h5 files (*.h5);;hspy files (*.hspy);;All Files (*)",
+                                                   options=options)
         if file_name:
             print(file_name)
             file_dir = os.path.dirname(file_name)
-            print(file_dir)
-            try:
-                if '_ToA' in file_name:
-                    selected_mode = 'TOA'
-                    files = sorted(glob.glob(file_dir + '/' + '*_ToA.pmf'))
-                elif '_ToT' in file_name:
-                    selected_mode = 'TOT'
-                    files = sorted(glob.glob(file_dir + '/' + '*_ToT.pmf'))
-                elif '_Event' in file_name:
-                    selected_mode = 'EVENT'
-                    files = sorted(glob.glob(file_dir + '/' + '*_Event.pmf'))
-                elif '_iToT' in file_name:
-                    selected_mode = 'iTOT'
-                    files = sorted(glob.glob(file_dir + '/' + '*_iTOT.pmf'))
-                else:
-                    print('File or mode not supported')
 
-                Nx, Ny = utils.get_Nx_Ny_from_indices(file_dir, files)
+            #################################################
+            ################ data format pmf ################
+            #################################################
+            # data format files saved by PiXet detector
+            if file_name.lower().endswith('.pmf'):
+                try:
+                    if '_ToA' in file_name:
+                        selected_mode = 'TOA'
+                        files = sorted(glob.glob(file_dir + '/' + '*_ToA.pmf'))
+                    elif '_ToT' in file_name:
+                        selected_mode = 'TOT'
+                        files = sorted(glob.glob(file_dir + '/' + '*_ToT.pmf'))
+                    elif '_Event' in file_name:
+                        selected_mode = 'EVENT'
+                        files = sorted(glob.glob(file_dir + '/' + '*_Event.pmf'))
+                    elif '_iToT' in file_name:
+                        selected_mode = 'iTOT'
+                        files = sorted(glob.glob(file_dir + '/' + '*_iTOT.pmf'))
+                    else:
+                        print('File or mode not supported')
 
-                self.storage_dict[selected_mode] = storage.Storage()  # initialise container for data storage and handling
-                self.storage_dict[selected_mode].initialise(i=Nx, j=Ny,
-                                                            Nx=256, Ny=256)  # TODO detector image Nx,Ny settings more generic
+                    Nx, Ny = utils.get_Nx_Ny_from_indices(file_dir, files)
 
-                for file_name in files:
-                    image = np.loadtxt(file_name)
-                    ii, jj = utils.get_indices_from_file_name(file_dir, file_name)
-                    self.storage_dict[selected_mode].stack.data[ii][jj] = image
+                    self.storage_dict[selected_mode] = storage.Storage()  # initialise container for data storage and handling
+                    self.storage_dict[selected_mode].initialise(i=Nx, j=Ny,
+                                                                Nx=256, Ny=256)  # TODO detector image Nx,Ny settings more generic
 
-                # convert hs.signals.Signal2D BaseSignal to EBSD (EBSDMasterPattern or VirtualBSEImage)
-                self.storage_dict[selected_mode].stack.set_signal_type("EBSD")
+                    for file_name in files:
+                        image = np.loadtxt(file_name)
+                        ii, jj = utils.get_indices_from_file_name(file_dir, file_name)
+                        self.storage_dict[selected_mode].stack.data[ii][jj] = image
 
-                # TODO static background file or metadata needed to perform this operation
-                # static_bg (Union[None, ndarray, Array]) – Static background pattern. If None is passed (default) we try to read it from the signal metadata
-                # if self.checkBox_remove_static_background.isChecked():
-                #     print('removing the static background')
-                #     self.storage_dict[selected_mode].stack.remove_static_background(operation="subtract",
-                #                                                                     static_bg= ???
-                #                                                                     relative=True)
-                if self.checkBox_remove_dynamic_background.isChecked():
-                    print('removing the dynamic background')
-                    self.storage_dict[selected_mode].stack.remove_dynamic_background(operation="subtract",  # Default
-                                                                                     filter_domain="frequency",  # Default
-                                                                                     std=8,  # Default is 1/8 of the pattern
-                                                                                     truncate=4 )
+                    # convert hs.signals.Signal2D BaseSignal to EBSD (EBSDMasterPattern or VirtualBSEImage)
+                    self.storage_dict[selected_mode].stack.set_signal_type("EBSD")
 
-                self.storage_dict[selected_mode].stack.plot()
-                plt.title(selected_mode)
-                plt.show()
+                    # TODO static background file or metadata needed to perform this operation
+                    # static_bg (Union[None, ndarray, Array]) – Static background pattern. If None is passed (default) we try to read it from the signal metadata
+                    # if self.checkBox_remove_static_background.isChecked():
+                    #     print('removing the static background')
+                    #     self.storage_dict[selected_mode].stack.remove_static_background(operation="subtract",
+                    #                                                                     static_bg= ???
+                    #                                                                     relative=True)
+                    if self.checkBox_remove_dynamic_background.isChecked():
+                        print('removing the dynamic background')
+                        self.storage_dict[selected_mode].stack.remove_dynamic_background(operation="subtract",  # Default
+                                                                                         filter_domain="frequency",  # Default
+                                                                                         std=8,  # Default is 1/8 of the pattern
+                                                                                         truncate=4 )
+                    self.storage_dict[selected_mode].stack.plot()
+                    plt.title(selected_mode)
+                    plt.show()
 
-            except:
-                print('Could not read the file, or something else is wrong')
+                except:
+                    print('Could not read the file, or something else is wrong')
+
+
+            ################################################
+            ################ data format h5 ################
+            ################################################
+            if file_name.lower().endswith('.h5'):
+                try:
+                    stack = hs.load(file_name)
+                    stack.plot()
+                    plt.show()
+                except:
+                    print('Could not read the file, or something else is wrong')
+
+
+            ################################################
+            ################ data format hspy ################
+            ################################################
+            if file_name.lower().endswith('.hspy'):
+                try:
+                    stack = hs.load(file_name)
+                    stack.plot()
+                    plt.show()
+                except:
+                    print('Could not read the file, or something else is wrong')
 
 
     # def send_message_to_server(self):
@@ -534,7 +571,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.get_data()
 
 
-    def get_data(self, save_dir=None, file_name=None):
+    def get_data(self, save_dir=None, file_name=None, update_display=True):
         self.update_temperature()
         ts = time.time()
         stamp = datetime.datetime.fromtimestamp(ts).strftime('%y%m%d.%H%M%S')  # make a timestamp for new file
@@ -579,11 +616,12 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_check_temperature.setEnabled(True)
         self.repaint()  # update the GUI to show the progress
 
-        for count, mode in enumerate(self.supported_modes):
-            _image_by_mode = self.data[mode]
-            if type(_image_by_mode) == np.ndarray:
-                self.update_image(quadrant=count, image=_image_by_mode)
-                self.data_in_quadrant[count] = _image_by_mode # keep the last measurement in memory
+        if update_display==True:
+            for count, mode in enumerate(self.supported_modes):
+                _image_by_mode = self.data[mode]
+                if type(_image_by_mode) == np.ndarray:
+                    self.update_image(quadrant=count, image=_image_by_mode)
+                    self.data_in_quadrant[count] = _image_by_mode # keep the last measurement in memory
 
         return self.data
 
@@ -656,7 +694,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             print('LOG')
             for count, mode in enumerate(self.supported_modes):
                 if type(self.data_in_quadrant[count]) == np.ndarray:
-                    _image_log = np.log(self.data_in_quadrant[count]+1)
+                    _image_log = np.log(self.data_in_quadrant[count])
                     _image_log = _image_log/_image_log.max() * 255
                     _image_log = _image_log.astype(dtype='uint8')
                     self.update_image(quadrant=count, image=_image_log, update_current_image=False)
@@ -729,13 +767,28 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
         _run_loop()
 
+
+        # save the stacks
+        for supported_mode in self.supported_modes:
+            if self.active_modes[supported_mode] == True:
+                if self.checkBox_save_in_h5_format.isChecked():
+                    print('saving h5 format')
+                    file_name = supported_mode + '_stack_' + str(stack_i) + '_' + str(stack_j) + '.h5'
+                    file_name = os.path.join(self.stack_dir, file_name)
+                    self.storage_dict[supported_mode].stack.save(file_name)
+                if self.checkBox_save_in_hspy_format.isChecked():
+                    print('saving h5 format')
+                    file_name = supported_mode + '_stack_' + str(stack_i) + '_' + str(stack_j) + '.hspy'
+                    file_name = os.path.join(self.stack_dir, file_name)
+                    self.storage_dict[supported_mode].stack.save(file_name)
+
+
         # Plot the stacks
         for supported_mode in self.supported_modes:
             # self.storage.stack.plot() # plot the acquired stack using hyperspy's library
             if self.active_modes[supported_mode] == True:
                 # convert hs.signals.Signal2D BaseSignal to EBSD (EBSDMasterPattern or VirtualBSEImage)
                 self.storage_dict[supported_mode].stack.set_signal_type("EBSD")
-
                 if self.checkBox_remove_static_background.isChecked():
                     print('removing the static background')
                     self.storage_dict[supported_mode].stack.remove_static_background(operation="subtract", relative=True)

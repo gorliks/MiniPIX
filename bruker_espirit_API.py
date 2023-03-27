@@ -65,6 +65,44 @@ class TSegment(ctypes.Structure):
     ]
 
 
+# struct TRTSpectrumHeaderRec {
+# 	unsigned __int8 IdentifierLength;
+# 	char Identifier[25];			// 'Rontec XRay spectrum'
+# 	int32_t Version;				// Version information
+# 	int32_t Size;					// Size in byte
+# 	double DateTime;				// Delphi 5.0 version of date and time
+# 	int32_t ChannelCount;			//
+# 	int32_t ChannelOffset;			// First channel index
+# 	double CalibrationAbs;			// Energy of first channel
+# 	double CalibrationLin;          // keV per channel
+# 	double SigmaAbs;				// Sigma^2 energy calibration
+# 	double SigmaLin;
+# 	// additional data compared to normal Roentec header
+# 	int32_t RealTime;					// real measure time in ms
+# 	int32_t LifeTime;					// life time in ms
+# };
+# #pragma pack(pop)
+
+id = ' ' * 25  # char Identifier[25];
+id = id.encode('utf-8')  # bytes, reference, char*
+class TRTSpectrumHeaderRec(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('Identifier', ctypes.c_char_p*25),
+        ('Version', ctypes.c_uint32),
+        ('Size', ctypes.c_uint32),
+        ('DateTime', ctypes.c_double),
+        ('ChannelCount', ctypes.c_uint32),
+        ('ChannelOffset', ctypes.c_uint32),
+        ('CalibrationAbs', ctypes.c_double),
+        ('CalibrationLin', ctypes.c_double),
+        ('SigmaAbs', ctypes.c_double),
+        ('SigmaLin', ctypes.c_double),
+        ('RealTime', ctypes.c_uint32),
+        ('LifeTime', ctypes.c_uint32)
+    ]
+
+
 errors = {-1 : 'IFC_ERROR_IN_EXECUTION',
          -2 : 'IFC_ERROR_WRONG_PARAMETER (execution)',
          -3 : 'IFC_ERROR_SPECTRUM_BUFFER_EMPTY',
@@ -688,7 +726,6 @@ class Bruker_Espirit():
         #self.image_buffer_ptr = ctypes.c_void_p() # void* Buffer
 
         # version 2 : array
-        # TODO check different ctypes: c_uint, c_int, c_uint64
         # the image has 8 bit depth (0..255) hence ctypes.c_uint8
         IntArray = ctypes.c_uint8 * self.buffer_size.value # int8 array the size of width*height+extra for storing the image
         self.image_buffer = IntArray() # initialise the array
@@ -843,7 +880,33 @@ class Bruker_Espirit():
                     break
 
 
+    def get_point_list_spectrum(self, spectrum_index = 1, dwell_time = 1):
+        # // CID		    : connection identifier
+        # // Index		    : spectrum index (1..n)
+        # // SpectrumBuf	: buffer to hold complete spectrum with header (around 20kB), must be allocated by caller
+        # // BufSize		: size of spectrum buffer
+        # int32_t GetPointListSpectrum(uint32_t CID, int32_t Index, PRTSpectrumHeaderRec SpectrumBuf, int32_t BufSize)
 
+        spectrum_index = ctypes.c_uint32(spectrum_index)
+        dwell_time = ctypes.c_uint32(dwell_time)
+
+        # # allocate 64000 memory for the header
+        # TRTSpectrumHeaderRecArray = TRTSpectrumHeaderRec * 64000
+        # SpectrumBuf_ptr = ctypes.POINTER(TRTSpectrumHeaderRecArray)
+
+        SpectrumBuf = TRTSpectrumHeaderRec()
+        SpectrumBuf_ptr = ctypes.pointer(SpectrumBuf)
+
+        output = \
+            self.espirit.GetPointListSpectrum(self.CID, spectrum_index,
+                                              SpectrumBuf_ptr, ctypes.c_uint32(64000))
+
+        if output==0:
+            self.error_message = ''
+            print(f'Retrieved the line scan spectum\n')
+        else:
+            self.error_message = f'Could not retrieve the line scan data\n, ERROR code is {output}, {errors[output]}'
+            print( self.error_message + '\n')
 
 
 if __name__ == "__main__":

@@ -142,6 +142,16 @@ errors = {-1 : 'IFC_ERROR_IN_EXECUTION',
 }
 
 
+header = []
+for ii in range(255):
+    header.append(ii)
+    header.append(ii)
+    header.append(ii)
+    header.append(0)
+header = np.array(header)
+
+
+
 class Bruker_Espirit():
     def __init__(self):
         self.path_to_dll = path_to_dll
@@ -746,22 +756,36 @@ class Bruker_Espirit():
             self.error_message = f'Could not acquire image, ERROR code is {output}, {errors[output]}'
             print( self.error_message + '\n')
 
-        self.image = np.zeros( self.buffer_size.value )
-        for ii in range( self.buffer_size.value ):
-            self.image[ii] = self.image_buffer_ptr.contents[ii] # populate the 1D array from the buffer pointer
-
-        # remove the zeros in the extra buffer for image
-        self.image = self.image[ : -extra_buffer_for_image]
+        ###############################################################################################################
 
         if demo:
             print('this is demo mode, image generated')
             self.image = np.random.randint(0, 255, [self.height.value, self.width.value])
 
-        if not demo:
+        ###############################################################################################################
+        elif not demo:
+            self.buffer = np.zeros( self.buffer_size.value )
+            for ii in range( self.buffer_size.value ):
+                self.buffer[ii] = self.image_buffer_ptr.contents[ii] # populate the 1D array from the buffer pointer
+
+            buffer_index = self._find_where_header_ends(self.buffer)
+
+            # remove the header
+            self.image = self.buffer[ buffer_index + len(header) :
+                                      buffer_index + len(header) + self.height.value * self.width.value]
+
             self.image = np.reshape(self.image, (self.height.value, self.width.value) ) # reshape the 1D array into the image shape
-            # plt.figure(11)
-            # plt.imshow(self.image[0:self.width.value//3, :], cmap='gray')
-            # plt.show()
+
+
+
+    def _find_where_header_ends(self, buffer):
+        ind = 0
+        for ii in range(0, len(buffer) - len(header)):
+            if list(buffer[ii: ii + len(header)]) == list(header):
+                ind = ii
+                break
+        print(f'index = {ind}, end of header = {ind + len(header)}')
+        return ind
 
 
 

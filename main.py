@@ -178,7 +178,22 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
     def get_sem_image(self):
         self.bruker.acquire_image(demo=self.demo)
         self.label_messages.setText(self.bruker.error_message)
-        utils.select_point(self.bruker.image)
+        fig, ax = utils.plot_sem_image(self.bruker.image)
+
+        def on_click(event):
+            coords = []
+            coords.append(event.ydata)
+            coords.append(event.xdata)
+            try:
+                y0 = coords[-2]
+                x0 = coords[-1]
+            except:
+                y0 = 0
+                x0 = 0
+            self.spinBox_x0.setValue(x0)
+            self.spinBox_y0.setValue(y0)
+
+        fig.canvas.mpl_connect("button_press_event", on_click)
 
 
     def plot_sem_image(self, cmap='gray'):
@@ -187,8 +202,23 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         except AttributeError:
             print('image does not exist yet')
             self.label_messages.setText('SEM image does not exist')
+
         else:
-            utils.select_point(self.bruker.image)
+            fig, ax = utils.plot_sem_image(self.bruker.image)
+            def on_click(event):
+                coords = []
+                coords.append(event.ydata)
+                coords.append(event.xdata)
+                try:
+                    y0 = coords[-2]
+                    x0 = coords[-1]
+                except:
+                    y0 = 0
+                    x0 = 0
+                self.spinBox_x0.setValue(x0)
+                self.spinBox_y0.setValue(y0)
+
+            fig.canvas.mpl_connect("button_press_event", on_click)
 
 
     def save_sem_image(self):

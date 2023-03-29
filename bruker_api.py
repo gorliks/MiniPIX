@@ -96,8 +96,8 @@ line_buffer_ptr = ctypes.pointer(line_buffer)
 
 def create_point_array(coordinates):
     N = len(coordinates)  # number of points
-    array_of_N_poonts = TPoint * N  # make a new "class" of array with N elements
-    points = array_of_N_poonts()  # initialise an array variable
+    array_of_N_points = TPoint * N  # make a new "class" of array with N elements
+    points = array_of_N_points()  # initialise an array variable
     #
     for ii, point in enumerate(points):
         x = coordinates[ii][0]
@@ -227,7 +227,7 @@ class Bruker():
         # 0 = normal image scan
         # 1 = ‘SetPoint’ is used to change scan position
         # 2 = external triggered scan (TTL input)
-        if type == 'nornal' or type == 0:
+        if type == 'normal' or type == 0:
             output = self.bruker.ImageSetAcquisitionMode(0)
             print(output, '; set scan mode to 0:nornal')
         elif type == 'set_point' or type == 'setpoint' or type == 1:

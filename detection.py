@@ -192,6 +192,22 @@ class Detector():
 
 
 
+    def acquire_frame(self, file_name='', integral=False):
+        #
+        if not self.demo: # data from the detector, not simulated data
+            data = hardware.acquire_frame(device=self.device,
+                                          number_of_frames=self.number_of_frames,
+                                          integration_time=self.integration_time,
+                                          integral=integral)
+
+        #
+        else: # simulated data,
+            print('demo mode, waiting for ', self.integration_time)
+            time.sleep(self.integration_time)
+            data = np.random.randint(0, 255, [256, 256])
+
+        return data
+
 
 
 if __name__ == '__main__':

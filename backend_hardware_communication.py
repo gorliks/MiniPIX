@@ -162,9 +162,9 @@ def acquire(device, number_of_frames=1, integration_time=0.1, file_name=''):
 
         print('hardware file name = ', file_name)
         rc = device.doSimpleAcquisition(number_of_frames,
-                                            integration_time,
-                                            pixet.PX_FTYPE_AUTODETECT,
-                                            file_name)
+                                        integration_time,
+                                        pixet.PX_FTYPE_AUTODETECT,
+                                        file_name)
         #  frames are saved into a file after acquisition
         acqCount = device.acqFrameCount()  # number of measured acquisitions (frames)
         integrated_frame = np.zeros( (256, 256) )
@@ -207,8 +207,51 @@ def acquire(device, number_of_frames=1, integration_time=0.1, file_name=''):
             DATA[mode] = data # either np.array or None
 
     return DATA
-    #
 
+
+def acquire_frame(device, number_of_frames=1,
+                  integration_time=0.1,
+                  integral=False):
+    rc = -1.
+    # only one frame taken
+    if not integral:
+        rc = device.doSimpleAcquisition(1,
+                                        integration_time,
+                                        pixet.PX_FTYPE_AUTODETECT, "")
+
+    # integrate frames
+    else:
+        # does integral acquisition of N int_times frames -> sums N frames of int_times to one
+        rc = device.doSimpleIntegralAcquisition(number_of_frames,
+                                                integration_time,
+                                                pixet.PX_FTYPE_AUTODETECT, "")
+        ######################### multi-frame #########################
+        # rc = device.doSimpleAcquisition(number_of_frames,
+        #                                 integration_time,
+        #                                 pixet.PX_FTYPE_AUTODETECT,
+        #                                 '')
+        # integrated_frame = np.zeros((256, 256))
+        # if rc==0:
+        #     acqCount = device.acqFrameCount() # number of measured acquisitions (frames)
+        #     print(f'acqCount = {acqCount}')
+        #     for ii in range(4):
+        #         frame = device.acqFrameRefInc(ii) # get frame with index from last acquisition series
+        #         data = frame.data()
+        #         data = np.reshape(data, (256,256))
+        #         integrated_frame = integrated_frame + data
+        # return integrated_frame
+
+
+    if rc == 0:
+        # no error, get last frame
+        frame = device.lastAcqFrameRefInc()
+        # get frame data to python array/list:
+        data = frame.data()
+        data = np.reshape(data, (256, 256))
+        return data
+    else:
+        # error happened, return empty image with zeros
+        return np.zeros((256, 256))
 
 
 def close():

@@ -97,6 +97,9 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_set_beam_position.clicked.connect(lambda: self.set_beam_to_position())
         self.pushButton_plot_SEM_image.clicked.connect(lambda: self.plot_sem_image())
         self.pushButton_save_SEM_image.clicked.connect(lambda: self.save_sem_image())
+        #
+        self.pushButton_acquire_frame.clicked.connect(lambda: self.acquire_frame())
+
 
 
     # TODO fix pop-up plot bugs
@@ -601,6 +604,23 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.get_data()
 
 
+    def acquire_frame(self):
+        self.setup_acquisition()
+        self.get_frame()
+
+
+    def get_frame(self):
+        self.update_temperature()
+        integral = self.checkBox_frame_integral.isChecked()
+        self.integration_time = self.device.integration_time    # TODO update device state in settings self.device.settings['integration_time']
+        self.repaint()  # update the GUI to show the progress
+        self.frame = \
+            self.device.acquire_frame()
+        self.repaint()  # update the GUI to show the progress
+        image_to_display = qimage2ndarray.array2qimage(self.frame.copy())
+        self.label_image_frame5.setPixmap(QtGui.QPixmap(image_to_display))
+
+
     def get_data(self, save_dir=None, file_name=None, update_display=True):
         self.update_temperature()
         ts = time.time()
@@ -638,8 +658,8 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
         self.data = \
             self.device.acquire(file_name=file_name,
-                                        type=self.comboBox_type_of_measurement.currentText(),
-                                        mode=self.comboBox_mode_of_measurement.currentText())
+                                type=self.comboBox_type_of_measurement.currentText(),
+                                mode=self.comboBox_mode_of_measurement.currentText())
 
         self.pushButton_acquire.setEnabled(True)
         self.pushButton_setup_acquisition.setEnabled(True)

@@ -99,6 +99,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_save_SEM_image.clicked.connect(lambda: self.save_sem_image())
         #
         self.pushButton_acquire_frame.clicked.connect(lambda: self.acquire_frame())
+        self.pushButton_acquire_pixels.clicked.connect(lambda: self.acquire_pixels())
 
 
 
@@ -606,19 +607,25 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
     def acquire_frame(self):
         self.setup_acquisition()
-        self.get_frame()
-
-
-    def get_frame(self):
         self.update_temperature()
         integral = self.checkBox_frame_integral.isChecked()
         self.integration_time = self.device.integration_time    # TODO update device state in settings self.device.settings['integration_time']
         self.repaint()  # update the GUI to show the progress
         self.frame = \
-            self.device.acquire_frame()
+            self.device.acquire_frame(integral=integral)
         self.repaint()  # update the GUI to show the progress
         image_to_display = qimage2ndarray.array2qimage(self.frame.copy())
         self.label_image_frame5.setPixmap(QtGui.QPixmap(image_to_display))
+
+
+    def acquire_pixels(self):
+        self.setup_acquisition()
+        self.update_temperature()
+        self.integration_time = self.device.integration_time    # TODO update device state in settings self.device.settings['integration_time']
+        self.repaint()  # update the GUI to show the progress
+        self.pixels = \
+            self.device.acquire_pixels()
+        self.repaint()  # update the GUI to show the progress
 
 
     def get_data(self, save_dir=None, file_name=None, update_display=True):
@@ -911,4 +918,4 @@ def main(demo):
 
 
 if __name__ == '__main__':
-    main(demo=True)
+    main(demo=False)

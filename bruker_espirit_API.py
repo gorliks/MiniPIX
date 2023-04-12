@@ -776,6 +776,8 @@ class Bruker_Espirit():
 
             self.image = np.reshape(self.image, (self.height.value, self.width.value) ) # reshape the 1D array into the image shape
 
+            self.image = np.flipud(self.image) # rearrange the array to match SEM image
+
 
 
     def _find_where_header_ends(self, buffer):

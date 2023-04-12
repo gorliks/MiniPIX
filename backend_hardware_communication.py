@@ -62,7 +62,7 @@ def get_detector_info(device):
 def set_acquisition_type(device, type='Frames'):
     if type=='Frames':
         acquisition_type = pixet.PX_ACQTYPE_FRAMES
-    if type=='Test pulses':
+    elif type=='Test pulses':
         acquisition_type = pixet.PX_ACQTYPE_TESTPULSES
     else:
         acquisition_type = pixet.PX_ACQTYPE_FRAMES
@@ -212,19 +212,20 @@ def acquire(device, number_of_frames=1, integration_time=0.1, file_name=''):
 def acquire_frame(device, number_of_frames=1,
                   integration_time=0.1,
                   integral=False):
-    rc = -1.
+    output = -1. # initialised error to False
     # only one frame taken
     if not integral:
-        rc = device.doSimpleAcquisition(1,
+        output = device.doSimpleAcquisition(1,
                                         integration_time,
                                         pixet.PX_FTYPE_AUTODETECT, "")
 
     # integrate frames
     else:
         # does integral acquisition of N int_times frames -> sums N frames of int_times to one
-        rc = device.doSimpleIntegralAcquisition(number_of_frames,
+        output = device.doSimpleIntegralAcquisition(number_of_frames,
                                                 integration_time,
                                                 pixet.PX_FTYPE_AUTODETECT, "")
+
         ######################### multi-frame #########################
         # rc = device.doSimpleAcquisition(number_of_frames,
         #                                 integration_time,
@@ -241,8 +242,7 @@ def acquire_frame(device, number_of_frames=1,
         #         integrated_frame = integrated_frame + data
         # return integrated_frame
 
-
-    if rc == 0:
+    if output == 0:
         # no error, get last frame
         frame = device.lastAcqFrameRefInc()
         # get frame data to python array/list:
@@ -252,6 +252,38 @@ def acquire_frame(device, number_of_frames=1,
     else:
         # error happened, return empty image with zeros
         return np.zeros((256, 256))
+
+
+
+def acquire_pixels(device, number_of_frames=1, integration_time=0.1):
+    output = -1. # initialised error to False
+
+    # pixel modes only in TOA/TOT mode
+    device.setOperationMode(pixet.PX_TPX3_OPM_TOATOT)
+
+    # TODO arbitrary number of frames
+    number_of_frames = 1
+    acq_type = pixet.PX_ACQTYPE_DATADRIVEN # pixet.PX_ACQTYPE_FRAMES, pixet.PX_ACQTYPE_TESTPULSES
+    acq_mode = pixet.PX_ACQMODE_NORMAL # pixet.PX_ACQMODE_TRG_HWSTART, pixet.PX_ACQMODE_TDI, ...
+    file_type = pixet.PX_FTYPE_AUTODETECT
+    file_flags = 0
+    output_file = "" #"test.pmf"
+    output = \
+        device.doAdvancedAcquisition(number_of_frames, integration_time,
+                                     acq_type, acq_mode,
+                                     file_type, file_flags, output_file)
+    print(f'output = {output}')
+
+    if output == 0:
+        ######################## get tpx3 pixels ########################
+        pixels = device.lastAcqPixelsRefInc()
+        pixel_count = pixels.totalPixelCount()
+        pixel_data = pixels.pixels()
+        print("PixelCount: %d " % pixel_count)
+        return np.array(pixel_data)
+    else:
+        # error happened, return empty image with zeros
+        return np.zeros((3,1000))
 
 
 def close():

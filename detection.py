@@ -1,4 +1,6 @@
 import sys, time
+
+import matplotlib.pyplot as plt
 import numpy as np
 import backend_hardware_communication as hardware
 import datetime
@@ -199,12 +201,76 @@ class Detector():
                                           number_of_frames=self.number_of_frames,
                                           integration_time=self.integration_time,
                                           integral=integral)
-
-        #
         else: # simulated data,
             print('demo mode, waiting for ', self.integration_time)
             time.sleep(self.integration_time)
             data = np.random.randint(0, 255, [256, 256])
+        return data
+
+
+    def acquire_pixels(self, file_name=''):
+        if not self.demo: # data from the detector, not simulated data
+            data = hardware.acquire_pixels(device=self.device,
+                                          number_of_frames=self.number_of_frames,
+                                          integration_time=self.integration_time)
+            indices = data[0][:]
+            TOA     = data[1][:]
+            TOT     = data[2][:]
+            indices = np.array(indices)
+            indices = indices.astype(int)
+            TOT = np.array(TOT)
+            TOA = np.array(TOA)
+            print(f'max TOA = {TOA.max()}')
+            print(f'max TOT = {TOT.max()}')
+            print(f'max time = {TOA.max() / 1e9} sec')
+
+            toa_integral = np.zeros(256 * 256)
+            tot_integral = np.zeros(256 * 256)
+
+            for ii in range(len(indices)):
+                pixel_index = indices[ii]
+                toa_integral[pixel_index] += TOA[ii]
+                tot_integral[pixel_index] += TOT[ii]
+
+            toa_integral = np.reshape(toa_integral, (256, 256))
+            tot_integral = np.reshape(tot_integral, (256, 256))
+
+            tot_integral[168,86] = 0
+
+
+            plt.subplot(2, 2, 1)
+            plt.imshow(toa_integral, cmap='gray')
+            plt.colorbar()
+            plt.title("TOA")
+            #
+            plt.subplot(2, 2, 2)
+            plt.imshow(tot_integral, cmap='gray')
+            plt.colorbar()
+            plt.title("TOT")
+            #
+            plt.subplot(2, 2, 3)
+            plt.imshow(np.log(toa_integral), cmap='gray')
+            plt.colorbar()
+            plt.title("TOA_log")
+            #
+            plt.subplot(2, 2, 4)
+            plt.imshow(np.log(tot_integral), cmap='gray')
+            plt.colorbar()
+            plt.title("TOT_log")
+            plt.show()
+
+            # NN = int(TOT.max())
+            # n_x, bins_x, patches_x = plt.hist(TOA, NN)
+
+            return data
+
+        else: # simulated data,
+            print('demo mode, waiting for ', self.integration_time)
+            time.sleep(self.integration_time)
+            data = np.random.randint(0, 255, [256, 256])
+            plt.imshow(data, cmap='gray')
+            plt.colorbar()
+            plt.title("demo mode")
 
         return data
 

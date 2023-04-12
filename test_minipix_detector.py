@@ -64,7 +64,6 @@ elif mode2 == 'TOT_not_OA':
 else:
     print('Setting detector mode to (1) ', mode2)
     device.setOperationMode(pixet.PX_TPX3_OPM_TOATOT)
-response = mode2 + ' set'
 
 
 print(f'Temperature = {get_temperature(device)}')
@@ -125,51 +124,106 @@ if 1:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 def acqExample6():
-    acqCount = 5
-    acqTime = 0.5 # in seconds, 0.1 s
-    acqType = pixet.PX_ACQTYPE_DATADRIVEN # pixet.PX_ACQTYPE_FRAMES, pixet.PX_ACQTYPE_TESTPULSES
-    acqMode = pixet.PX_ACQMODE_NORMAL # pixet.PX_ACQMODE_TRG_HWSTART, pixet.PX_ACQMODE_TDI, ...
-    fileType = pixet.PX_FTYPE_AUTODETECT
-    fileFlags = 0
-    outputFile = "" #"test.pmf"
-    device.doAdvancedAcquisition(acqCount, acqTime, acqType, acqMode, fileType, fileFlags, outputFile)
+    device.setOperationMode(pixet.PX_TPX3_OPM_TOATOT)
 
-    # get tpx3 pixels:
+    energy_threshold_keV = 1.5
+    device.setThreshold(0, energy_threshold_keV, 2)
+    print('Energy threshold = ', device.threshold(0, 2), ' keV')
+
+    print(f'Temperature = {get_temperature(device)}')
+
+    # device.setBias(100)  # sets detector bias voltage to 100 V
+    print(device.bias())  # return device bias volage (set value)
+
+
+    number_of_frames = 1
+    integration_time = 1 # in seconds, 0.1 s
+    acq_type = pixet.PX_ACQTYPE_DATADRIVEN # pixet.PX_ACQTYPE_FRAMES, pixet.PX_ACQTYPE_TESTPULSES
+    acq_mode = pixet.PX_ACQMODE_NORMAL # pixet.PX_ACQMODE_TRG_HWSTART, pixet.PX_ACQMODE_TDI, ...
+    file_type = pixet.PX_FTYPE_AUTODETECT
+    file_flags = 0
+    output_file = "" #"test.pmf"
+    output = \
+        device.doAdvancedAcquisition(number_of_frames, integration_time,
+                                     acq_type, acq_mode,
+                                     file_type, file_flags, output_file)
+    print(f'output = {output}')
+
+    ######################## get tpx3 pixels ########################
     pixels = device.lastAcqPixelsRefInc()
-    # frame = device.lastAcqFrameRefInc()
-    pixelCount = pixels.totalPixelCount()
-    pixelData = pixels.pixels()
-    print("PixelCount: %d " % pixelCount)
+    pixel_count = pixels.totalPixelCount()
+    pixel_data = pixels.pixels()
+    print("PixelCount: %d " % pixel_count)
 
-    TPX3_INDEX = 0
-    TPX3_TOT = 1
-    TPX3_TOA = 2
 
-    # get first pixel values:
-    matrixIndex = pixelData[TPX3_INDEX][0]
-    tot = pixelData[TPX3_TOT][0]
-    toa = pixelData[TPX3_TOA][0]
-    print(tot, toa)
+    ######################## get first pixel values ########################
+    matrix_index = pixel_data[0][0]
+    tot = pixel_data[1][0]
+    toa = pixel_data[2][0]
+    print(matrix_index, tot, toa)
 
-    # get second pixel values:
-    matrixIndex = pixelData[TPX3_INDEX][1]
-    tot = pixelData[TPX3_TOT][1]
-    toa = pixelData[TPX3_TOA][1]
-    print(tot, toa)
+    ######################## get second pixel values ########################
+    matrix_index = pixel_data[0][1]
+    tot = pixel_data[1][1]
+    toa = pixel_data[2][1]
+    print(matrix_index, tot, toa)
 
     # save data to a file
-    pixels.save("/tmp/test2.t3pa", pixet.PX_FTYPE_AUTODETECT, 0)
+    # pixels.save("test_1_toa_tot.t3pa", pixet.PX_FTYPE_AUTODETECT, 0)
+
+    ####################################################################################################################
+
+    print(max(pixel_data[0]),
+          max(pixel_data[1]),
+          max(pixel_data[2]),
+          max(pixel_data[0]))
+
+    indices = pixel_data[0][:]
+    TOA     = pixel_data[1][:]
+    TOT     = pixel_data[2][:]
+
+    indices = np.array(indices)
+    TOT = np.array(TOT)
+    TOA = np.array(TOA)
+    print(f'max TOA = {TOA.max()}')
+    print(f'max TOT = {TOT.max()}')
+    print(f'max time = {TOA.max()/1e9} sec')
+
+
+    toa_integral = np.zeros(256*256)
+    tot_integral = np.zeros(256*256)
+
+
+    # for ind in indices:
+    #     toa_integral[ind] += TOA[ind]
+    #     tot_integral[ind] += TOT[ind]
+    for ii in range(len(indices)):
+        pixel_index = indices[ii]
+        toa_integral[pixel_index] += TOA[ii]
+        tot_integral[pixel_index] += TOT[ii]
+
+    toa_integral = np.reshape(toa_integral, (256, 256))
+    tot_integral = np.reshape(tot_integral, (256, 256))
+
+    plt.subplot(1, 2, 1)
+    plt.imshow(toa_integral, cmap='gray')
+    plt.colorbar()
+    plt.title("TOA")
+    #
+    plt.subplot(1, 2, 2)
+    plt.imshow(np.log(tot_integral), cmap='gray')
+    plt.colorbar()
+    plt.title("TOT")
+    #
+    plt.show()
+
+
+
+    NN = int(TOT.max())
+    n_x, bins_x, patches_x = plt.hist(TOA, NN)
+
+
+
 
     pixels.destroy()

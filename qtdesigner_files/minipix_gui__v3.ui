@@ -99,7 +99,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -1252,8 +1252,8 @@
         <widget class="QCheckBox" name="checkBox_external_scan">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>100</y>
+           <x>200</x>
+           <y>550</y>
            <width>101</width>
            <height>20</height>
           </rect>
@@ -1529,6 +1529,19 @@
          </property>
          <property name="text">
           <string>ASCII</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_external_mode">
+         <property name="geometry">
+          <rect>
+           <x>200</x>
+           <y>530</y>
+           <width>111</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>External mode</string>
          </property>
         </widget>
        </widget>
@@ -1946,6 +1959,20 @@ frame</string>
          <property name="text">
           <string>Acquire
 pixels
+TOA-TOT</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_open_t3pa_file">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>30</y>
+           <width>131</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Open t3pa file
 TOA-TOT</string>
          </property>
         </widget>

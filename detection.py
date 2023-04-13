@@ -235,24 +235,20 @@ class Detector():
             toa_integral = np.reshape(toa_integral, (256, 256))
             tot_integral = np.reshape(tot_integral, (256, 256))
 
-            tot_integral[168,86] = 0
-
+            tot_integral[168,86] = 0 #bad bright pixel
 
             plt.subplot(2, 2, 1)
             plt.imshow(toa_integral, cmap='gray')
             plt.colorbar()
             plt.title("TOA")
-            #
             plt.subplot(2, 2, 2)
             plt.imshow(tot_integral, cmap='gray')
             plt.colorbar()
             plt.title("TOT")
-            #
             plt.subplot(2, 2, 3)
             plt.imshow(np.log(toa_integral), cmap='gray')
             plt.colorbar()
             plt.title("TOA_log")
-            #
             plt.subplot(2, 2, 4)
             plt.imshow(np.log(tot_integral), cmap='gray')
             plt.colorbar()
@@ -272,7 +268,7 @@ class Detector():
             plt.colorbar()
             plt.title("demo mode")
 
-        return data
+            return data
 
 
 

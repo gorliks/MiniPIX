@@ -88,7 +88,8 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         #### SEM
         self.pushButton_open_client.clicked.connect(lambda: self.open_sem_client())
         self.pushButton_update_SEM_state.clicked.connect(lambda: self.update_sem_state())
-        self.checkBox_external_scan.stateChanged.connect(lambda: self.set_to_external_mode())
+        self.checkBox_external_mode.stateChanged.connect(lambda: self.set_to_external_mode())
+        self.checkBox_external_scan.stateChanged.connect(lambda: self.set_to_external_scan())
         self.pushButton_read_stage_position.clicked.connect(lambda: self.get_stage_position())
         self.pushButton_get_image_config.clicked.connect(lambda: self.get_image_configuration())
         self.pushButton_set_image_config.clicked.connect(lambda: self.set_image_configuration())
@@ -100,6 +101,8 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         #
         self.pushButton_acquire_frame.clicked.connect(lambda: self.acquire_frame())
         self.pushButton_acquire_pixels.clicked.connect(lambda: self.acquire_pixels())
+        self.pushButton_open_t3pa_file.clicked.connect(lambda: self.open_t3pa_file())
+
 
 
 
@@ -279,14 +282,23 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
     def set_to_external_mode(self):
-        _state = self.checkBox_external_scan.isChecked()
+        _state = self.checkBox_external_mode.isChecked()
         if _state == True:
             print('setting SEM to external mode')
             self.bruker.set_sem_to_external_mode(external=True)
-            self.bruker.set_external_scan_mode(external=True)
         else:
             print('setting SEM to internal mode')
             self.bruker.set_sem_to_external_mode(external=False)
+        self.label_messages.setText(self.bruker.error_message)
+
+
+    def set_to_external_scan(self):
+        _state = self.checkBox_external_scan.isChecked()
+        if _state == True:
+            print('setting SEM to external scan')
+            self.bruker.set_external_scan_mode(external=True)
+        else:
+            print('setting SEM to internal scan')
             self.bruker.set_external_scan_mode(external=False)
         self.label_messages.setText(self.bruker.error_message)
 
@@ -514,6 +526,61 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                     plt.show()
                 except:
                     print('Could not read the file, or something else is wrong')
+
+
+
+
+    def open_t3pa_file(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getOpenFileName(self,
+                                                   "QFileDialog.getOpenFileName()",
+                                                   "","t3pa files (*.t3pa);;txt files (*.txt);;All Files (*)",
+                                                   options=options)
+        if file_name:
+            print(file_name)
+            # data format files saved by PiXet detector
+            if file_name.lower().endswith('.t3pa'):
+                metadata_file_name = file_name + '.info'
+                data = np.loadtxt(file_name, skiprows=1)
+                data = np.transpose(data)
+
+                indices = data[1][:]
+                indices = indices.astype(int)
+                TOA  = data[2][:]
+                TOT  = data[3][:]
+                FToA = data[4][:]
+
+                TOA_time = TOA * 25 - FToA * 25. / 16.
+
+                toa_integral = np.zeros(256 * 256)
+                tot_integral = np.zeros(256 * 256)
+
+                for ii in range(len(indices)):
+                    pixel_index = indices[ii]
+                    toa_integral[pixel_index] += TOA_time[ii]
+                    tot_integral[pixel_index] += TOT[ii]
+
+                toa_integral = np.reshape(toa_integral, (256, 256))
+                tot_integral = np.reshape(tot_integral, (256, 256))
+
+                plt.subplot(2, 2, 1)
+                plt.imshow(toa_integral, cmap='gray')
+                plt.colorbar()
+                plt.title("TOA")
+                plt.subplot(2, 2, 2)
+                plt.imshow(tot_integral, cmap='gray')
+                plt.colorbar()
+                plt.title("TOT")
+                plt.subplot(2, 2, 3)
+                plt.imshow(np.log(toa_integral), cmap='gray')
+                plt.colorbar()
+                plt.title("TOA_log")
+                plt.subplot(2, 2, 4)
+                plt.imshow(np.log(tot_integral), cmap='gray')
+                plt.colorbar()
+                plt.title("TOT_log")
+                plt.show()
 
 
     # def send_message_to_server(self):

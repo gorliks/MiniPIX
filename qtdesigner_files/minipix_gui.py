@@ -357,7 +357,7 @@ class Ui_MainWindow(object):
         self.spinBox_height_pixels.setMaximum(200000)
         self.spinBox_height_pixels.setObjectName("spinBox_height_pixels")
         self.checkBox_external_scan = QtWidgets.QCheckBox(self.tab_2)
-        self.checkBox_external_scan.setGeometry(QtCore.QRect(10, 100, 101, 20))
+        self.checkBox_external_scan.setGeometry(QtCore.QRect(200, 550, 101, 20))
         self.checkBox_external_scan.setObjectName("checkBox_external_scan")
         self.label_32 = QtWidgets.QLabel(self.tab_2)
         self.label_32.setGeometry(QtCore.QRect(190, 422, 51, 16))
@@ -427,6 +427,9 @@ class Ui_MainWindow(object):
         self.checkBox_save_ascii = QtWidgets.QCheckBox(self.tab_2)
         self.checkBox_save_ascii.setGeometry(QtCore.QRect(356, 490, 61, 20))
         self.checkBox_save_ascii.setObjectName("checkBox_save_ascii")
+        self.checkBox_external_mode = QtWidgets.QCheckBox(self.tab_2)
+        self.checkBox_external_mode.setGeometry(QtCore.QRect(200, 530, 111, 20))
+        self.checkBox_external_mode.setObjectName("checkBox_external_mode")
         self.tabWidget.addTab(self.tab_2, "")
         self.tab_3 = QtWidgets.QWidget()
         self.tab_3.setObjectName("tab_3")
@@ -547,6 +550,9 @@ class Ui_MainWindow(object):
         self.pushButton_acquire_pixels = QtWidgets.QPushButton(self.tab_5)
         self.pushButton_acquire_pixels.setGeometry(QtCore.QRect(20, 30, 101, 101))
         self.pushButton_acquire_pixels.setObjectName("pushButton_acquire_pixels")
+        self.pushButton_open_t3pa_file = QtWidgets.QPushButton(self.tab_5)
+        self.pushButton_open_t3pa_file.setGeometry(QtCore.QRect(150, 30, 131, 51))
+        self.pushButton_open_t3pa_file.setObjectName("pushButton_open_t3pa_file")
         self.tabWidget.addTab(self.tab_5, "")
         self.horizontalLayout.addWidget(self.frame_1)
         self.frame = QtWidgets.QFrame(self.centralwidget)
@@ -655,7 +661,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -738,6 +744,7 @@ class Ui_MainWindow(object):
         self.pushButton_plot_SEM_image.setText(_translate("MainWindow", "Plot"))
         self.pushButton_save_SEM_image.setText(_translate("MainWindow", "Save"))
         self.checkBox_save_ascii.setText(_translate("MainWindow", "ASCII"))
+        self.checkBox_external_mode.setText(_translate("MainWindow", "External mode"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Bruker"))
         self.pushButton_set_EBSD_detector.setText(_translate("MainWindow", "Set EBSD detector"))
         self.label_46.setText(_translate("MainWindow", "tilt"))
@@ -761,6 +768,8 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Frame"))
         self.pushButton_acquire_pixels.setText(_translate("MainWindow", "Acquire\n"
 "pixels\n"
+"TOA-TOT"))
+        self.pushButton_open_t3pa_file.setText(_translate("MainWindow", "Open t3pa file\n"
 "TOA-TOT"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "Pixels"))
         self.label_measurement_type1.setText(_translate("MainWindow", "TOA"))

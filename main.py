@@ -102,6 +102,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_acquire_frame.clicked.connect(lambda: self.acquire_frame())
         self.pushButton_acquire_pixels.clicked.connect(lambda: self.acquire_pixels())
         self.pushButton_open_t3pa_file.clicked.connect(lambda: self.open_t3pa_file())
+        self.pushButton_save_pixels.clicked.connect(lambda: self.save_pixels())
 
 
 
@@ -693,6 +694,29 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pixels = \
             self.device.acquire_pixels()
         self.repaint()  # update the GUI to show the progress
+
+
+    def save_pixels(self):
+        try:
+            self.pixels
+        except AttributeError:
+            print('pixels were not acquired yet')
+            self.label_messages.setText('pixels were not acquired yet')
+        else:
+            ts = time.time()
+            stamp = datetime.datetime.fromtimestamp(ts).strftime('%y%m%d.%H%M%S')  # make a timestamp for new file
+            if self.DIR == None:
+                save_dir = os.getcwd()
+            else:
+                save_dir = self.DIR
+            if not os.path.isdir(save_dir):
+                os.mkdir(save_dir)
+            print(self.DIR, save_dir)
+
+            file_name = save_dir + '/' + 'pixels' + '_' + stamp + '.txt'
+            np.savetxt(file_name, self.pixels)  #,fmt='%d') TODO check format of data int,float?
+
+
 
 
     def get_data(self, save_dir=None, file_name=None, update_display=True):

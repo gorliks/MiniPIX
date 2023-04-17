@@ -278,8 +278,9 @@ def acquire_pixels(device, number_of_frames=1, integration_time=0.1):
         ######################## get tpx3 pixels ########################
         pixels = device.lastAcqPixelsRefInc()
         pixel_count = pixels.totalPixelCount()
-        pixel_data = pixels.pixels()
         print("PixelCount: %d " % pixel_count)
+        pixel_data = pixels.pixels()
+        pixels.destroy()
         return np.array(pixel_data)
     else:
         # error happened, return empty image with zeros

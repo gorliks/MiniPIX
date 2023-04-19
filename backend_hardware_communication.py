@@ -1,6 +1,6 @@
-import sys, time
+import sys
 import numpy as np
-import localhost_client as localhost
+from test_files import localhost_client as localhost
 import utils
 
 type_of_communication = 'hardware'

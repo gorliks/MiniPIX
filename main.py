@@ -1,6 +1,5 @@
 import qtdesigner_files.minipix_gui as gui_main
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import QObject, QThread, QThreadPool, QTimer, pyqtSignal
+from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtWidgets import QFileDialog
 import qimage2ndarray
 
@@ -22,10 +21,9 @@ import datetime
 import glob
 
 import detection as detection
-import localhost_client as localhost
+from test_files import localhost_client as localhost
 import utils
 import data_handling as storage
-import threads as threads
 import bruker_espirit_API as SEM
 
 #test_image = '01_gorelick.jpg'

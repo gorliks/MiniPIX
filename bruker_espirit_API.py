@@ -366,7 +366,7 @@ class Bruker_Espirit():
 
     def get_sem_spot_size(self):
         # int32_t GetSEMSpotSize(uint32_t CID, double& SpotSize)
-        self.spot_size = ctypes.c_double(0) # probe current
+        self.spot_size = ctypes.c_double(0)
         self.spot_size_ptr = ctypes.pointer(self.spot_size)
 
         output = \

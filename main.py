@@ -12,10 +12,9 @@ import hyperspy.api as hs
 import kikuchipy as kp
 
 import matplotlib.pyplot as plt
-# from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as _FigureCanvas
-# from matplotlib.backends.backend_qt5agg import (
-#     NavigationToolbar2QT as _NavigationToolbar,
-# )
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as _FigureCanvas
+from matplotlib.backends.backend_qt5agg import (
+    NavigationToolbar2QT as _NavigationToolbar)
 
 import datetime
 import glob
@@ -42,7 +41,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         }""")
 
         self.setup_connections()
-        #self.initialise_image_frames()
+        self.initialise_image_frames()
         self.initialise_hardware()
         self.client = localhost.LocalHostClient()  # initialise communication with the localhost/client/server
         self.DIR = None
@@ -67,6 +66,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self._abort_clicked_status = False
 
         self.data_in_quadrant = [ [], [], [], []  ]
+
 
 
     def setup_connections(self):
@@ -104,6 +104,17 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
 
+    def initialise_image_frames(self):
+        self.figure_SEM = plt.figure(33)
+        plt.axis("off")
+        plt.tight_layout()
+        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
+        self.canvas_SEM = _FigureCanvas(self.figure_SEM)
+        self.toolbar_SEM = _NavigationToolbar(self.canvas_SEM, self)
+        #
+        self.label_image_frame_SEM.setLayout(QtWidgets.QVBoxLayout())
+        self.label_image_frame_SEM.layout().addWidget(self.toolbar_SEM)
+        self.label_image_frame_SEM.layout().addWidget(self.canvas_SEM)
 
     # TODO fix pop-up plot bugs
     # def initialise_image_frames(self):
@@ -184,22 +195,62 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
     def get_sem_image(self):
         self.bruker.acquire_image(demo=self.demo)
         self.label_messages.setText(self.bruker.error_message)
-        fig, ax = utils.plot_sem_image(self.bruker.image)
+
+        self.figure_SEM.clear()
+        self.figure_SEM.patch.set_facecolor(
+                                (240 / 255, 240 / 255, 240 / 255))
+        self.ax = self.figure_SEM.add_subplot(111)
+        self.ax.get_xaxis().set_visible(False)
+        self.ax.get_yaxis().set_visible(False)
+        self.ax.imshow(self.bruker.image, cmap='gray')
+
+        dims =self.bruker.image.shape
+        centre_marker_coords = [dims[0] / 2, dims[1] / 2]
+        self.ax.plot(centre_marker_coords[1],
+                     centre_marker_coords[0],
+                     '+', c='red', markersize=15, markeredgewidth=3)
+
+        self.canvas_SEM.draw()
 
         def on_click(event):
             coords = []
             coords.append(event.ydata)
             coords.append(event.xdata)
             try:
-                y0 = coords[-2]
-                x0 = coords[-1]
+                x_pos = coords[-2]
+                y_pos = coords[-1]
             except:
-                y0 = 0
-                x0 = 0
-            self.spinBox_x0.setValue(x0)
-            self.spinBox_y0.setValue(y0)
+                x_pos = 0
+                y_pos = 0
+            [coord_y, coord_x] = [x_pos, y_pos]
+            print(coord_x, coord_y)
 
-        fig.canvas.mpl_connect("button_press_event", on_click)
+        self.figure_SEM.canvas.mpl_connect("button_press_event",
+                                           on_click)
+        self.blitted_cursor = utils.BlittedCursor(self.ax)
+        self.figure_SEM.canvas.mpl_connect('motion_notify_event',
+                                           self.blitted_cursor.on_mouse_move)
+
+    # OLD VERSION
+    # def get_sem_image(self):
+    #     self.bruker.acquire_image(demo=self.demo)
+    #     self.label_messages.setText(self.bruker.error_message)
+    #     fig, ax = utils.plot_sem_image(self.bruker.image)
+    #
+    #     def on_click(event):
+    #         coords = []
+    #         coords.append(event.ydata)
+    #         coords.append(event.xdata)
+    #         try:
+    #             y0 = coords[-2]
+    #             x0 = coords[-1]
+    #         except:
+    #             y0 = 0
+    #             x0 = 0
+    #         self.spinBox_x0.setValue(x0)
+    #         self.spinBox_y0.setValue(y0)
+    #
+    #     fig.canvas.mpl_connect("button_press_event", on_click)
 
 
     def plot_sem_image(self, cmap='gray'):
@@ -1021,4 +1072,4 @@ def main(demo):
 
 
 if __name__ == '__main__':
-    main(demo=False)
+    main(demo=True)

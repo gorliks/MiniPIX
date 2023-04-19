@@ -10,8 +10,12 @@ type_of_communication = 'hardware'
 # global, need pixet for e.g. mode definitions, pixet.PX_TPX3_OPM_TOATOT
 path_to_pixet = r'C:\Program Files\PIXet Pro'
 sys.path.append(path_to_pixet)
-import pypixet
-pixet = pypixet.pixet
+
+try:
+    import pypixet
+    pixet = pypixet.pixet
+except Exception as e:
+    print(f'Could not load pypixet module, Error {e}')
 
 
 def send_message_to_server(message):

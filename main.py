@@ -635,11 +635,15 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
     def update_temperature(self):
+        start = time.time()
         if not self.demo:
             temperature = self.device.get_temperature()
         else:
             temperature = 'demo mode: ' + str((np.random.rand() + 0.05) * 100)
         self.label_temperature.setText(str(temperature))
+        self.repaint()
+        end = time.time()
+        print(f'temperature measurement time = {(end-start)/1e-3} ms')
 
 
     def setup_acquisition(self):
@@ -717,8 +721,10 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
 
-    def get_data(self, save_dir=None, file_name=None, update_display=True):
-        self.update_temperature()
+    def get_data(self, save_dir=None,
+                 file_name=None,
+                 update_display=True,
+                 return_data=True):
         ts = time.time()
         stamp = datetime.datetime.fromtimestamp(ts).strftime('%y%m%d.%H%M%S')  # make a timestamp for new file
 
@@ -730,15 +736,11 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
         if not os.path.isdir(save_dir):
             os.mkdir(save_dir)
-        print(self.DIR, save_dir)
 
         if file_name:
             file_name = save_dir + '/' + file_name + '_' + stamp
         else:
             file_name = save_dir + '/' + stamp
-        print(file_name)
-
-        self.integration_time = self.device.integration_time    # TODO update device state in settings self.device.settings['integration_time']
 
         ##################### progress bar routine #####################
         # worker = threads.Worker(self._progress_bar_counter)  # Any other args, kwargs are passed to the run function
@@ -747,20 +749,22 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         # worker.signals.progress.connect(self._update_progress_bar)
         # self.threadpool.start(worker) # Execute
         ################################################################
-        self.pushButton_acquire.setEnabled(False)
-        self.pushButton_setup_acquisition.setEnabled(False)
-        self.pushButton_check_temperature.setEnabled(False)
-        self.repaint()  # update the GUI to show the progress
+
+        # self.pushButton_acquire.setEnabled(False)
+        # self.pushButton_setup_acquisition.setEnabled(False)
+        # self.pushButton_check_temperature.setEnabled(False)
+        # self.repaint()  # update the GUI to show the progress
 
         self.data = \
             self.device.acquire(file_name=file_name,
                                 type=self.comboBox_type_of_measurement.currentText(),
-                                mode=self.comboBox_mode_of_measurement.currentText())
+                                mode=self.comboBox_mode_of_measurement.currentText(),
+                                return_data=return_data)
 
-        self.pushButton_acquire.setEnabled(True)
-        self.pushButton_setup_acquisition.setEnabled(True)
-        self.pushButton_check_temperature.setEnabled(True)
-        self.repaint()  # update the GUI to show the progress
+        # self.pushButton_acquire.setEnabled(True)
+        # self.pushButton_setup_acquisition.setEnabled(True)
+        # self.pushButton_check_temperature.setEnabled(True)
+        # self.repaint()  # update the GUI to show the progress
 
         if update_display==True:
             for count, mode in enumerate(self.supported_modes):
@@ -773,7 +777,6 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
     def update_image(self, quadrant, image, update_current_image=True):
-        self.update_temperature()
         _convention_ = self.comboBox_image_convention.currentText()
         if _convention_ == 'TEM convention':
             image  = np.flipud(image)
@@ -885,22 +888,28 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             pixel_counter = 0
             for ii in range(stack_i):
                 for jj in range(stack_j):
-                    print(x0+ii, y0+jj)
+
+                    start = time.time()
+
                     self.label_current_i.setText(f'{ii + 1} of {stack_i}')
                     self.label_current_j.setText(f'{jj + 1} of {stack_j}')
 
                     file_name = '%06d_'%pixel_counter + str(ii) + '_' + str(jj)
 
                     self.bruker.set_beam_to_point(x_pos = x0+ii, y_pos= y0+jj)
-                    # get_data, get_data also does update_image
-                    self.data = self.get_data(save_dir=self.stack_dir, file_name=file_name)
-                    self.bruker.beam_blank()
 
-                    for supported_mode in self.supported_modes:
-                        # self.storage.stack.data[ii][jj] = self.data['TOA']  # populate the stack
-                        if self.active_modes[supported_mode] == True:
-                            self.storage_dict[supported_mode].stack.data[ii][jj] = \
-                                self.data[supported_mode]
+                    # get_data, get_data also does update_image
+                    return_data = self.checkBox_plot_while_scanning.isChecked()
+                    self.data = self.get_data(save_dir=self.stack_dir,
+                                              file_name=file_name,
+                                              return_data=return_data)
+                    # self.bruker.beam_blank() # beam blanking by moving the beam to the corner of the image
+
+                    if return_data:
+                        for supported_mode in self.supported_modes:
+                            if self.active_modes[supported_mode] == True:
+                                self.storage_dict[supported_mode].stack.data[ii][jj] = \
+                                    self.data[supported_mode]
 
                     self.repaint()  # update the GUI to show the progress
                     QtWidgets.QApplication.processEvents()
@@ -910,6 +919,11 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                         self._abort_clicked_status = False  # reinitialise back to False
                         return
                     pixel_counter += 1
+
+                    if (pixel_counter % 20) == 0: self.update_temperature()
+
+                    end = time.time()
+                    print(f'runtime = {(end-start)/1e-3} ms')
 
         _run_loop()
 

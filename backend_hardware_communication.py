@@ -155,38 +155,44 @@ def get_temperature(device):
     return temperature
 
 
-def acquire(device, number_of_frames=1, integration_time=0.1, file_name=''):
+def acquire(device,
+            number_of_frames=1, integration_time=0.1,
+            file_name='', return_data=True):
     if type_of_communication == 'hardware':
         file_name_template = file_name
         file_name = file_name + '.pmf'
 
-        print('hardware file name = ', file_name)
+        #  frames are saved into a file after acquisition
         rc = device.doSimpleAcquisition(number_of_frames,
                                         integration_time,
                                         pixet.PX_FTYPE_AUTODETECT,
                                         file_name)
-        #  frames are saved into a file after acquisition
-        acqCount = device.acqFrameCount()  # number of measured acquisitions (frames)
-        integrated_frame = np.zeros( (256, 256) )
-        for index in range(acqCount):
-            frame = device.acqFrameRefInc(index)  # get frame with index from last acquisition series
-            # get frame data to python array/list:
-            data = frame.data()
-            data = np.array(data)
-            data = data.reshape((256, 256))
-            integrated_frame = integrated_frame + data # average frames, integrate frames
+
+        # acqCount = device.acqFrameCount()  # number of measured acquisitions (frames)
+        # integrated_frame = np.zeros( (256, 256) )
+        # for index in range(acqCount):
+        #     frame = device.acqFrameRefInc(index)  # get frame with index from last acquisition series
+        #     # get frame data to python array/list:
+        #     data = frame.data()
+        #     data = np.array(data)
+        #     data = data.reshape((256, 256))
+        #     integrated_frame = integrated_frame + data # average frames, integrate frames
+
         # load data into modes and slots for plotting
         modes = ['TOA',        'TOT',       'EVENT',       'iTOT']
         DATA  = {'TOA' : None, 'TOT': None, 'EVENT': None, 'iTOT': None }
-        for mode in modes:
-            # the client running on the detector will acquire only images for the selected mode, e.g. TOA
-            # and save the data into a file name with the key name of the mode e.g. qwert_TOA.pmf
-            # the read_data_file will try to read all the time possible files *TOA.pmf, TOT.pmf etc
-            # if the file is not found, the image data will be None in the returned dictionary
-            # when trying to plot the data, if None, the gui will skip the plotting
-            print(file_name_template + '_' + mode + '.pmf')
-            data = utils.read_data_file(file_name_template + '_' + mode + '.pmf' )
-            DATA[mode] = data # either np.array or None
+
+        # if return_data, load the corresponding files into the dictionary
+        # otherwise return None
+        if return_data:
+            for mode in modes:
+                # the client running on the detector will acquire only images for the selected mode, e.g. TOA
+                # and save the data into a file name with the key name of the mode e.g. qwert_TOA.pmf
+                # the read_data_file will try to read all the time possible files *TOA.pmf, TOT.pmf etc
+                # if the file is not found, the image data will be None in the returned dictionary
+                # when trying to plot the data, if None, the gui will skip the plotting
+                data = utils.read_data_file(file_name_template + '_' + mode + '.pmf' )
+                DATA[mode] = data # either np.array or None
 
     elif type_of_communication == 'localhost':
         # data = np.random.randint(0, 255, [256, 256])

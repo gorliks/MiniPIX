@@ -116,7 +116,7 @@ class Detector():
         else:
             print('Wrong setting of integration time, setting to 0.1 sec')
             self.integration_time = 0.1
-        print(f'Integration time set to {self.integration_time}')
+        # print(f'Integration time set to {self.integration_time}')
 
         if not self.demo:
             hardware.set_integration_time(device=self.device,
@@ -145,7 +145,7 @@ class Detector():
             temperature = round(temperature, 2)
         else:
             temperature = 278.15
-        print(f'Temperature = {temperature} C')
+        # print(f'Temperature = {temperature} C')
         return temperature
 
 
@@ -157,18 +157,18 @@ class Detector():
         self.set_threshold_energy(energy_threshold_keV=energy_threshold_keV)
 
 
-    def acquire(self, type, mode, file_name=''):
-        print('detection: acquire: mode =  ', mode)
-        #
+    def acquire(self, type, mode, file_name='', return_data=True):
+        # print('detection: acquire: mode =  ', mode)
+
         if not self.demo: # data from the detector, not simulated data
-            print('detection filename = ', file_name)
             data = hardware.acquire(device=self.device,
                                     number_of_frames=self.number_of_frames,
                                     integration_time=self.integration_time,
-                                    file_name=file_name)
+                                    file_name=file_name,
+                                    return_data=return_data)
 
-        #
-        else: # simulated data,
+        # -------- demo-mode, simulated data --------
+        else:
             types = ['Frames', 'Pixels', 'Test pulses']
             modes = ['TOA',      'TOT',       'EVENT',       'iTOT']
             data = {'TOA': None, 'TOT': None, 'EVENT': None, 'iTOT': None}

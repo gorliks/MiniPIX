@@ -7,15 +7,13 @@ import matplotlib.pyplot as plt
 
 #path_to_dll = r'F:\SharedData\MCEM Data - Staff Only\Bruker API\Esprit API\Bruker.API.Esprit64.dll'
 path_to_dll = r'C:\Users\sergeyg\Github\Bruker Nano APIs\Esprit API\Bruker.API.Esprit64.dll'
-#path_to_dll = r'\\ad.monash.edu\home\User002\sergeyg\Desktop\Minipix\Bruker Nano APIs\Esprit API\Bruker.API.Esprit64.dll'
 
 AnsiChar = ctypes.c_char * 8
 PAnsiChar = ctypes.POINTER(AnsiChar)
 
-
 # TOpenClientOptions = packed record // structure to describe Quantax start options in ‘OpenClientEx’
-# Version: integer; // Version of record structure, should be ‘l’ at the moment
-# GUIMode: integer; // ‘0’ = no GUI, ‘1’ = full GUI, ‘2’ = reduced GUI (spectrum chart only)
+# Version: integer; // Version of record structure, should be 'l' at the moment
+# GUIMode: integer; // '0' = no GUI, '1' = full GUI, '2' = reduced GUI (spectrum chart only)
 # StartNew: boolean; // start new instance of Quantax end;
 # POpenClientOptions = ^ TOpenClientOptions;
 class TOpenClientOptions(ctypes.Structure):
@@ -63,7 +61,6 @@ class TSegment(ctypes.Structure):
         ('XStart', ctypes.c_uint32),
         ('XCount', ctypes.c_uint32)
     ]
-
 
 # struct TRTSpectrumHeaderRec {
 # 	unsigned __int8 IdentifierLength;
@@ -807,7 +804,7 @@ class Bruker_Espirit():
 
         if output==0:
             self.error_message = ''
-            print(f'Beam position set to ({X.value}, {Y.value})\n')
+            # print(f'Beam position set to ({X.value}, {Y.value})\n')
             # update the (x,y) beam position coordinates TODO find a function to retrieve the actual beam position
             self.beam_x_pos = X.value
             self.beam_y_pos = Y.value

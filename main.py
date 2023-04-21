@@ -10,9 +10,9 @@ import numpy as np
 import h5py
 import hyperspy.api as hs
 import kikuchipy as kp
+from PIL import Image
 
 import matplotlib.pyplot as plt
-from matplotlib.widgets  import RectangleSelector
 from matplotlib.patches import Rectangle
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as _FigureCanvas
 from matplotlib.backends.backend_qt5agg import (
@@ -70,6 +70,21 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.data_in_quadrant = [ [], [], [], []  ]
 
 
+    def initialise_hardware(self):
+        self.device = detection.Detector(demo=self.demo)
+        detector_info = self.device.initialise()
+        self.label_messages.setText(str(detector_info))
+        # initialise Bruker API
+        self.bruker = SEM.Bruker_Esprit(demo=self.demo)
+
+
+    def initialise_detector(self):
+        reload(detection)
+        self.device = detection.Detector(demo=self.demo)
+        detector_info = self.device.initialise()
+        self.label_messages.setText(str(detector_info))
+        self.pushButton_initialise_detector.setStyleSheet("background-color: green")
+
 
     def setup_connections(self):
         self.label_demo_mode.setText('demo mode: ' + str(self.demo))
@@ -96,7 +111,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_get_image.clicked.connect(lambda: self.get_sem_image())
         self.checkBox_beam_blank.stateChanged.connect(lambda: self.beam_blank())
         self.pushButton_set_beam_position.clicked.connect(lambda: self.set_beam_to_position())
-        self.pushButton_plot_SEM_image.clicked.connect(lambda: self.plot_sem_image())
+        # self.pushButton_plot_SEM_image.clicked.connect(lambda: self.plot_sem_image())
         self.pushButton_save_SEM_image.clicked.connect(lambda: self.save_sem_image())
         #
         self.pushButton_acquire_frame.clicked.connect(lambda: self.acquire_frame())
@@ -195,7 +210,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
     def get_sem_image(self):
-        self.bruker.acquire_image(demo=self.demo)
+        self.bruker.acquire_image()
         self.label_messages.setText(self.bruker.error_message)
 
         self.figure_SEM.clear()
@@ -273,29 +288,29 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
     #     fig.canvas.mpl_connect("button_press_event", on_click)
 
 
-    def plot_sem_image(self, cmap='gray'):
-        try:
-            self.bruker.image
-        except AttributeError:
-            print('image does not exist yet')
-            self.label_messages.setText('SEM image does not exist')
-
-        else:
-            fig, ax = utils.plot_sem_image(self.bruker.image)
-            def on_click(event):
-                coords = []
-                coords.append(event.ydata)
-                coords.append(event.xdata)
-                try:
-                    y0 = coords[-2]
-                    x0 = coords[-1]
-                except:
-                    y0 = 0
-                    x0 = 0
-                self.spinBox_x0.setValue(x0)
-                self.spinBox_y0.setValue(y0)
-
-            fig.canvas.mpl_connect("button_press_event", on_click)
+    # def plot_sem_image(self, cmap='gray'):
+    #     try:
+    #         self.bruker.image
+    #     except AttributeError:
+    #         print('image does not exist yet')
+    #         self.label_messages.setText('SEM image does not exist')
+    #
+    #     else:
+    #         fig, ax = utils.plot_sem_image(self.bruker.image)
+    #         def on_click(event):
+    #             coords = []
+    #             coords.append(event.ydata)
+    #             coords.append(event.xdata)
+    #             try:
+    #                 y0 = coords[-2]
+    #                 x0 = coords[-1]
+    #             except:
+    #                 y0 = 0
+    #                 x0 = 0
+    #             self.spinBox_x0.setValue(x0)
+    #             self.spinBox_y0.setValue(y0)
+    #
+    #         fig.canvas.mpl_connect("button_press_event", on_click)
 
 
     def save_sem_image(self):
@@ -314,17 +329,19 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                 save_dir = self.DIR
             if not os.path.isdir(save_dir):
                 os.mkdir(save_dir)
-            print(self.DIR, save_dir)
 
             file_name_image = save_dir + '/' + 'SEM' + '_' + stamp + '.png'
-            utils.select_point(self.bruker.image)
-            plt.savefig(file_name_image)
+
+            image = self.bruker.image / self.bruker.image.max() * 2**8 # convert to 8-bit
+            image = image.astype(np.uint8)
+            image = Image.fromarray(image)
+            image.save(file_name_image)
 
             if _save_ascii == True:
                 file_name_txt = save_dir + '/' + 'SEM' + '_' + stamp + '.txt'
                 np.savetxt(file_name_txt, self.bruker.image, fmt='%d')
 
-
+        self.label_messages.setText(f'SEM image saved to {file_name_image}')
 
 
 
@@ -663,20 +680,6 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
     #     self.label_messages.setText(self.response)
 
 
-    def initialise_hardware(self):
-        self.device = detection.Detector(demo=self.demo)
-        detector_info = self.device.initialise()
-        self.label_messages.setText(str(detector_info))
-        # initialise Bruker API
-        self.bruker = SEM.Bruker_Esprit()
-
-
-    def initialise_detector(self):
-        reload(detection)
-        self.device = detection.Detector(demo=self.demo)
-        detector_info = self.device.initialise()
-        self.label_messages.setText(str(detector_info))
-        self.pushButton_initialise_detector.setStyleSheet("background-color: green")
 
 
     def setup_EBSD_detector(self):
@@ -960,8 +963,8 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         # TODO use threads for more elegant solution
         def _run_loop():
             pixel_counter = 0
-            for ii in range(stack_i):
-                for jj in range(stack_j):
+            for jj in range(stack_j):
+                for ii in range(stack_i):
 
                     start = time.time()
 
@@ -1002,6 +1005,13 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         _run_loop()
 
 
+        self.pushButton_acquire.setEnabled(True)
+        self.pushButton_setup_acquisition.setEnabled(True)
+        self.pushButton_check_temperature.setEnabled(True)
+        self.pushButton_abort_stack_collection.setEnabled(False)
+        self.repaint()
+
+
         # save the stacks
         for supported_mode in self.supported_modes:
             if self.active_modes[supported_mode] == True:
@@ -1039,10 +1049,6 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
         plt.show()
 
-        self.pushButton_acquire.setEnabled(True)
-        self.pushButton_setup_acquisition.setEnabled(True)
-        self.pushButton_check_temperature.setEnabled(True)
-        self.pushButton_abort_stack_collection.setEnabled(False)
 
 
 

@@ -240,6 +240,7 @@ class Detector():
 
             tot_integral[168,86] = 0 #bad bright pixel
 
+            plt.figure(55) # make a new plot
             plt.subplot(2, 3, 1)
             plt.imshow(toa_integral, cmap='gray')
             plt.colorbar()

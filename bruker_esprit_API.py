@@ -150,7 +150,9 @@ header = np.array(header)
 
 
 class Bruker_Esprit():
-    def __init__(self):
+    def __init__(self, demo):
+        self.demo = demo
+
         self.path_to_dll = path_to_dll
 
         self.pServer = ''.encode('utf-8') # Pointer to a server name (if empty the local/default server is referenced)
@@ -201,30 +203,37 @@ class Bruker_Esprit():
         # int32_t OpenClientTCP(char* pServer, char* pUser, char* pPassword, char* pHost, unsigned  __int16 Port, const TOpenClientOptions Options, uint32_t & CID);
         # int32_t OpenClientEx(char * pServer, char* pUser, char* pPassword, const TOpenClientOptions & Options, uint32_t & CID);
         #
-        if type=='direct':
-            print('Connecting directly to the client')
-            output = \
-                self.esprit.OpenClient(self.pServer, self.pUser, self.pPassword, self.StartNew, self.GUI, self.CID_ptr)
-        elif type=='Ex':
-            print('Connecting to the client : external mode')
-            output = \
-                self.esprit.OpenClientEx(self.pServer, self.pUser, self.pPassword, self.StartNew, self.GUI, self.CID_ptr)
-        elif type == 'TCP':
-            print('Connecting to the client : TCP mode')
-            output = \
-                self.esprit.OpenClientTCP(self.pServer, self.pUser, self.pPassword, self.pHost, self.port, self.Options, self.CID_ptr)
-        else:
-            print('Connecting to the client : external mode')
-            output = self.esprit.OpenClientEx(self.pServer, self.pUser, self.pPassword, self.Options_ptr, self.CID_ptr)
-        #
-        print(f'after : Connection identification code = {self.CID}')
-        if output==0:
-            print('Connection established successfully\n')
+        if self.demo is not True:
+            if type=='direct':
+                print('Connecting directly to the client')
+                output = \
+                    self.esprit.OpenClient(self.pServer, self.pUser, self.pPassword, self.StartNew, self.GUI, self.CID_ptr)
+            elif type=='Ex':
+                print('Connecting to the client : external mode')
+                output = \
+                    self.esprit.OpenClientEx(self.pServer, self.pUser, self.pPassword, self.StartNew, self.GUI, self.CID_ptr)
+            elif type == 'TCP':
+                print('Connecting to the client : TCP mode')
+                output = \
+                    self.esprit.OpenClientTCP(self.pServer, self.pUser, self.pPassword, self.pHost, self.port, self.Options, self.CID_ptr)
+            else:
+                print('Connecting to the client : external mode')
+                output = self.esprit.OpenClientEx(self.pServer, self.pUser, self.pPassword, self.Options_ptr, self.CID_ptr)
+            #
+            print(f'after : Connection identification code = {self.CID}')
+            if output==0:
+                print('Connection established successfully\n')
+                self.error_message = ''
+                # TODO get all the SEM info, current stage coordinates, beam current, etc
+            else:
+                self.error_message = f'No connection established, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+
+        elif self.demo is True:
+            print('This is demo mode: Connection establishment procedure called\n')
             self.error_message = ''
             # TODO get all the SEM info, current stage coordinates, beam current, etc
-        else:
-            self.error_message = f'No connection established, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
 
 
     def reset_communication(self):
@@ -241,24 +250,32 @@ class Bruker_Esprit():
     def get_servers_info(self):
         # int32_t QueryInfo(uint32_t CID, char* pInfo, int32_t BufSize);
         # Delivers info about a client/server instance
-        buffer_size = ctypes.c_int32(999)
-        query = ' ' * 1000 # block of memory for 1000 characters
-        self.query = query.encode('utf-8') # bytes, reference, char*
 
-        output = \
-            self.esprit.QueryInfo(self.CID, self.query, buffer_size)
+        if self.demo is not True:
+            buffer_size = ctypes.c_int32(999)
+            query = ' ' * 1000 # block of memory for 1000 characters
+            self.query = query.encode('utf-8') # bytes, reference, char*
 
-        if output==0:
-            print('SEM servers/client: ', str(self.query), '\n')
+            output = \
+                self.esprit.QueryInfo(self.CID, self.query, buffer_size)
+
+            if output==0:
+                print('SEM servers/client: ', str(self.query), '\n')
+                self.error_message = ''
+            else:
+                self.error_message = f'No SEM servers/clients info could be fetched, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+        elif self.demo is True:
+            print('This is demo mode: SEM servers/client query ')
             self.error_message = ''
-        else:
-            self.error_message = f'No SEM servers/clients info could be fetched, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
 
 
     def close(self):
-        self.esprit.CloseClient(self.CID)
-
+        if self.demo is not True:
+            self.esprit.CloseClient(self.CID)
+        else:
+            print('This is demo mode: closing client')
 
 
     ####################################################################################################################
@@ -268,6 +285,7 @@ class Bruker_Esprit():
 
     def get_sem_data(self):
         # int32_t GetSEMData(uint32_t CID, double& Magnification, double& HighVoltage, double& WorkingDistance)
+
         self.mag = ctypes.c_double(0) # magnification
         self.high_voltage  = ctypes.c_double(0) # high voltage in keV
         self.working_distance  = ctypes.c_double(0) # working distance in mm
@@ -276,16 +294,23 @@ class Bruker_Esprit():
         self.high_voltage_ptr = ctypes.pointer(self.high_voltage)
         self.working_distance_ptr = ctypes.pointer(self.working_distance)
 
-        output = \
-            self.esprit.GetSEMData(self.CID, self.mag_ptr, self.high_voltage_ptr, self.working_distance_ptr)
+        if self.demo is not True:
 
-        print(f'mag = {self.mag.value}, HV = {self.high_voltage.value}, WD = {self.working_distance.value}')
-        if output==0:
-            self.error_message = ''
-            print('SEM data retrieved successfully\n')
+            output = \
+                self.esprit.GetSEMData(self.CID, self.mag_ptr, self.high_voltage_ptr, self.working_distance_ptr)
+
+            print(f'mag = {self.mag.value}, HV = {self.high_voltage.value}, WD = {self.working_distance.value}')
+            if output==0:
+                self.error_message = ''
+                print('SEM data retrieved successfully\n')
+            else:
+                self.error_message = f'No SEM data could be fetched, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
         else:
-            self.error_message = f'No SEM data could be fetched, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+            self.error_message = ''
+            print('This is demo mode: SEM data retrieve')
+            print(f'mag = {self.mag.value}, HV = {self.high_voltage.value}, WD = {self.working_distance.value}')
 
 
     def get_sem_info(self):
@@ -298,15 +323,22 @@ class Bruker_Esprit():
         info = ' ' * 1000 # block of memory for 1000 characters
         self.Info = info.encode('utf-8') # bytes, reference, char*
 
-        output = \
-            self.esprit.GetSEMInfo(self.CID, self.Info, buffer_size)
+        if self.demo is not True:
 
-        if output==0:
+            output = \
+                self.esprit.GetSEMInfo(self.CID, self.Info, buffer_size)
+
+            if output==0:
+                self.error_message = ''
+                print('SEM Info: ', str(self.Info), '\n')
+            else:
+                self.error_message = f'No SEM info could be fetched, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+        elif self.demo is True:
+
             self.error_message = ''
-            print('SEM Info: ', str(self.Info), '\n')
-        else:
-            self.error_message = f'No SEM info could be fetched, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+            print('This is demo mode: SEM Info ', str(self.Info), '\n')
 
 
     def get_sem_capabilities(self):
@@ -316,15 +348,22 @@ class Bruker_Esprit():
         capabilities = ' ' * 1000 # block of memory for 1000 characters
         self.capabilities = capabilities.encode('utf-8') # bytes, reference, char*
 
-        output = \
-            self.esprit.GetSEMCapabilities(self.CID, self.capabilities, buffer_size)
+        if self.demo is not True:
 
-        if output==0:
+            output = \
+                self.esprit.GetSEMCapabilities(self.CID, self.capabilities, buffer_size)
+
+            if output==0:
+                self.error_message = ''
+                print('SEM Capabilities: ', str(self.capabilities), '\n')
+            else:
+                self.error_message = f'No SEM capabilities could be fetched, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+        elif self.demo is True:
+
             self.error_message = ''
-            print('SEM Capabilities: ', str(self.capabilities), '\n')
-        else:
-            self.error_message = f'No SEM capabilities could be fetched, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+            print('This is demo mode: SEM Capabilities ', str(self.capabilities), '\n')
 
 
     def get_sem_brightness_and_contrast(self):
@@ -334,17 +373,25 @@ class Bruker_Esprit():
         self.brightness_ptr = ctypes.pointer(self.brightness)
         self.contrast_ptr = ctypes.pointer(self.contrast)
 
-        output = \
-            self.esprit.GetSEMBCData(self.CID, self.brightness_ptr, self.contrast_ptr)
+        if self.demo is not True:
 
-        print(f'brightness = {self.brightness.value}, contrast = {self.contrast.value}')
+            output = \
+                self.esprit.GetSEMBCData(self.CID, self.brightness_ptr, self.contrast_ptr)
 
-        if output==0:
+            print(f'brightness = {self.brightness.value}, contrast = {self.contrast.value}')
+
+            if output==0:
+                self.error_message = ''
+                print('SEM data retrieved successfully\n')
+            else:
+                self.error_message = f'No SEM data could be fetched, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+        elif self.demo is True:
+
             self.error_message = ''
-            print('SEM data retrieved successfully\n')
-        else:
-            self.error_message = f'No SEM data could be fetched, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+            print('This is demo mode: SEM data retrieve')
+            print(f'brightness = {self.brightness.value}, contrast = {self.contrast.value}')
 
 
     def get_sem_probe_current(self):
@@ -352,17 +399,27 @@ class Bruker_Esprit():
         self.probe_current = ctypes.c_double(0) # probe current
         self.probe_current_ptr = ctypes.pointer(self.probe_current)
 
-        output = \
-            self.esprit.GetSEMProbeCurrent(self.CID, self.probe_current_ptr)
+        if self.demo is not True:
 
-        print(f'probe current = {self.probe_current.value}')
+            output = \
+                self.esprit.GetSEMProbeCurrent(self.CID, self.probe_current_ptr)
 
-        if output==0:
+            print(f'probe current = {self.probe_current.value}')
+
+            if output==0:
+                self.error_message = ''
+                print('SEM probe current retrieved successfully\n')
+            else:
+                self.error_message = f'No SEM probe current could be fetched, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+        elif self.demo is True:
+
             self.error_message = ''
-            print('SEM probe current retrieved successfully\n')
-        else:
-            self.error_message = f'No SEM probe current could be fetched, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+            print('This is demo mode: SEM probe current retrieve')
+            print(f'probe current = {self.probe_current.value}')
+
+
 
 
     def get_sem_spot_size(self):
@@ -370,17 +427,25 @@ class Bruker_Esprit():
         self.spot_size = ctypes.c_double(0)
         self.spot_size_ptr = ctypes.pointer(self.spot_size)
 
-        output = \
-            self.esprit.GetSEMSpotSize(self.CID, self.spot_size_ptr)
+        if self.demo is not True:
 
-        print(f'spot size = {self.spot_size.value}')
+            output = \
+                self.esprit.GetSEMSpotSize(self.CID, self.spot_size_ptr)
 
-        if output==0:
+            print(f'spot size = {self.spot_size.value}')
+
+            if output==0:
+                self.error_message = ''
+                print('SEM spot size retrieved successfully\n')
+            else:
+                self.error_message = f'No SEM spot size could be fetched, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+        elif self.demo is True:
             self.error_message = ''
-            print('SEM spot size retrieved successfully\n')
-        else:
-            self.error_message = f'No SEM spot size could be fetched, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+            print('This is demo mdoe: SEM spot size retrieve')
+            print(f'spot size = {self.spot_size.value}')
+
 
 
     def get_sem_stage_position(self):
@@ -396,17 +461,27 @@ class Bruker_Esprit():
         self.t_pos_ptr = ctypes.pointer(self.t_pos)
         self.r_pos_ptr = ctypes.pointer(self.r_pos)
 
-        output = \
-            self.esprit.GetSEMStageData(self.CID,
-                                        self.x_pos_ptr, self.y_pos_ptr, self.z_pos_ptr,
-                                        self.t_pos_ptr, self.r_pos_ptr)
-        if output==0:
+
+        if self.demo is not True:
+
+            output = \
+                self.esprit.GetSEMStageData(self.CID,
+                                            self.x_pos_ptr, self.y_pos_ptr, self.z_pos_ptr,
+                                            self.t_pos_ptr, self.r_pos_ptr)
+            if output==0:
+                self.error_message = ''
+                print(f'SEM position is: x,y,z: ({self.x_pos.value}, {self.y_pos.value}, {self.z_pos.value});'
+                      f' tilt: {self.t_pos.value};  rotation: {self.r_pos.value}\n')
+            else:
+                self.error_message = f'No SEM stage info could be fetched, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+        elif self.demo is True:
+
             self.error_message = ''
-            print(f'SEM position is: x,y,z: ({self.x_pos.value}, {self.y_pos.value}, {self.z_pos.value});'
+            print(f'Demo mode: SEM position is: x,y,z: ({self.x_pos.value}, {self.y_pos.value}, {self.z_pos.value});'
                   f' tilt: {self.t_pos.value};  rotation: {self.r_pos.value}\n')
-        else:
-            self.error_message = f'No SEM stage info could be fetched, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+
 
 
     def get_sem_stage_range(self):
@@ -433,25 +508,39 @@ class Bruker_Esprit():
         self.r_min_ptr = ctypes.pointer(self.r_min)
         self.r_max_ptr = ctypes.pointer(self.r_max)
 
-        output = \
-            self.esprit.GetSEMStageRange(self.CID,
-                                         self.x_min_ptr, self.x_max_ptr,
-                                         self.y_min_ptr, self.y_max_ptr,
-                                         self.z_min_ptr, self.z_max_ptr,
-                                         self.t_min_ptr, self.t_max_ptr,
-                                         self.r_min_ptr, self.r_max_ptr)
 
-        if output==0:
+        if self.demo is not True:
+
+            output = \
+                self.esprit.GetSEMStageRange(self.CID,
+                                             self.x_min_ptr, self.x_max_ptr,
+                                             self.y_min_ptr, self.y_max_ptr,
+                                             self.z_min_ptr, self.z_max_ptr,
+                                             self.t_min_ptr, self.t_max_ptr,
+                                             self.r_min_ptr, self.r_max_ptr)
+
+            if output==0:
+                self.error_message = ''
+                print(f'SEM stage limits are '
+                      f'X:({self.x_min.value}, {self.x_max.value}); '
+                      f'Y:({self.y_min.value}, {self.y_max.value}), '
+                      f'Z:({self.z_min.value}, {self.z_max.value}); '
+                      f'tilt: ({self.t_min.value}, {self.t_max.value});'
+                      f'rotation: ({self.r_min.value}, {self.r_max.value})\n')
+            else:
+                self.error_message = f'No SEM stage limits could be retrieved, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+        elif self.demo is True:
+
             self.error_message = ''
-            print(f'SEM stage limits are '
+            print(f'Demo mode: SEM stage limits are '
                   f'X:({self.x_min.value}, {self.x_max.value}); '
                   f'Y:({self.y_min.value}, {self.y_max.value}), '
                   f'Z:({self.z_min.value}, {self.z_max.value}); '
                   f'tilt: ({self.t_min.value}, {self.t_max.value});'
                   f'rotation: ({self.r_min.value}, {self.r_max.value})\n')
-        else:
-            self.error_message = f'No SEM stage limits could be retrieved, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+
 
 
     def get_field_width(self):
@@ -460,15 +549,22 @@ class Bruker_Esprit():
         self.field_width = ctypes.c_double(0)  # Width of the scanned area in mm
         self.field_width_ptr = ctypes.pointer(self.field_width)
 
-        output = \
-            self.esprit.ImageGetFieldWidth(self.CID, self.field_width_ptr)
 
-        if output==0:
+        if self.demo is not True:
+
+            output = \
+                self.esprit.ImageGetFieldWidth(self.CID, self.field_width_ptr)
+
+            if output==0:
+                self.error_message = ''
+                print(f'Field width = {self.field_width.value}\n')
+            else:
+                self.error_message = f'Field width could not be obtained, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+        elif self.demo is True:
             self.error_message = ''
-            print(f'Field width = {self.field_width.value}\n')
-        else:
-            self.error_message = f'Field width could not be obtained, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+            print(f'demo mode: Field width = {self.field_width.value}\n')
 
 
 
@@ -588,23 +684,33 @@ class Bruker_Esprit():
             print( self.error_message + '\n')
 
 
+
     def set_sem_to_external_mode(self, external=True):
         # There is also a function set_external_scan_mode(self, external=True)
         # int32_t SetSEMExternalOn(uint32_t CID)
         # int32_t SetSEMExternalOff(uint32_t CID)
-        if external==True:
-            output = \
-                self.esprit.SetSEMExternalOn(self.CID)
-        else:
-            output = \
-                self.esprit.SetSEMExternalOff(self.CID)
 
-        if output==0:
+
+        if self.demo is not True:
+
+            if external==True:
+                output = \
+                    self.esprit.SetSEMExternalOn(self.CID)
+            else:
+                output = \
+                    self.esprit.SetSEMExternalOff(self.CID)
+
+            if output==0:
+                self.error_message = ''
+                print(f'SEM external mode is ', external)
+            else:
+                self.error_message = f'External/Internal mode could be set, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+        elif self.demo is True:
             self.error_message = ''
-            print(f'SEM external mode is ', external)
-        else:
-            self.error_message = f'External/Internal mode could be set, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+            print(f'demo mode: SEM external mode is ', external)
+
 
 
     def beam_control(self, beamOn=True):
@@ -615,16 +721,24 @@ class Bruker_Esprit():
         # BeamBlank: Blank the electron beam
         beamOn = ctypes.c_bool(beamOn)
 
-        output = \
-            self.esprit.SwitchSEMOff(self.CID, ctypes.c_bool(False), ctypes.c_bool(False), beamOn)
 
-        if output==0:
+        if self.demo is not True:
+
+            output = \
+                self.esprit.SwitchSEMOff(self.CID, ctypes.c_bool(False), ctypes.c_bool(False), beamOn)
+
+            if output==0:
+                self.error_message = ''
+                print(f'Beam is ON = ', beamOn.value, '\n')
+            else:
+                self.error_message = f'Could not turn the beam on/off, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+
+        elif self.demo is True:
+
             self.error_message = ''
             print(f'Beam is ON = ', beamOn.value, '\n')
-        else:
-            self.error_message = f'Could not turn the beam on/off, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
-
 
 
     ####################################################################################################################
@@ -653,20 +767,28 @@ class Bruker_Esprit():
         self.Ch1_ptr     = ctypes.pointer(self.Ch1)
         self.Ch2_ptr     = ctypes.pointer(self.Ch2)
 
-        self.get_field_width() # get the field width as well, good for estimation of pixel size
 
-        output = \
-            self.esprit.ImageGetConfiguration(self.CID,
-                                              self.width_ptr, self.height_ptr,
-                                              self.average_ptr, self.Ch1_ptr, self.Ch2_ptr)
+        if self.demo is not True:
 
-        if output==0:
+            self.get_field_width() # get the field width as well, good for estimation of pixel size
+
+            output = \
+                self.esprit.ImageGetConfiguration(self.CID,
+                                                  self.width_ptr, self.height_ptr,
+                                                  self.average_ptr, self.Ch1_ptr, self.Ch2_ptr)
+
+            if output==0:
+                self.error_message = ''
+                print(f'Image configuration: width {self.width.value}; height {self.height.value}; '
+                      f'average {self.average.value}); Ch1 {self.Ch1.value};  Ch2: {self.Ch2.value}\n')
+            else:
+                self.error_message = f'No image configuration could be retrieved, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+        elif self.demo is True:
             self.error_message = ''
-            print(f'Image configuration: width {self.width.value}; height {self.height.value}; '
+            print(f'demo mode: Image configuration: width {self.width.value}; height {self.height.value}; '
                   f'average {self.average.value}); Ch1 {self.Ch1.value};  Ch2: {self.Ch2.value}\n')
-        else:
-            self.error_message = f'No image configuration could be retrieved, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
 
 
     def set_image_configuration(self, width=500, height=300, average=1, Ch1=True, Ch2=True):
@@ -682,20 +804,30 @@ class Bruker_Esprit():
         self.Ch1     = ctypes.c_bool(Ch1)
         self.Ch2     = ctypes.c_bool(Ch2)
 
-        output = \
-            self.esprit.ImageSetConfiguration(self.CID,
-                                              self.width, self.height,
-                                              self.average, self.Ch1, self.Ch2)
 
-        self.get_field_width() # update field width after magnification change
+        if self.demo is not True:
 
-        if output==0:
+            output = \
+                self.esprit.ImageSetConfiguration(self.CID,
+                                                  self.width, self.height,
+                                                  self.average, self.Ch1, self.Ch2)
+
+            self.get_field_width() # update field width after magnification change
+
+            if output==0:
+                self.error_message = ''
+                print(f'Image configuration set to: width {self.width.value}; height {self.height.value}; '
+                      f'average {self.average.value}); Ch1 {self.Ch1.value};  Ch2: {self.Ch2.value}\n')
+            else:
+                self.error_message = f'No image configuration could be set, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+
+        elif self.demo is True:
+
             self.error_message = ''
-            print(f'Image configuration set to: width {self.width.value}; height {self.height.value}; '
+            print(f'Demo mode: Image configuration set to: width {self.width.value}; height {self.height.value}; '
                   f'average {self.average.value}); Ch1 {self.Ch1.value};  Ch2: {self.Ch2.value}\n')
-        else:
-            self.error_message = f'No image configuration could be set, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
 
 
     def set_external_scan_mode(self, external=True):
@@ -705,18 +837,26 @@ class Bruker_Esprit():
         # ImageSetExternalScan(FCID,MapExternalScanCheckBox.Checked);
         self.external_scan = ctypes.c_bool(external)
 
-        output = \
-            self.esprit.ImageSetExternalScan(self.CID, self.external_scan)
 
-        if output==0:
+        if self.demo is not True:
+
+            output = \
+                self.esprit.ImageSetExternalScan(self.CID, self.external_scan)
+
+            if output==0:
+                self.error_message = ''
+                print(f'Set external scanning mode to {external} successfully\n')
+            else:
+                self.error_message = f'Could not set external scanning mode to {external}, ERROR code is {output}, {errors[output]}\n'
+                print( self.error_message + '\n')
+
+        elif self.demo is True:
+
             self.error_message = ''
-            print(f'Set external scanning mode to {external} successfully\n')
-        else:
-            self.error_message = f'Could not set external scanning mode to {external}, ERROR code is {output}, {errors[output]}\n'
-            print( self.error_message + '\n')
+            print(f'Demo mode: Set external scanning mode to {external} successfully\n')
 
 
-    def acquire_image(self, channel=1, show_progress=False, demo=False):
+    def acquire_image(self, channel=1, show_progress=False):
         # int32_t ImageAquireImage(uint32_t CID, int32_t Ch, bool ShowProgress, void* Buffer, int32_t& BufSize, PRTImageInfoEx ImgInfo)
         # ImageAquireImageEx(FCID, 2, MemStream.Memory, 0, aSize, @ImgInfo)
         #
@@ -739,29 +879,24 @@ class Bruker_Esprit():
         self.image_buffer = IntArray() # initialise the array
         self.image_buffer_ptr = ctypes.pointer(self.image_buffer) # pointer to the image buffer array
 
-        output = \
-            self.esprit.ImageAquireImage(self.CID,
-                                         self.channel, show_progress,
-                                         self.image_buffer_ptr, self.buffer_size_ptr, self.image_info_ptr)
 
-        print(f'image info: mag={self.image_info.Magnification}, pixelsize={self.image_info.PixelSizeX}, '
-              f'HV={self.image_info.HighVoltage}, WD={self.image_info.WorkingDistance}')
+        if self.demo is not True:
 
-        if output==0:
-            self.error_message = ''
-            print(f'image acquired successfully\n')
-        else:
-            self.error_message = f'Could not acquire image, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+            output = \
+                self.esprit.ImageAquireImage(self.CID,
+                                             self.channel, show_progress,
+                                             self.image_buffer_ptr, self.buffer_size_ptr, self.image_info_ptr)
 
-        ###############################################################################################################
+            print(f'image info: mag={self.image_info.Magnification}, pixelsize={self.image_info.PixelSizeX}, '
+                  f'HV={self.image_info.HighVoltage}, WD={self.image_info.WorkingDistance}')
 
-        if demo:
-            print('this is demo mode, image generated')
-            self.image = np.random.randint(0, 255, [self.height.value, self.width.value])
+            if output==0:
+                self.error_message = ''
+                print(f'image acquired successfully\n')
+            else:
+                self.error_message = f'Could not acquire image, ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
 
-        ###############################################################################################################
-        elif not demo:
             self.buffer = np.zeros( self.buffer_size.value )
             for ii in range( self.buffer_size.value ):
                 self.buffer[ii] = self.image_buffer_ptr.contents[ii] # populate the 1D array from the buffer pointer
@@ -775,6 +910,13 @@ class Bruker_Esprit():
             self.image = np.reshape(self.image, (self.height.value, self.width.value) ) # reshape the 1D array into the image shape
 
             self.image = np.flipud(self.image) # rearrange the array to match SEM image
+
+
+        elif self.demo is True:
+
+            print('this is demo mode, image generated')
+            self.image = np.random.randint(0, 255, [self.height.value, self.width.value])
+
 
 
 
@@ -800,18 +942,28 @@ class Bruker_Esprit():
         X = ctypes.c_uint32(x_pos)
         Y = ctypes.c_uint32(y_pos)
 
-        output = \
-            self.esprit.ImageSetPoint(self.CID, X, Y)
+        if self.demo is not True:
 
-        if output==0:
+            output = \
+                self.esprit.ImageSetPoint(self.CID, X, Y)
+
+            if output==0:
+                self.error_message = ''
+                # print(f'Beam position set to ({X.value}, {Y.value})\n')
+                # update the (x,y) beam position coordinates TODO find a function to retrieve the actual beam position
+                self.beam_x_pos = X.value
+                self.beam_y_pos = Y.value
+            else:
+                self.error_message = f'Could not position the beam to ({X.value}, {Y.value}), ERROR code is {output}, {errors[output]}'
+                print( self.error_message + '\n')
+
+
+        elif self.demo is True:
             self.error_message = ''
-            # print(f'Beam position set to ({X.value}, {Y.value})\n')
-            # update the (x,y) beam position coordinates TODO find a function to retrieve the actual beam position
             self.beam_x_pos = X.value
             self.beam_y_pos = Y.value
-        else:
-            self.error_message = f'Could not position the beam to ({X.value}, {Y.value}), ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+            print(f'demo mode: setting beam to pos {x_pos}, {y_pos}')
+
 
 
     def beam_blank(self):

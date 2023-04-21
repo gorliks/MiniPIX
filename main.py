@@ -12,6 +12,8 @@ import hyperspy.api as hs
 import kikuchipy as kp
 
 import matplotlib.pyplot as plt
+from matplotlib.widgets  import RectangleSelector
+from matplotlib.patches import Rectangle
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as _FigureCanvas
 from matplotlib.backends.backend_qt5agg import (
     NavigationToolbar2QT as _NavigationToolbar)
@@ -204,32 +206,53 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.ax.get_yaxis().set_visible(False)
         self.ax.imshow(self.bruker.image, cmap='gray')
 
+        self.rect = Rectangle((0, 0), 1, 1, alpha=0.5, ec="gray", fc="CornflowerBlue", zorder=10)
+        self.ax.add_patch(self.rect)
+        self.is_clicked = False
+
         dims =self.bruker.image.shape
         centre_marker_coords = [dims[0] / 2, dims[1] / 2]
         self.ax.plot(centre_marker_coords[1],
                      centre_marker_coords[0],
                      '+', c='red', markersize=15, markeredgewidth=3)
 
-        self.canvas_SEM.draw()
-
         def on_click(event):
-            coords = []
-            coords.append(event.ydata)
-            coords.append(event.xdata)
+            self.is_clicked = True
             try:
-                x_pos = coords[-2]
-                y_pos = coords[-1]
+                self.x0_clicked = event.xdata
+                self.y0_clicked = event.ydata
             except:
-                x_pos = 0
-                y_pos = 0
-            [coord_y, coord_x] = [x_pos, y_pos]
+                self.x0_clicked = 0
+                self.y0_clicked = 0
+            [coord_y, coord_x] = [self.x0_clicked, self.y0_clicked]
             print(coord_x, coord_y)
+            self.spinBox_x0.setValue(int(coord_x))
+            self.spinBox_y0.setValue(int(coord_y))
+            self.spinBox_beam_x.setValue(int(coord_x))
+            self.spinBox_beam_y.setValue(int(coord_y))
 
-        self.figure_SEM.canvas.mpl_connect("button_press_event",
-                                           on_click)
+        def on_release(event):
+            self.x1_clicked = event.xdata
+            self.y1_clicked = event.ydata
+            self.rect.set_width(self.x1_clicked - self.x0_clicked)
+            self.rect.set_height(self.y1_clicked - self.y0_clicked)
+            self.rect.set_xy((self.x0_clicked, self.y0_clicked))
+            self.spinBox_scan_pixels_i.setValue(int(self.x1_clicked - self.x0_clicked))
+            self.spinBox_scan_pixels_j.setValue(int(self.y1_clicked - self.y0_clicked))
+            self.ax.figure.canvas.draw()
+
+
+        self.figure_SEM.canvas.mpl_connect("button_press_event", on_click)
+        self.figure_SEM.canvas.mpl_connect('button_release_event', on_release)
+        # self.figure_SEM.canvas.mpl_connect('motion_notify_event', on_release)
+
         self.blitted_cursor = utils.BlittedCursor(self.ax)
         self.figure_SEM.canvas.mpl_connect('motion_notify_event',
                                            self.blitted_cursor.on_mouse_move)
+
+
+        self.canvas_SEM.draw()
+
 
     # OLD VERSION
     # def get_sem_image(self):
@@ -736,7 +759,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             self.device.acquire_frame(integral=integral)
         self.repaint()  # update the GUI to show the progress
         image_to_display = qimage2ndarray.array2qimage(self.frame.copy())
-        self.label_image_frame5.setPixmap(QtGui.QPixmap(image_to_display))
+        self.label_image_frame1.setPixmap(QtGui.QPixmap(image_to_display))
 
 
     def acquire_pixels(self):

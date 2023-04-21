@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1694</width>
-    <height>772</height>
+    <width>1695</width>
+    <height>777</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,7 +32,7 @@
       <widget class="QLabel" name="label_image_frame1">
        <property name="geometry">
         <rect>
-         <x>370</x>
+         <x>255</x>
          <y>15</y>
          <width>256</width>
          <height>256</height>
@@ -60,7 +60,7 @@
       <widget class="QLabel" name="label_image_frame2">
        <property name="geometry">
         <rect>
-         <x>370</x>
+         <x>255</x>
          <y>285</y>
          <width>256</width>
          <height>256</height>
@@ -76,7 +76,7 @@
       <widget class="QLabel" name="label_measurement_type1">
        <property name="geometry">
         <rect>
-         <x>380</x>
+         <x>260</x>
          <y>0</y>
          <width>55</width>
          <height>16</height>
@@ -89,7 +89,7 @@
       <widget class="QLabel" name="label_measurement_type2">
        <property name="geometry">
         <rect>
-         <x>380</x>
+         <x>260</x>
          <y>270</y>
          <width>55</width>
          <height>16</height>
@@ -102,7 +102,7 @@
       <widget class="QLabel" name="label_image_frame3">
        <property name="geometry">
         <rect>
-         <x>640</x>
+         <x>515</x>
          <y>15</y>
          <width>256</width>
          <height>256</height>
@@ -118,7 +118,7 @@
       <widget class="QLabel" name="label_measurement_type3">
        <property name="geometry">
         <rect>
-         <x>650</x>
+         <x>520</x>
          <y>0</y>
          <width>55</width>
          <height>16</height>
@@ -131,7 +131,7 @@
       <widget class="QLabel" name="label_image_frame4">
        <property name="geometry">
         <rect>
-         <x>640</x>
+         <x>515</x>
          <y>285</y>
          <width>256</width>
          <height>256</height>
@@ -147,7 +147,7 @@
       <widget class="QLabel" name="label_measurement_type4">
        <property name="geometry">
         <rect>
-         <x>640</x>
+         <x>520</x>
          <y>270</y>
          <width>55</width>
          <height>16</height>
@@ -170,23 +170,10 @@
         <string>TextLabel</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_counter">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>700</y>
-         <width>431</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
       <widget class="QComboBox" name="comboBox_image_log_scale">
        <property name="geometry">
         <rect>
-         <x>520</x>
+         <x>410</x>
          <y>560</y>
          <width>111</width>
          <height>22</height>
@@ -206,7 +193,7 @@
       <widget class="QLabel" name="label_demo_mode">
        <property name="geometry">
         <rect>
-         <x>130</x>
+         <x>10</x>
          <y>680</y>
          <width>201</width>
          <height>21</height>
@@ -230,8 +217,8 @@
       <widget class="QPushButton" name="pushButton_initialise_detector">
        <property name="geometry">
         <rect>
-         <x>370</x>
-         <y>590</y>
+         <x>540</x>
+         <y>560</y>
          <width>110</width>
          <height>28</height>
         </rect>
@@ -243,7 +230,7 @@
       <widget class="QComboBox" name="comboBox_image_convention">
        <property name="geometry">
         <rect>
-         <x>370</x>
+         <x>260</x>
          <y>560</y>
          <width>131</width>
          <height>22</height>
@@ -270,7 +257,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>361</width>
+         <width>251</width>
          <height>581</height>
         </rect>
        </property>
@@ -278,7 +265,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -287,10 +274,10 @@
         <widget class="QPushButton" name="pushButton_acquire">
          <property name="geometry">
           <rect>
-           <x>260</x>
-           <y>20</y>
-           <width>81</width>
-           <height>81</height>
+           <x>10</x>
+           <y>190</y>
+           <width>131</width>
+           <height>31</height>
           </rect>
          </property>
          <property name="text">
@@ -313,9 +300,9 @@
         <widget class="QSpinBox" name="spinBox_number_of_frames">
          <property name="geometry">
           <rect>
-           <x>200</x>
+           <x>170</x>
            <y>30</y>
-           <width>51</width>
+           <width>41</width>
            <height>22</height>
           </rect>
          </property>
@@ -329,7 +316,7 @@
         <widget class="QLabel" name="label_4">
          <property name="geometry">
           <rect>
-           <x>190</x>
+           <x>160</x>
            <y>10</y>
            <width>71</width>
            <height>16</height>
@@ -342,9 +329,9 @@
         <widget class="QComboBox" name="comboBox_mode_of_measurement">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>80</x>
            <y>30</y>
-           <width>91</width>
+           <width>81</width>
            <height>22</height>
           </rect>
          </property>
@@ -367,7 +354,7 @@
         <widget class="QLabel" name="label">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>80</x>
            <y>10</y>
            <width>51</width>
            <height>16</height>
@@ -425,9 +412,9 @@
         <widget class="QPushButton" name="pushButton_select_directory">
          <property name="geometry">
           <rect>
-           <x>260</x>
-           <y>120</y>
-           <width>81</width>
+           <x>150</x>
+           <y>150</y>
+           <width>61</width>
            <height>28</height>
           </rect>
          </property>
@@ -439,8 +426,8 @@
          <property name="geometry">
           <rect>
            <x>8</x>
-           <y>120</y>
-           <width>241</width>
+           <y>110</y>
+           <width>201</width>
            <height>28</height>
           </rect>
          </property>
@@ -452,7 +439,7 @@
          <property name="geometry">
           <rect>
            <x>17</x>
-           <y>160</y>
+           <y>150</y>
            <width>91</width>
            <height>16</height>
           </rect>
@@ -465,7 +452,7 @@
          <property name="geometry">
           <rect>
            <x>17</x>
-           <y>175</y>
+           <y>170</y>
            <width>101</width>
            <height>21</height>
           </rect>
@@ -480,14 +467,14 @@
         <widget class="QPushButton" name="pushButton_check_temperature">
          <property name="geometry">
           <rect>
-           <x>70</x>
-           <y>160</y>
-           <width>131</width>
+           <x>60</x>
+           <y>150</y>
+           <width>81</width>
            <height>28</height>
           </rect>
          </property>
          <property name="text">
-          <string>check temperature</string>
+          <string>temperature</string>
          </property>
         </widget>
         <widget class="QComboBox" name="comboBox_type_of_measurement">
@@ -495,7 +482,7 @@
           <rect>
            <x>10</x>
            <y>30</y>
-           <width>71</width>
+           <width>61</width>
            <height>22</height>
           </rect>
          </property>
@@ -531,7 +518,7 @@
         <widget class="QDoubleSpinBox" name="spinBox_bias_voltage">
          <property name="geometry">
           <rect>
-           <x>160</x>
+           <x>150</x>
            <y>80</y>
            <width>62</width>
            <height>22</height>
@@ -562,8 +549,8 @@
           <rect>
            <x>10</x>
            <y>230</y>
-           <width>341</width>
-           <height>311</height>
+           <width>231</width>
+           <height>321</height>
           </rect>
          </property>
          <property name="font">
@@ -576,7 +563,7 @@
           </font>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tab_6">
           <attribute name="title">
@@ -585,8 +572,8 @@
           <widget class="QCheckBox" name="checkBox_save_in_hspy_format">
            <property name="geometry">
             <rect>
-             <x>230</x>
-             <y>170</y>
+             <x>10</x>
+             <y>270</y>
              <width>91</width>
              <height>20</height>
             </rect>
@@ -598,8 +585,8 @@
           <widget class="QLabel" name="label_39">
            <property name="geometry">
             <rect>
-             <x>120</x>
-             <y>110</y>
+             <x>70</x>
+             <y>140</y>
              <width>31</width>
              <height>16</height>
             </rect>
@@ -611,8 +598,8 @@
           <widget class="QLabel" name="label_40">
            <property name="geometry">
             <rect>
-             <x>120</x>
-             <y>130</y>
+             <x>70</x>
+             <y>160</y>
              <width>31</width>
              <height>16</height>
             </rect>
@@ -624,8 +611,8 @@
           <widget class="QSpinBox" name="spinBox_scan_pixels_j">
            <property name="geometry">
             <rect>
-             <x>162</x>
-             <y>77</y>
+             <x>142</x>
+             <y>107</y>
              <width>61</width>
              <height>22</height>
             </rect>
@@ -643,8 +630,8 @@
           <widget class="QSpinBox" name="spinBox_scan_pixels_i">
            <property name="geometry">
             <rect>
-             <x>90</x>
-             <y>77</y>
+             <x>70</x>
+             <y>107</y>
              <width>61</width>
              <height>22</height>
             </rect>
@@ -662,8 +649,8 @@
           <widget class="QSpinBox" name="spinBox_x0">
            <property name="geometry">
             <rect>
-             <x>140</x>
-             <y>110</y>
+             <x>90</x>
+             <y>140</y>
              <width>61</width>
              <height>22</height>
             </rect>
@@ -680,8 +667,8 @@
           <widget class="QSpinBox" name="spinBox_y0">
            <property name="geometry">
             <rect>
-             <x>140</x>
-             <y>130</y>
+             <x>90</x>
+             <y>160</y>
              <width>61</width>
              <height>22</height>
             </rect>
@@ -698,8 +685,8 @@
           <widget class="QPushButton" name="pushButton_abort_stack_collection">
            <property name="geometry">
             <rect>
-             <x>230</x>
-             <y>110</y>
+             <x>110</x>
+             <y>220</y>
              <width>93</width>
              <height>28</height>
             </rect>
@@ -720,9 +707,9 @@
           <widget class="QPlainTextEdit" name="plainTextEdit_sample_name">
            <property name="geometry">
             <rect>
-             <x>90</x>
-             <y>14</y>
-             <width>241</width>
+             <x>10</x>
+             <y>50</y>
+             <width>201</width>
              <height>31</height>
             </rect>
            </property>
@@ -733,21 +720,22 @@
           <widget class="QLabel" name="label_6">
            <property name="geometry">
             <rect>
-             <x>0</x>
-             <y>80</y>
-             <width>91</width>
-             <height>16</height>
+             <x>10</x>
+             <y>100</y>
+             <width>61</width>
+             <height>41</height>
             </rect>
            </property>
            <property name="text">
-            <string>Scan area, pix</string>
+            <string>Scan area
+pixels</string>
            </property>
           </widget>
           <widget class="QCheckBox" name="checkBox_save_in_h5_format">
            <property name="geometry">
             <rect>
-             <x>230</x>
-             <y>150</y>
+             <x>10</x>
+             <y>250</y>
              <width>81</width>
              <height>20</height>
             </rect>
@@ -759,8 +747,8 @@
           <widget class="QLabel" name="label_7">
            <property name="geometry">
             <rect>
-             <x>150</x>
-             <y>80</y>
+             <x>130</x>
+             <y>110</y>
              <width>20</width>
              <height>16</height>
             </rect>
@@ -778,8 +766,8 @@
           <widget class="QLabel" name="label_5">
            <property name="geometry">
             <rect>
-             <x>2</x>
-             <y>18</y>
+             <x>10</x>
+             <y>30</y>
              <width>91</width>
              <height>16</height>
             </rect>
@@ -791,11 +779,17 @@
           <widget class="QPushButton" name="pushButton_collect_stack">
            <property name="geometry">
             <rect>
-             <x>230</x>
-             <y>74</y>
+             <x>10</x>
+             <y>220</y>
              <width>93</width>
              <height>28</height>
             </rect>
+           </property>
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
            </property>
            <property name="text">
             <string>collect stack</string>
@@ -805,9 +799,9 @@
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>120</y>
-             <width>111</width>
-             <height>16</height>
+             <y>150</y>
+             <width>61</width>
+             <height>31</height>
             </rect>
            </property>
            <property name="font">
@@ -816,14 +810,15 @@
             </font>
            </property>
            <property name="text">
-            <string>Start point, pixels</string>
+            <string>Start point
+pixels</string>
            </property>
           </widget>
           <widget class="QLabel" name="label_current_i">
            <property name="geometry">
             <rect>
-             <x>90</x>
-             <y>60</y>
+             <x>70</x>
+             <y>90</y>
              <width>61</width>
              <height>16</height>
             </rect>
@@ -835,8 +830,8 @@
           <widget class="QLabel" name="label_current_j">
            <property name="geometry">
             <rect>
-             <x>160</x>
-             <y>60</y>
+             <x>140</x>
+             <y>90</y>
              <width>61</width>
              <height>16</height>
             </rect>
@@ -849,7 +844,7 @@
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>160</y>
+             <y>190</y>
              <width>161</width>
              <height>20</height>
             </rect>
@@ -862,66 +857,6 @@
            </property>
           </widget>
          </widget>
-         <widget class="QWidget" name="tab_7">
-          <attribute name="title">
-           <string>Frame</string>
-          </attribute>
-          <widget class="QLabel" name="label_image_frame5">
-           <property name="geometry">
-            <rect>
-             <x>70</x>
-             <y>10</y>
-             <width>256</width>
-             <height>256</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>256</width>
-             <height>256</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::Box</enum>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-          <widget class="QPushButton" name="pushButton_acquire_frame">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>10</y>
-             <width>61</width>
-             <height>71</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Acquire
-frame</string>
-           </property>
-          </widget>
-          <widget class="QCheckBox" name="checkBox_frame_integral">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>90</y>
-             <width>71</width>
-             <height>20</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>integral</string>
-           </property>
-          </widget>
-         </widget>
          <widget class="QWidget" name="tab_8">
           <attribute name="title">
            <string>Pixels</string>
@@ -930,7 +865,7 @@ frame</string>
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>120</y>
+             <y>130</y>
              <width>101</width>
              <height>24</height>
             </rect>
@@ -942,10 +877,10 @@ frame</string>
           <widget class="QPushButton" name="pushButton_open_t3pa_file">
            <property name="geometry">
             <rect>
-             <x>140</x>
-             <y>10</y>
-             <width>131</width>
-             <height>51</height>
+             <x>10</x>
+             <y>170</y>
+             <width>101</width>
+             <height>61</height>
             </rect>
            </property>
            <property name="text">
@@ -970,6 +905,33 @@ TOA-TOT</string>
           </widget>
          </widget>
         </widget>
+        <widget class="QPushButton" name="pushButton_acquire_frame">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>180</y>
+           <width>61</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Get
+frame</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_frame_integral">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>220</y>
+           <width>71</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>integral</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="tab_2">
         <attribute name="title">
@@ -978,14 +940,14 @@ TOA-TOT</string>
         <widget class="QTabWidget" name="tabWidget">
          <property name="geometry">
           <rect>
-           <x>30</x>
+           <x>0</x>
            <y>40</y>
-           <width>291</width>
+           <width>251</width>
            <height>461</height>
           </rect>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tab_4">
           <attribute name="title">
@@ -994,7 +956,7 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_37">
            <property name="geometry">
             <rect>
-             <x>90</x>
+             <x>60</x>
              <y>122</y>
              <width>55</width>
              <height>16</height>
@@ -1020,7 +982,7 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_13">
            <property name="geometry">
             <rect>
-             <x>140</x>
+             <x>130</x>
              <y>52</y>
              <width>61</width>
              <height>16</height>
@@ -1033,7 +995,7 @@ TOA-TOT</string>
           <widget class="QLineEdit" name="lineEdit_user">
            <property name="geometry">
             <rect>
-             <x>50</x>
+             <x>40</x>
              <y>50</y>
              <width>81</width>
              <height>22</height>
@@ -1059,7 +1021,7 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_15">
            <property name="geometry">
             <rect>
-             <x>140</x>
+             <x>130</x>
              <y>80</y>
              <width>55</width>
              <height>16</height>
@@ -1072,7 +1034,7 @@ TOA-TOT</string>
           <widget class="QLineEdit" name="lineEdit_host">
            <property name="geometry">
             <rect>
-             <x>50</x>
+             <x>40</x>
              <y>80</y>
              <width>81</width>
              <height>22</height>
@@ -1085,9 +1047,9 @@ TOA-TOT</string>
           <widget class="QLineEdit" name="lineEdit_server">
            <property name="geometry">
             <rect>
-             <x>50</x>
+             <x>40</x>
              <y>20</y>
-             <width>231</width>
+             <width>181</width>
              <height>22</height>
             </rect>
            </property>
@@ -1108,9 +1070,9 @@ TOA-TOT</string>
           <widget class="QLineEdit" name="lineEdit_port">
            <property name="geometry">
             <rect>
-             <x>200</x>
+             <x>180</x>
              <y>80</y>
-             <width>81</width>
+             <width>51</width>
              <height>22</height>
             </rect>
            </property>
@@ -1121,9 +1083,9 @@ TOA-TOT</string>
           <widget class="QLineEdit" name="lineEdit_password">
            <property name="geometry">
             <rect>
-             <x>200</x>
+             <x>180</x>
              <y>50</y>
-             <width>81</width>
+             <width>51</width>
              <height>22</height>
             </rect>
            </property>
@@ -1134,7 +1096,7 @@ TOA-TOT</string>
           <widget class="QSpinBox" name="spinBox_CID">
            <property name="geometry">
             <rect>
-             <x>120</x>
+             <x>90</x>
              <y>120</y>
              <width>111</width>
              <height>22</height>
@@ -1147,7 +1109,7 @@ TOA-TOT</string>
           <widget class="QPushButton" name="pushButton_open_client">
            <property name="geometry">
             <rect>
-             <x>120</x>
+             <x>80</x>
              <y>210</y>
              <width>75</width>
              <height>24</height>
@@ -1160,7 +1122,7 @@ TOA-TOT</string>
           <widget class="QCheckBox" name="checkBox_start_new">
            <property name="geometry">
             <rect>
-             <x>120</x>
+             <x>90</x>
              <y>160</y>
              <width>81</width>
              <height>20</height>
@@ -1173,7 +1135,7 @@ TOA-TOT</string>
           <widget class="QCheckBox" name="checkBox_gui">
            <property name="geometry">
             <rect>
-             <x>120</x>
+             <x>90</x>
              <y>180</y>
              <width>77</width>
              <height>20</height>
@@ -1194,7 +1156,7 @@ TOA-TOT</string>
           <widget class="QPushButton" name="pushButton_update_SEM_state">
            <property name="geometry">
             <rect>
-             <x>50</x>
+             <x>20</x>
              <y>250</y>
              <width>175</width>
              <height>24</height>
@@ -1207,7 +1169,7 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_17">
            <property name="geometry">
             <rect>
-             <x>50</x>
+             <x>20</x>
              <y>70</y>
              <width>101</width>
              <height>21</height>
@@ -1220,7 +1182,7 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_22">
            <property name="geometry">
             <rect>
-             <x>50</x>
+             <x>20</x>
              <y>220</y>
              <width>101</width>
              <height>16</height>
@@ -1233,7 +1195,7 @@ TOA-TOT</string>
           <widget class="QDoubleSpinBox" name="doubleSpinBox_spot_size">
            <property name="geometry">
             <rect>
-             <x>145</x>
+             <x>115</x>
              <y>220</y>
              <width>80</width>
              <height>22</height>
@@ -1246,7 +1208,7 @@ TOA-TOT</string>
           <widget class="QDoubleSpinBox" name="doubleSpinBox_probe_current">
            <property name="geometry">
             <rect>
-             <x>145</x>
+             <x>115</x>
              <y>190</y>
              <width>80</width>
              <height>22</height>
@@ -1256,7 +1218,7 @@ TOA-TOT</string>
           <widget class="QSpinBox" name="spinBox_magnification">
            <property name="geometry">
             <rect>
-             <x>145</x>
+             <x>115</x>
              <y>40</y>
              <width>80</width>
              <height>22</height>
@@ -1275,7 +1237,7 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_19">
            <property name="geometry">
             <rect>
-             <x>50</x>
+             <x>20</x>
              <y>130</y>
              <width>101</width>
              <height>21</height>
@@ -1288,7 +1250,7 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_16">
            <property name="geometry">
             <rect>
-             <x>50</x>
+             <x>20</x>
              <y>40</y>
              <width>81</width>
              <height>16</height>
@@ -1301,7 +1263,7 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_18">
            <property name="geometry">
             <rect>
-             <x>50</x>
+             <x>20</x>
              <y>100</y>
              <width>101</width>
              <height>16</height>
@@ -1314,7 +1276,7 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_21">
            <property name="geometry">
             <rect>
-             <x>50</x>
+             <x>20</x>
              <y>190</y>
              <width>101</width>
              <height>16</height>
@@ -1327,7 +1289,7 @@ TOA-TOT</string>
           <widget class="QDoubleSpinBox" name="doubleSpinBox_brightness">
            <property name="geometry">
             <rect>
-             <x>145</x>
+             <x>115</x>
              <y>130</y>
              <width>80</width>
              <height>22</height>
@@ -1340,7 +1302,7 @@ TOA-TOT</string>
           <widget class="QDoubleSpinBox" name="doubleSpinBox_working_distance">
            <property name="geometry">
             <rect>
-             <x>145</x>
+             <x>115</x>
              <y>100</y>
              <width>80</width>
              <height>22</height>
@@ -1350,7 +1312,7 @@ TOA-TOT</string>
           <widget class="QDoubleSpinBox" name="doubleSpinBox_contrast">
            <property name="geometry">
             <rect>
-             <x>145</x>
+             <x>115</x>
              <y>160</y>
              <width>80</width>
              <height>22</height>
@@ -1363,7 +1325,7 @@ TOA-TOT</string>
           <widget class="QDoubleSpinBox" name="doubleSpinBox_high_voltage">
            <property name="geometry">
             <rect>
-             <x>145</x>
+             <x>115</x>
              <y>70</y>
              <width>80</width>
              <height>22</height>
@@ -1376,7 +1338,7 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_20">
            <property name="geometry">
             <rect>
-             <x>50</x>
+             <x>20</x>
              <y>160</y>
              <width>101</width>
              <height>16</height>
@@ -1575,7 +1537,7 @@ TOA-TOT</string>
           <widget class="QSpinBox" name="spinBox_height_pixels">
            <property name="geometry">
             <rect>
-             <x>100</x>
+             <x>60</x>
              <y>70</y>
              <width>71</width>
              <height>22</height>
@@ -1587,24 +1549,27 @@ TOA-TOT</string>
            <property name="maximum">
             <number>200000</number>
            </property>
+           <property name="value">
+            <number>682</number>
+           </property>
           </widget>
           <widget class="QLabel" name="label_30">
            <property name="geometry">
             <rect>
              <x>13</x>
              <y>52</y>
-             <width>81</width>
+             <width>51</width>
              <height>16</height>
             </rect>
            </property>
            <property name="text">
-            <string>Width, pixels</string>
+            <string>Width</string>
            </property>
           </widget>
           <widget class="QSpinBox" name="spinBox_width_pixels">
            <property name="geometry">
             <rect>
-             <x>100</x>
+             <x>60</x>
              <y>50</y>
              <width>71</width>
              <height>22</height>
@@ -1616,25 +1581,28 @@ TOA-TOT</string>
            <property name="maximum">
             <number>200000</number>
            </property>
+           <property name="value">
+            <number>1024</number>
+           </property>
           </widget>
           <widget class="QLabel" name="label_31">
            <property name="geometry">
             <rect>
              <x>13</x>
              <y>72</y>
-             <width>81</width>
+             <width>51</width>
              <height>16</height>
             </rect>
            </property>
            <property name="text">
-            <string>Height, pixels</string>
+            <string>Height</string>
            </property>
           </widget>
           <widget class="QDoubleSpinBox" name="doubleSpinBox_field_width">
            <property name="geometry">
             <rect>
-             <x>100</x>
-             <y>120</y>
+             <x>60</x>
+             <y>130</y>
              <width>71</width>
              <height>22</height>
             </rect>
@@ -1646,8 +1614,8 @@ TOA-TOT</string>
           <widget class="QSpinBox" name="spinBox_average">
            <property name="geometry">
             <rect>
-             <x>100</x>
-             <y>100</y>
+             <x>60</x>
+             <y>110</y>
              <width>71</width>
              <height>22</height>
             </rect>
@@ -1662,8 +1630,8 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_33">
            <property name="geometry">
             <rect>
-             <x>50</x>
-             <y>120</y>
+             <x>10</x>
+             <y>130</y>
              <width>51</width>
              <height>16</height>
             </rect>
@@ -1675,8 +1643,8 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_32">
            <property name="geometry">
             <rect>
-             <x>50</x>
-             <y>102</y>
+             <x>10</x>
+             <y>112</y>
              <width>51</width>
              <height>16</height>
             </rect>
@@ -1688,7 +1656,7 @@ TOA-TOT</string>
           <widget class="QCheckBox" name="checkBox_beam_blank">
            <property name="geometry">
             <rect>
-             <x>200</x>
+             <x>150</x>
              <y>50</y>
              <width>61</width>
              <height>16</height>
@@ -1701,9 +1669,9 @@ TOA-TOT</string>
           <widget class="QCheckBox" name="checkBox_channel_2">
            <property name="geometry">
             <rect>
-             <x>200</x>
+             <x>150</x>
              <y>90</y>
-             <width>77</width>
+             <width>61</width>
              <height>20</height>
             </rect>
            </property>
@@ -1717,9 +1685,9 @@ TOA-TOT</string>
           <widget class="QCheckBox" name="checkBox_channel_1">
            <property name="geometry">
             <rect>
-             <x>200</x>
+             <x>150</x>
              <y>70</y>
-             <width>77</width>
+             <width>51</width>
              <height>20</height>
             </rect>
            </property>
@@ -1734,7 +1702,7 @@ TOA-TOT</string>
            <property name="geometry">
             <rect>
              <x>20</x>
-             <y>170</y>
+             <y>160</y>
              <width>110</width>
              <height>24</height>
             </rect>
@@ -1747,7 +1715,7 @@ TOA-TOT</string>
            <property name="geometry">
             <rect>
              <x>20</x>
-             <y>200</y>
+             <y>180</y>
              <width>110</width>
              <height>24</height>
             </rect>
@@ -1759,10 +1727,10 @@ TOA-TOT</string>
           <widget class="QPushButton" name="pushButton_get_image">
            <property name="geometry">
             <rect>
-             <x>185</x>
-             <y>149</y>
+             <x>150</x>
+             <y>120</y>
              <width>71</width>
-             <height>24</height>
+             <height>51</height>
             </rect>
            </property>
            <property name="text">
@@ -1772,7 +1740,7 @@ TOA-TOT</string>
           <widget class="QPushButton" name="pushButton_plot_SEM_image">
            <property name="geometry">
             <rect>
-             <x>200</x>
+             <x>160</x>
              <y>179</y>
              <width>41</width>
              <height>24</height>
@@ -1785,8 +1753,8 @@ TOA-TOT</string>
           <widget class="QPushButton" name="pushButton_save_SEM_image">
            <property name="geometry">
             <rect>
-             <x>190</x>
-             <y>209</y>
+             <x>150</x>
+             <y>210</y>
              <width>61</width>
              <height>24</height>
             </rect>
@@ -1798,8 +1766,8 @@ TOA-TOT</string>
           <widget class="QCheckBox" name="checkBox_save_ascii">
            <property name="geometry">
             <rect>
-             <x>190</x>
-             <y>230</y>
+             <x>150</x>
+             <y>231</y>
              <width>61</width>
              <height>20</height>
             </rect>
@@ -1811,7 +1779,7 @@ TOA-TOT</string>
           <widget class="QPushButton" name="pushButton_set_beam_position">
            <property name="geometry">
             <rect>
-             <x>180</x>
+             <x>160</x>
              <y>280</y>
              <width>41</width>
              <height>44</height>
@@ -1824,7 +1792,7 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_36">
            <property name="geometry">
             <rect>
-             <x>60</x>
+             <x>40</x>
              <y>303</y>
              <width>51</width>
              <height>16</height>
@@ -1837,7 +1805,7 @@ TOA-TOT</string>
           <widget class="QSpinBox" name="spinBox_beam_x">
            <property name="geometry">
             <rect>
-             <x>110</x>
+             <x>90</x>
              <y>281</y>
              <width>71</width>
              <height>22</height>
@@ -1850,7 +1818,7 @@ TOA-TOT</string>
           <widget class="QLabel" name="label_35">
            <property name="geometry">
             <rect>
-             <x>60</x>
+             <x>40</x>
              <y>283</y>
              <width>51</width>
              <height>16</height>
@@ -1863,7 +1831,7 @@ TOA-TOT</string>
           <widget class="QSpinBox" name="spinBox_beam_y">
            <property name="geometry">
             <rect>
-             <x>110</x>
+             <x>90</x>
              <y>301</y>
              <width>71</width>
              <height>22</height>
@@ -1876,7 +1844,7 @@ TOA-TOT</string>
           <widget class="QCheckBox" name="checkBox_external_scan">
            <property name="geometry">
             <rect>
-             <x>90</x>
+             <x>70</x>
              <y>370</y>
              <width>101</width>
              <height>20</height>
@@ -1889,7 +1857,7 @@ TOA-TOT</string>
           <widget class="QCheckBox" name="checkBox_external_mode">
            <property name="geometry">
             <rect>
-             <x>90</x>
+             <x>70</x>
              <y>350</y>
              <width>111</width>
              <height>20</height>
@@ -1909,20 +1877,21 @@ TOA-TOT</string>
         <widget class="QPushButton" name="pushButton_set_EBSD_detector">
          <property name="geometry">
           <rect>
-           <x>180</x>
+           <x>130</x>
            <y>150</y>
-           <width>121</width>
-           <height>28</height>
+           <width>101</width>
+           <height>41</height>
           </rect>
          </property>
          <property name="text">
-          <string>Set EBSD detector</string>
+          <string>Set EBSD
+detector</string>
          </property>
         </widget>
         <widget class="QSpinBox" name="spinBox_chip_pixels_x">
          <property name="geometry">
           <rect>
-           <x>50</x>
+           <x>30</x>
            <y>38</y>
            <width>61</width>
            <height>22</height>
@@ -1938,7 +1907,7 @@ TOA-TOT</string>
         <widget class="QDoubleSpinBox" name="doubleSpinBox_pc_x">
          <property name="geometry">
           <rect>
-           <x>30</x>
+           <x>10</x>
            <y>75</y>
            <width>62</width>
            <height>22</height>
@@ -1954,9 +1923,9 @@ TOA-TOT</string>
         <widget class="QDoubleSpinBox" name="doubleSpinBox_sample_tilt">
          <property name="geometry">
           <rect>
-           <x>190</x>
+           <x>170</x>
            <y>120</y>
-           <width>71</width>
+           <width>61</width>
            <height>22</height>
           </rect>
          </property>
@@ -1967,9 +1936,9 @@ TOA-TOT</string>
         <widget class="QLabel" name="label_46">
          <property name="geometry">
           <rect>
-           <x>25</x>
+           <x>10</x>
            <y>120</y>
-           <width>41</width>
+           <width>31</width>
            <height>16</height>
           </rect>
          </property>
@@ -1980,7 +1949,7 @@ TOA-TOT</string>
         <widget class="QDoubleSpinBox" name="doubleSpinBox_pc_y">
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>80</x>
            <y>75</y>
            <width>62</width>
            <height>22</height>
@@ -1996,7 +1965,7 @@ TOA-TOT</string>
         <widget class="QLabel" name="label_43">
          <property name="geometry">
           <rect>
-           <x>30</x>
+           <x>10</x>
            <y>55</y>
            <width>201</width>
            <height>20</height>
@@ -2009,7 +1978,7 @@ TOA-TOT</string>
         <widget class="QLabel" name="label_48">
          <property name="geometry">
           <rect>
-           <x>30</x>
+           <x>0</x>
            <y>152</y>
            <width>71</width>
            <height>16</height>
@@ -2022,7 +1991,7 @@ TOA-TOT</string>
         <widget class="QLabel" name="label_42">
          <property name="geometry">
           <rect>
-           <x>70</x>
+           <x>50</x>
            <y>20</y>
            <width>111</width>
            <height>16</height>
@@ -2035,7 +2004,7 @@ TOA-TOT</string>
         <widget class="QSpinBox" name="spinBox_chip_pixels_y">
          <property name="geometry">
           <rect>
-           <x>140</x>
+           <x>120</x>
            <y>38</y>
            <width>61</width>
            <height>22</height>
@@ -2051,7 +2020,7 @@ TOA-TOT</string>
         <widget class="QDoubleSpinBox" name="doubleSpinBox_detector_pixel_size">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>80</x>
            <y>100</y>
            <width>71</width>
            <height>22</height>
@@ -2064,7 +2033,7 @@ TOA-TOT</string>
         <widget class="QDoubleSpinBox" name="doubleSpinBox_pc_z">
          <property name="geometry">
           <rect>
-           <x>190</x>
+           <x>150</x>
            <y>75</y>
            <width>62</width>
            <height>22</height>
@@ -2080,9 +2049,9 @@ TOA-TOT</string>
         <widget class="QDoubleSpinBox" name="doubleSpinBox_detector_tilt">
          <property name="geometry">
           <rect>
-           <x>40</x>
+           <x>30</x>
            <y>120</y>
-           <width>71</width>
+           <width>61</width>
            <height>22</height>
           </rect>
          </property>
@@ -2093,7 +2062,7 @@ TOA-TOT</string>
         <widget class="QLabel" name="label_44">
          <property name="geometry">
           <rect>
-           <x>180</x>
+           <x>150</x>
            <y>102</y>
            <width>51</width>
            <height>16</height>
@@ -2106,7 +2075,7 @@ TOA-TOT</string>
         <widget class="QLabel" name="label_41">
          <property name="geometry">
           <rect>
-           <x>120</x>
+           <x>100</x>
            <y>38</y>
            <width>20</width>
            <height>16</height>
@@ -2125,9 +2094,9 @@ TOA-TOT</string>
         <widget class="QLabel" name="label_47">
          <property name="geometry">
           <rect>
-           <x>120</x>
+           <x>100</x>
            <y>124</y>
-           <width>71</width>
+           <width>61</width>
            <height>16</height>
           </rect>
          </property>
@@ -2138,20 +2107,20 @@ TOA-TOT</string>
         <widget class="QLabel" name="label_45">
          <property name="geometry">
           <rect>
-           <x>20</x>
+           <x>10</x>
            <y>102</y>
-           <width>81</width>
+           <width>71</width>
            <height>16</height>
           </rect>
          </property>
          <property name="text">
-          <string>pixel size, um</string>
+          <string>pix size um</string>
          </property>
         </widget>
         <widget class="QSpinBox" name="spinBox_binning">
          <property name="geometry">
           <rect>
-           <x>225</x>
+           <x>190</x>
            <y>100</y>
            <width>41</width>
            <height>22</height>
@@ -2170,9 +2139,9 @@ TOA-TOT</string>
         <widget class="QComboBox" name="comboBox_convention">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>70</x>
            <y>152</y>
-           <width>73</width>
+           <width>61</width>
            <height>21</height>
           </rect>
          </property>
@@ -2190,7 +2159,7 @@ TOA-TOT</string>
         <widget class="QCheckBox" name="checkBox_remove_dynamic_background">
          <property name="geometry">
           <rect>
-           <x>20</x>
+           <x>10</x>
            <y>280</y>
            <width>191</width>
            <height>20</height>
@@ -2203,7 +2172,7 @@ TOA-TOT</string>
         <widget class="QPushButton" name="pushButton_open_stack">
          <property name="geometry">
           <rect>
-           <x>20</x>
+           <x>10</x>
            <y>230</y>
            <width>131</width>
            <height>28</height>
@@ -2216,7 +2185,7 @@ TOA-TOT</string>
         <widget class="QCheckBox" name="checkBox_remove_static_background">
          <property name="geometry">
           <rect>
-           <x>20</x>
+           <x>10</x>
            <y>260</y>
            <width>181</width>
            <height>20</height>
@@ -2229,9 +2198,9 @@ TOA-TOT</string>
         <widget class="QPushButton" name="pushButton_open_file">
          <property name="geometry">
           <rect>
-           <x>190</x>
+           <x>150</x>
            <y>230</y>
-           <width>93</width>
+           <width>81</width>
            <height>25</height>
           </rect>
          </property>
@@ -2245,7 +2214,7 @@ TOA-TOT</string>
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>600</y>
+         <y>590</y>
          <width>81</width>
          <height>16</height>
         </rect>
@@ -2258,7 +2227,7 @@ TOA-TOT</string>
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>620</y>
+         <y>610</y>
          <width>371</width>
          <height>61</height>
         </rect>
@@ -2276,7 +2245,7 @@ TOA-TOT</string>
       <widget class="QLabel" name="label_image_frame_SEM">
        <property name="geometry">
         <rect>
-         <x>900</x>
+         <x>775</x>
          <y>15</y>
          <width>768</width>
          <height>525</height>
@@ -2304,7 +2273,7 @@ TOA-TOT</string>
       <widget class="QLabel" name="label_measurement_type3_2">
        <property name="geometry">
         <rect>
-         <x>900</x>
+         <x>780</x>
          <y>0</y>
          <width>55</width>
          <height>16</height>
@@ -2323,7 +2292,7 @@ TOA-TOT</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1694</width>
+     <width>1695</width>
      <height>26</height>
     </rect>
    </property>

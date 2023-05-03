@@ -25,7 +25,7 @@ import detection as detection
 from test_files import localhost_client as localhost
 import utils
 import data_handling as storage
-import bruker_espirit_API as SEM
+import bruker_esprit_API as SEM
 
 #test_image = '01_gorelick.jpg'
 
@@ -210,7 +210,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.ax.add_patch(self.rect)
         self.is_clicked = False
 
-        dims =self.bruker.image.shape
+        dims = self.bruker.image.shape
         centre_marker_coords = [dims[0] / 2, dims[1] / 2]
         self.ax.plot(centre_marker_coords[1],
                      centre_marker_coords[0],
@@ -241,7 +241,6 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             self.spinBox_scan_pixels_j.setValue(int(self.y1_clicked - self.y0_clicked))
             self.ax.figure.canvas.draw()
 
-
         self.figure_SEM.canvas.mpl_connect("button_press_event", on_click)
         self.figure_SEM.canvas.mpl_connect('button_release_event', on_release)
         # self.figure_SEM.canvas.mpl_connect('motion_notify_event', on_release)
@@ -249,8 +248,6 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.blitted_cursor = utils.BlittedCursor(self.ax)
         self.figure_SEM.canvas.mpl_connect('motion_notify_event',
                                            self.blitted_cursor.on_mouse_move)
-
-
         self.canvas_SEM.draw()
 
 
@@ -398,6 +395,8 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.label_messages.setText(self.bruker.error_message)
         self.bruker.get_sem_spot_size()
         self.label_messages.setText(self.bruker.error_message)
+        self.bruker.get_field_width()
+        self.label_messages.setText(self.bruker.error_message)
 
         self.spinBox_magnification.setValue(int(self.bruker.mag.value))
         self.doubleSpinBox_high_voltage.setValue(self.bruker.high_voltage.value)
@@ -406,6 +405,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.doubleSpinBox_contrast.setValue(self.bruker.contrast.value)
         self.doubleSpinBox_probe_current.setValue(self.bruker.probe_current.value)
         self.doubleSpinBox_spot_size.setValue(self.bruker.spot_size.value)
+        self.doubleSpinBox_field_width.setValue(self.bruker.field_width.value)
 
         self.bruker.get_sem_info()
         self.bruker.get_sem_capabilities()
@@ -668,7 +668,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         detector_info = self.device.initialise()
         self.label_messages.setText(str(detector_info))
         # initialise Bruker API
-        self.bruker = SEM.Bruker_Espirit()
+        self.bruker = SEM.Bruker_Esprit()
 
 
     def initialise_detector(self):

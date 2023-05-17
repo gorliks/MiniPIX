@@ -11,6 +11,7 @@ import h5py
 import hyperspy.api as hs
 import kikuchipy as kp
 from PIL import Image
+import pandas as pd
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -122,7 +123,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
     def initialise_image_frames(self):
-        self.figure_SEM = plt.figure(33)
+        self.figure_SEM = plt.figure(5)
         plt.axis("off")
         plt.tight_layout()
         plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.01)
@@ -245,6 +246,8 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             self.spinBox_y0.setValue(int(coord_y))
             self.spinBox_beam_x.setValue(int(coord_x))
             self.spinBox_beam_y.setValue(int(coord_y))
+            if event.dblclick:
+                pass # set the beam over and take minipix measurement
 
         def on_release(event):
             self.x1_clicked = event.xdata
@@ -937,11 +940,13 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.setup_acquisition() # update the acquisition parameters
         ts = time.time()
         stamp = datetime.datetime.fromtimestamp(ts).strftime('%y%m%d.%H%M%S')  # make a timestamp for new file
+
         self.sample_id = self.plainTextEdit_sample_name.toPlainText()
         self.pushButton_abort_stack_collection.setEnabled(True)
         self.pushButton_acquire.setEnabled(False)
         self.pushButton_setup_acquisition.setEnabled(False)
         self.pushButton_check_temperature.setEnabled(False)
+
         stack_i = self.spinBox_scan_pixels_i.value()  # scan over sample, no. pixels along X
         stack_j = self.spinBox_scan_pixels_j.value()  # scan over sample, no. pixels along Y
         x0 =  self.spinBox_x0.value() # start scan from pixel x0
@@ -957,6 +962,23 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             self.stack_dir = self.DIR + '/stack_' + self.sample_id + '_' + stamp
         else:
             self.stack_dir = os.getcwd() + '/stack_' + self.sample_id + '_' + stamp
+
+
+        """
+            Accumulate experiment metadata
+        """
+        stack_metadata = self.bruker.get_current_microscope_state()
+        stack_metadata = stack_metadata.__to__dict__()
+        stack_metadata['timestamp'] = [stamp]
+        # stack_metadata['data_dir']  = [self.stack_dir]
+        stack_metadata['start_x'] = [x0]
+        stack_metadata['start_y'] = [y0]
+        stack_metadata['pixels_width'] = [stack_i]
+        stack_metadata['pixels_height'] = [stack_j]
+        stack_metadata['detector_mode'] = [self.device.settings['mode']]
+        stack_metadata['integration_time'] = [self.device.integration_time]
+        stack_metadata['energy_threshold'] = [self.device.energy_threshold]
+
 
         # the loop will check if abort button is clicked by checking QtWidgets.QApplication.processEvents()
         # if the abort button was clicked, _return_ will break the _run_loop
@@ -1010,6 +1032,14 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_check_temperature.setEnabled(True)
         self.pushButton_abort_stack_collection.setEnabled(False)
         self.repaint()
+
+
+        """
+            save the metadata
+        """
+        d = pd.DataFrame(data=stack_metadata)
+        file_name = os.path.join(self.stack_dir, 'summary' + '.csv')
+        d.to_csv(file_name)
 
 
         # save the stacks

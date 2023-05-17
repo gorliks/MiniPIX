@@ -3,7 +3,10 @@ import sys
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+from utils import MicroscopeState
 
+# from importlib import reload  # Python 3.4+
+# reload(utils)
 
 #path_to_dll = r'F:\SharedData\MCEM Data - Staff Only\Bruker API\Esprit API\Bruker.API.Esprit64.dll'
 path_to_dll = r'C:\Users\sergeyg\Github\Bruker Nano APIs\Esprit API\Bruker.API.Esprit64.dll'
@@ -188,6 +191,8 @@ class Bruker_Esprit():
         self.beam_x_pos = 0
         self.beam_y_pos = 0
 
+        self.microscope_state = MicroscopeState()
+
         try:
             self.esprit = ctypes.cdll.LoadLibrary(path_to_dll)
             print(path_to_dll, self.esprit)
@@ -239,6 +244,7 @@ class Bruker_Esprit():
     def reset_communication(self):
         output = \
             self.esprit.ResetSEMCommunication(self.CID)
+
         if output==0:
             print('Communication reset successfully\n')
             self.error_message = ''
@@ -299,10 +305,10 @@ class Bruker_Esprit():
             output = \
                 self.esprit.GetSEMData(self.CID, self.mag_ptr, self.high_voltage_ptr, self.working_distance_ptr)
 
-            print(f'mag = {self.mag.value}, HV = {self.high_voltage.value}, WD = {self.working_distance.value}')
             if output==0:
                 self.error_message = ''
                 print('SEM data retrieved successfully\n')
+                print(f'mag = {self.mag.value}, HV = {self.high_voltage.value}, WD = {self.working_distance.value}')
             else:
                 self.error_message = f'No SEM data could be fetched, ERROR code is {output}, {errors[output]}'
                 print( self.error_message + '\n')
@@ -378,11 +384,10 @@ class Bruker_Esprit():
             output = \
                 self.esprit.GetSEMBCData(self.CID, self.brightness_ptr, self.contrast_ptr)
 
-            print(f'brightness = {self.brightness.value}, contrast = {self.contrast.value}')
-
             if output==0:
                 self.error_message = ''
                 print('SEM data retrieved successfully\n')
+                print(f'brightness = {self.brightness.value}, contrast = {self.contrast.value}')
             else:
                 self.error_message = f'No SEM data could be fetched, ERROR code is {output}, {errors[output]}'
                 print( self.error_message + '\n')
@@ -404,11 +409,10 @@ class Bruker_Esprit():
             output = \
                 self.esprit.GetSEMProbeCurrent(self.CID, self.probe_current_ptr)
 
-            print(f'probe current = {self.probe_current.value}')
-
             if output==0:
                 self.error_message = ''
                 print('SEM probe current retrieved successfully\n')
+                print(f'probe current = {self.probe_current.value}')
             else:
                 self.error_message = f'No SEM probe current could be fetched, ERROR code is {output}, {errors[output]}'
                 print( self.error_message + '\n')
@@ -432,11 +436,10 @@ class Bruker_Esprit():
             output = \
                 self.esprit.GetSEMSpotSize(self.CID, self.spot_size_ptr)
 
-            print(f'spot size = {self.spot_size.value}')
-
             if output==0:
                 self.error_message = ''
                 print('SEM spot size retrieved successfully\n')
+                print(f'spot size = {self.spot_size.value}')
             else:
                 self.error_message = f'No SEM spot size could be fetched, ERROR code is {output}, {errors[output]}'
                 print( self.error_message + '\n')
@@ -549,7 +552,6 @@ class Bruker_Esprit():
         self.field_width = ctypes.c_double(0)  # Width of the scanned area in mm
         self.field_width_ptr = ctypes.pointer(self.field_width)
 
-
         if self.demo is not True:
 
             output = \
@@ -565,6 +567,65 @@ class Bruker_Esprit():
         elif self.demo is True:
             self.error_message = ''
             print(f'demo mode: Field width = {self.field_width.value}\n')
+
+
+
+    def get_current_microscope_state(self) -> MicroscopeState:
+        """Acquires the current microscope state to store
+         if necessary it is possible to return to this stored state later
+         Returns the state in MicroscopeState dataclass variable
+        Args:
+            None
+        Returns
+        -------
+        MicroscopeState
+        """
+        try:
+            self.get_sem_info()
+            self.microscope_state.sem_info = self.Info
+            #
+            self.get_sem_capabilities()
+            self.microscope_state.sem_capabilities = self.capabilities
+            #
+            self.get_sem_data()
+            self.microscope_state.hv = self.high_voltage.value
+            self.microscope_state.mag = self.mag.value
+            self.microscope_state.working_distance = self.working_distance.value
+            #
+            self.get_sem_brightness_and_contrast()
+            self.microscope_state.brightness = self.brightness.value
+            self.microscope_state.contrast = self.contrast.value
+            #
+            self.get_sem_probe_current()
+            self.microscope_state.beam_current = self.probe_current.value
+            #
+            self.get_sem_spot_size()
+            self.microscope_state.spot_size = self.spot_size.value
+            #
+            self.get_sem_stage_position()
+            self.microscope_state.x = self.x_pos.value
+            self.microscope_state.y = self.y_pos.value
+            self.microscope_state.z = self.z_pos.value
+            self.microscope_state.t = self.t_pos.value
+            self.microscope_state.r = self.r_pos.value
+            #
+            self.get_field_width()
+            self.microscope_state.horizontal_field_width = self.field_width.value
+            #
+            self.get_image_configuration()
+            self.microscope_state.width = self.width.value
+            self.microscope_state.height = self.height.value
+
+
+        except Exception as e:
+            print(f"Could not get the microscope state, error {e}")
+            self.microscope_state.x = 0
+            self.microscope_state.y = 0
+            self.microscope_state.z = 0
+            self.microscope_state.t = 0
+            self.microscope_state.r = 0
+
+        return self.microscope_state
 
 
 

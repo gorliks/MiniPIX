@@ -5,6 +5,48 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import scipy.ndimage as ndi
+from dataclasses import dataclass
+
+
+
+@dataclass
+class MicroscopeState:
+    sem_info : str = ""
+    sem_capabilities : str = ""
+    hv : float = 20
+    mag : float = 0
+    working_distance : float = 0
+    brightness : float = 0
+    contrast : float = 0
+    beam_current : float = 0
+    spot_size : float = 0
+    x : float = 0
+    y : float = 0
+    z : float = 0
+    t : float = 0
+    r : float = 0
+    horizontal_field_width : float = 0
+    width : int = 0
+    height : int = 0
+
+    def __to__dict__(self) -> dict:
+        state_dict = {
+            "x" : [self.x],
+            "y" : [self.y],
+            "z" : [self.z],
+            "r" : [self.r],
+            "t" : [self.t],
+            "mag" : [self.mag],
+            "horizontal_field_width" : [self.horizontal_field_width],
+            "brightness" : [self.brightness],
+            "contrast" : [self.contrast],
+            "hv" : [self.hv],
+            "beam_current" : [self.beam_current],
+            "working_distance" : [self.working_distance],
+            "Info" : [self.sem_info],
+            "capabilities" : [self.sem_capabilities]
+        }
+        return state_dict
 
 
 

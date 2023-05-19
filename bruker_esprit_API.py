@@ -1,6 +1,6 @@
 import ctypes
 import sys
-import time
+import time, datetime
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import MicroscopeState
@@ -103,6 +103,13 @@ class TRTSpectrumHeaderRec(ctypes.Structure):
     ]
 
 
+def print_spectrum_header(spectrum_header : TRTSpectrumHeaderRec):
+    print(f'Version: {spectrum_header.Version}')
+    print(f'Size   :  {spectrum_header.Size}')
+    print(f'ChannelCount   :  {spectrum_header.ChannelCount}')
+    print(f'RealTime       :  {spectrum_header.RealTime}')
+
+
 errors = {-1 : 'IFC_ERROR_IN_EXECUTION',
          -2 : 'IFC_ERROR_WRONG_PARAMETER (execution)',
          -3 : 'IFC_ERROR_SPECTRUM_BUFFER_EMPTY',
@@ -138,7 +145,9 @@ errors = {-1 : 'IFC_ERROR_IN_EXECUTION',
          -108 : 'ERROR_INVALID_SERVER_CONNECTION',
          -109 : 'ERROR_IN_EXECUTION',
          -110 : 'ERROR_IFC_BUSY',
-         -201 : 'STATE_WAS_RUNNING_BEFORE'
+         -201 : 'STATE_WAS_RUNNING_BEFORE',
+         -232 : 'No Error Description Available',
+         +232 : 'No Error Description Available',
 }
 
 
@@ -1144,7 +1153,181 @@ class Bruker_Esprit():
             print(f'Retrieved the line scan spectum\n')
         else:
             self.error_message = f'Could not retrieve the line scan data\n, ERROR code is {output}, {errors[output]}'
-            print( self.error_message + '\n')
+            print(self.error_message + '\n')
+
+
+    ####################################################################################################################
+    ##########################################       X-RAY       #######################################################
+    ####################################################################################################################
+
+    def start_xray_spectrum_measurement(self, real_time = 100):
+        # int32_t StartSpectrumMeasurement(uint32_t CID, int32_t Device, uint32_t RealTime)
+        # *****
+        # // Device: Number of spectrometer ( 1 in most cases )
+        # // RealTime: Measure time in ms ( 0 means endless measurement )
+        # // Result: Function call sucessful or not ( 0 = success, otherwise error )
+        # StartSpectrumMeasurement(FCID,1,0);
+        # StartSpectrumMeasurement(FCID,1,TimeSpinEdit.Value);
+
+        device = ctypes.c_int32(1)  # Device: Number of spectrometer ( 1 in most cases )
+        real_time = ctypes.c_uint32(real_time)  # #RealTime: Measure time in ms ( 0 means endless measurement )
+
+        output = \
+            self.esprit.StartSpectrumMeasurement(self.CID, device, real_time)
+
+        if output == 0:
+            self.error_message = ''
+            print(f'Started spectrum measurement\n')
+        else:
+            self.error_message = f'Could not start the spectrum measurement, ERROR code is {output}, {errors[output]}'
+            print(self.error_message + '\n')
+
+
+    def stop_xray_spectrum_measurement(self):
+        # int32_t StopSpectrumMeasurement(uint32_t CID, int32_t Device)
+        # *****
+        # // Device: Number of spectrometer ( 1 in most cases )
+        # // Result: Function call sucessful or not ( 0 = success, otherwise error )
+        # StopSpectrumMeasurement(FCID,1);
+
+        device = ctypes.c_int32(1)  # Device: Number of spectrometer ( 1 in most cases )
+
+        output = \
+            self.esprit.StopSpectrumMeasurement(self.CID, device)
+
+        if output == 0:
+            self.error_message = ''
+            print(f'Stopping spectrum measurement\n')
+        else:
+            self.error_message = f'Could not stop the spectrum measurement, ERROR code is {output}, {errors[output]}'
+            print(self.error_message + '\n')
+
+
+    def get_xray_spectrometer_configuration(self):
+        # int32_t GetSpectrometerConfiguration(uint32_t CID, int32_t SPU, uint32_t& MaxEnergy, uint32_t& PulseThroughput)
+        # *****
+        # SPU: Number of spectrometer ("1" in most cases)
+        # MaxEnergy: Energy in keV of that last spectrum channel
+        # PulseTroughput: Maximum pulse output rate of the selected amplifier in cps (counts per second)
+
+        self.SPU = ctypes.c_int32(1)  # Number of spectrometer ("1" in most cases)
+        self.max_energy = ctypes.c_uint32(0)  # Energy in keV of that last spectrum channel
+        self.max_energy_ptr = ctypes.pointer(self.max_energy)
+        self.pulse_throughput = ctypes.c_uint32(0)  # Maximum pulse output rate of the selected amplifier in cps (counts per second)
+        self.pulse_throughput_ptr = ctypes.pointer(self.pulse_throughput)
+
+        output = \
+            self.esprit.GetSpectrometerConfiguration(self.CID, self.SPU,
+                                                     self.max_energy_ptr,
+                                                     self.pulse_throughput_ptr)
+
+        if output == 0:
+            self.error_message = ''
+            print(f'Successfully received spectrometer parameters:\n')
+            print(f'Spectrometer: max energy = {self.max_energy.value}')
+            print(f'Spectrometer: pulse_throughput = {self.pulse_throughput.value}, counts per seconsd')
+        else:
+            self.error_message = f'Could not get the spectrometer configuration, ERROR code is {output}, {errors[output]}'
+            print(self.error_message + '\n')
+
+
+    def read_xray_spectrum_to_buffer(self):
+        # int32_t ReadSpectrum(uint32_t CID, int32_t Device)
+        # // Read current spectrum from spectrometer to buffer
+        # // Device: Number of spectrometer ( 1 in most cases )
+        # // Result: Function call sucessful or not ( 0 = success, otherwise error )
+        # if (ReadSpectrum(FCID,1)=0)...
+
+        device = ctypes.c_int32(1)  # Device: Number of spectrometer ( 1 in most cases )
+
+        output = \
+            self.esprit.ReadSpectrum(CID, device)
+
+        if output == 0:
+            self.error_message = ''
+            print(f'Spectrum read into the buffer successfully\n')
+        else:
+            self.error_message = f'Could not read the spectrum into the buffer, ERROR code is {output}, {errors[output]}'
+            print(self.error_message + '\n')
+
+
+    def get_xray_spectrum(self):
+        # int32_t GetSpectrum(uint32_t CID, int32_t Buffer, PRTSpectrumHeaderRec pSpectrumBuf, int32_t BufSize)
+        # // Buffer: Buffer index ( 0 for loaded spectrum buffer, > 0 for spectrometer buffers )
+        # // Result: Function call sucessful or not ( 0 = success, otherwise error )
+        # (GetSpectrum(FCID,1,SpectrumBuf,64000)=0)
+        # SpectrumBuf : PRTAPISpectrumHeaderRec;
+        # PRTSpectrumHeaderRec -> PRTAPISpectrumHeaderRec
+
+        device = ctypes.c_int32(1)  # Device: Number of spectrometer ( 1 in most cases )
+
+        buffer_size = 64000
+        buffer_size = ctypes.c_int32(buffer_size)
+
+        buffer = ctypes.c_int32(1)  # Buffer index ( 0 for loaded spectrum buffer, > 0 for spectrometer buffers )
+
+        spectrum_buffer = TRTSpectrumHeaderRec()
+        spectrum_buffer_ptr = ctypes.pointer(spectrum_buffer)
+        # TRTSpectrumHeaderRecArray = TRTSpectrumHeaderRec * 64000
+        # spectrum_buffer_ptr = ctypes.POINTER(TRTSpectrumHeaderRecArray)
+
+        output = \
+            self.esprit.GetSpectrum(self.CID, device, buffer, spectrum_buffer_ptr, buffer_size)
+
+        if output == 0:
+            self.error_message = ''
+            print(f'GetSpectrum is successfull\n')
+            print_spectrum_header(spectrum_buffer)
+        else:
+            self.error_message = f'Could not GetSpectrum, ERROR code is {output}, {errors[output]}'
+            print(self.error_message + '\n')
+
+
+    def save_xray_spectrum_to_file(self, file_name=None):
+        # int32_t SaveSpectrum(uint32_t CID, int32_t Buffer, char* pFileName)
+        # // Save spectrum buffer to file
+        # function SaveSpectrum(CID:LongWord;Buffer:longint;pFileName:PAnsiChar):longint;stdcall;external csAPILibFile;
+        #    // pFilename   : Complete filename for spectrum ( normally with *.spx extension )
+        #    // Result      : Function call sucessful or not ( 0 = success, otherwise error )
+
+        buffer = ctypes.c_int32(1)  # Buffer index ( 0 for loaded spectrum buffer, > 0 for spectrometer buffers), 0 - reserved for Load
+
+        if file_name is None:
+            ts = time.time()
+            stamp = datetime.datetime.fromtimestamp(ts).strftime('%y%m%d.%H%M%S')  # make a timestamp for new file
+            file_name = "xray_spectrum_" + stamp + '.txt'
+            file_name = file_name.encode('utf-8')  # bytes, reference, char*, PAnsiChar equivalent
+        else:
+            file_name = file_name.encode('utf-8')  # bytes, reference, char*, PAnsiChar equivalent
+
+        output = \
+            self.esprit.SaveSpectrum(self.CID, buffer, file_name)
+
+        if output == 0:
+            self.error_message = ''
+            print(f'Spectrum saved successfully to file {file_name}\n')
+        else:
+            self.error_message = f'Could not save spectrum, ERROR code is {output}, {errors[output]}'
+            print(self.error_message + '\n')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":

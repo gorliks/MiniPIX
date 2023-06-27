@@ -119,6 +119,10 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         self.pushButton_acquire_pixels.clicked.connect(lambda: self.acquire_pixels())
         self.pushButton_open_t3pa_file.clicked.connect(lambda: self.open_t3pa_file())
         self.pushButton_save_pixels.clicked.connect(lambda: self.save_pixels())
+        #### X-Ray
+        self.pushButton_get_spectrometer_configuration.clicked.connect(lambda: self.get_spectrometer_configuration())
+        self.pushButton_get_xray_spectrum.clicked.connect(lambda: self.acquire_xray_spectrum())
+        self.pushButton_open_xray_spectrum.clicked.connect(lambda: self.open_xray_spectrum_file())
 
 
 
@@ -240,14 +244,20 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
             except:
                 self.x0_clicked = 0
                 self.y0_clicked = 0
-            [coord_y, coord_x] = [self.x0_clicked, self.y0_clicked]
+            [coord_x, coord_y] = [self.x0_clicked, self.y0_clicked]
             print(coord_x, coord_y)
             self.spinBox_x0.setValue(int(coord_x))
             self.spinBox_y0.setValue(int(coord_y))
             self.spinBox_beam_x.setValue(int(coord_x))
             self.spinBox_beam_y.setValue(int(coord_y))
             if event.dblclick:
-                pass # set the beam over and take minipix measurement
+                try:
+                    print(f"double click: get detector data from point ({coord_x}, {coord_y})")
+                    self.bruker.set_beam_to_point(x_pos=int(coord_x), y_pos=int(coord_y))
+                    self.single_acquisition()
+                except Exception as e:
+                    print(f"double click: Could not get detector data from point ({coord_x}, {coord_y}), error {e}")
+
 
         def on_release(event):
             self.x1_clicked = event.xdata
@@ -657,6 +667,7 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                 toa_integral = np.reshape(toa_integral, (256, 256))
                 tot_integral = np.reshape(tot_integral, (256, 256))
 
+                plt.figure(66)
                 plt.subplot(2, 2, 1)
                 plt.imshow(toa_integral, cmap='gray')
                 plt.colorbar()
@@ -682,6 +693,29 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
     #     self.response = self.client.get_response()
     #     self.label_messages.setText(self.response)
 
+
+
+
+    def open_xray_spectrum_file(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getOpenFileName(self,
+                                                   "QFileDialog.getOpenFileName()",
+                                                   "","txt files (*.txt);;txt files (*.txt);;All Files (*)",
+                                                   options=options)
+        if file_name:
+            print(file_name)
+            # data format files saved by PiXet detector
+            if file_name.lower().endswith('.txt'):
+                data = np.loadtxt(file_name, skiprows=26)
+                data = np.transpose(data)
+                energy = data[0]
+                intensity = data[1]
+                plt.figure(66)
+                plt.plot(energy, intensity, 'o-')
+                plt.xlabel('Energy, keV')
+                plt.ylabel('Intensity, a.u.')
+                plt.show()
 
 
 
@@ -1072,12 +1106,66 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                                                     operation="subtract",  # Default
                                                     filter_domain="frequency",  # Default
                                                     std=8,  # Default is 1/8 of the pattern width
-                                                    truncate=4,  # Default
-)
+                                                    truncate=4)  # Default)
                 self.storage_dict[supported_mode].stack.plot()
                 plt.title(supported_mode)
 
         plt.show()
+
+
+    ####################################################################################################################
+    ########################################         X-Ray        ######################################################
+    ####################################################################################################################
+
+    def get_spectrometer_configuration(self):
+        try:
+            self.bruker.get_xray_spectrometer_configuration()
+            self.spinBox_max_energy.setValue(self.bruker.max_energy.value)
+            self.spinBox_pulse_throughput.setValue(self.bruker.pulse_throughput.value)
+        except Exception as e:
+            print(f"Could not get the spectrometer configuration, error {e}")
+
+
+    def acquire_xray_spectrum(self):
+        self.get_spectrometer_configuration()
+        real_time = self.spinBox_xray_time.value()
+        self.bruker.start_xray_spectrum_measurement(real_time=real_time)
+        time.sleep(real_time * 1e-3)
+        self.bruker.stop_xray_spectrum_measurement()
+        self.bruker.read_xray_spectrum_to_buffer()
+
+        ts = time.time()
+        stamp = datetime.datetime.fromtimestamp(ts).strftime('%y%m%d.%H%M%S')  # make a timestamp for new file
+        if self.DIR == None:
+            save_dir = os.getcwd()
+        else:
+            save_dir = self.DIR
+        if not os.path.isdir(save_dir):
+            os.mkdir(save_dir)
+
+        x = self.spinBox_beam_x.value()
+        y = self.spinBox_beam_y.value()
+        self.file_name_xray = save_dir + '/' + 'xray_spectrum_' + stamp + f'_{x}_{y}' + '.txt'
+        output = \
+            self.bruker.save_xray_spectrum_to_file(file_name=self.file_name_xray)
+        if output==0:
+            try:
+                data = np.loadtxt(self.file_name_xray, skiprows=26)
+                data = np.transpose(data)
+                energy = data[0]
+                intensity = data[1]
+                plt.figure(66)
+                plt.plot(energy, intensity, 'o-')
+                plt.xlabel('Energy, keV')
+                plt.ylabel('Intensity, a.u.')
+                plt.show()
+            except:
+                print('Could not obtain the xray spectrum')
+
+
+
+
+
 
 
 

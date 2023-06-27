@@ -1,8 +1,6 @@
 import ctypes
-import sys
 import time, datetime
 import numpy as np
-import matplotlib.pyplot as plt
 from utils import MicroscopeState
 
 # from importlib import reload  # Python 3.4+
@@ -30,12 +28,15 @@ class TOpenClientOptions(ctypes.Structure):
         ('TCPPort', ctypes.c_uint16)
     ]
 
+
 class TPoint(ctypes.Structure):
     _pack_ = 1
     _fields_ = [
         ('X', ctypes.c_uint32),
         ('Y', ctypes.c_uint32)
     ]
+
+
 TPointArray = TPoint * 16382
 PPointArray = ctypes.POINTER(TPointArray)
 
@@ -85,6 +86,8 @@ class TSegment(ctypes.Structure):
 
 id = ' ' * 25  # char Identifier[25];
 id = id.encode('utf-8')  # bytes, reference, char*
+
+
 class TRTSpectrumHeaderRec(ctypes.Structure):
     _pack_ = 1
     _fields_ = [
@@ -103,14 +106,14 @@ class TRTSpectrumHeaderRec(ctypes.Structure):
     ]
 
 
-def print_spectrum_header(spectrum_header : TRTSpectrumHeaderRec):
+def print_spectrum_header(spectrum_header: TRTSpectrumHeaderRec):
     print(f'Version: {spectrum_header.Version}')
     print(f'Size   :  {spectrum_header.Size}')
     print(f'ChannelCount   :  {spectrum_header.ChannelCount}')
     print(f'RealTime       :  {spectrum_header.RealTime}')
 
 
-errors = {-1 : 'IFC_ERROR_IN_EXECUTION',
+errors = {-1: 'IFC_ERROR_IN_EXECUTION',
          -2 : 'IFC_ERROR_WRONG_PARAMETER (execution)',
          -3 : 'IFC_ERROR_SPECTRUM_BUFFER_EMPTY',
          -4 : 'IFC_ERROR_PARAMETER_MISSED',
@@ -279,7 +282,7 @@ class Bruker_Esprit():
                 self.error_message = ''
             else:
                 self.error_message = f'No SEM servers/clients info could be fetched, ERROR code is {output}, {errors[output]}'
-                print( self.error_message + '\n')
+                print(self.error_message + '\n')
 
         elif self.demo is True:
             print('This is demo mode: SEM servers/client query ')
@@ -1241,7 +1244,7 @@ class Bruker_Esprit():
         device = ctypes.c_int32(1)  # Device: Number of spectrometer ( 1 in most cases )
 
         output = \
-            self.esprit.ReadSpectrum(CID, device)
+            self.esprit.ReadSpectrum(self.CID, device)
 
         if output == 0:
             self.error_message = ''

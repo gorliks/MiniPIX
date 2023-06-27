@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1597</width>
+    <width>1610</width>
     <height>758</height>
    </rect>
   </property>
@@ -32,7 +32,7 @@
       <widget class="QLabel" name="label_image_frame1">
        <property name="geometry">
         <rect>
-         <x>255</x>
+         <x>275</x>
          <y>15</y>
          <width>256</width>
          <height>256</height>
@@ -60,7 +60,7 @@
       <widget class="QLabel" name="label_image_frame2">
        <property name="geometry">
         <rect>
-         <x>255</x>
+         <x>275</x>
          <y>285</y>
          <width>256</width>
          <height>256</height>
@@ -76,7 +76,7 @@
       <widget class="QLabel" name="label_measurement_type1">
        <property name="geometry">
         <rect>
-         <x>260</x>
+         <x>280</x>
          <y>0</y>
          <width>55</width>
          <height>16</height>
@@ -89,7 +89,7 @@
       <widget class="QLabel" name="label_measurement_type2">
        <property name="geometry">
         <rect>
-         <x>260</x>
+         <x>280</x>
          <y>270</y>
          <width>55</width>
          <height>16</height>
@@ -102,7 +102,7 @@
       <widget class="QLabel" name="label_image_frame3">
        <property name="geometry">
         <rect>
-         <x>515</x>
+         <x>535</x>
          <y>15</y>
          <width>256</width>
          <height>256</height>
@@ -118,7 +118,7 @@
       <widget class="QLabel" name="label_measurement_type3">
        <property name="geometry">
         <rect>
-         <x>520</x>
+         <x>540</x>
          <y>0</y>
          <width>55</width>
          <height>16</height>
@@ -131,7 +131,7 @@
       <widget class="QLabel" name="label_image_frame4">
        <property name="geometry">
         <rect>
-         <x>515</x>
+         <x>535</x>
          <y>285</y>
          <width>256</width>
          <height>256</height>
@@ -147,7 +147,7 @@
       <widget class="QLabel" name="label_measurement_type4">
        <property name="geometry">
         <rect>
-         <x>520</x>
+         <x>540</x>
          <y>270</y>
          <width>55</width>
          <height>16</height>
@@ -173,7 +173,7 @@
       <widget class="QComboBox" name="comboBox_image_log_scale">
        <property name="geometry">
         <rect>
-         <x>410</x>
+         <x>430</x>
          <y>560</y>
          <width>111</width>
          <height>22</height>
@@ -217,7 +217,7 @@
       <widget class="QPushButton" name="pushButton_initialise_detector">
        <property name="geometry">
         <rect>
-         <x>540</x>
+         <x>560</x>
          <y>560</y>
          <width>110</width>
          <height>28</height>
@@ -230,7 +230,7 @@
       <widget class="QComboBox" name="comboBox_image_convention">
        <property name="geometry">
         <rect>
-         <x>260</x>
+         <x>280</x>
          <y>560</y>
          <width>131</width>
          <height>22</height>
@@ -257,7 +257,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>251</width>
+         <width>271</width>
          <height>581</height>
         </rect>
        </property>
@@ -265,7 +265,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -452,7 +452,7 @@
          <property name="geometry">
           <rect>
            <x>17</x>
-           <y>160</y>
+           <y>150</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -548,9 +548,9 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>230</y>
+           <y>240</y>
            <width>231</width>
-           <height>321</height>
+           <height>311</height>
           </rect>
          </property>
          <property name="font">
@@ -563,7 +563,7 @@
           </font>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tab_6">
           <attribute name="title">
@@ -573,7 +573,7 @@
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>270</y>
+             <y>260</y>
              <width>91</width>
              <height>20</height>
             </rect>
@@ -585,8 +585,8 @@
           <widget class="QLabel" name="label_39">
            <property name="geometry">
             <rect>
-             <x>70</x>
-             <y>140</y>
+             <x>90</x>
+             <y>130</y>
              <width>31</width>
              <height>16</height>
             </rect>
@@ -598,8 +598,8 @@
           <widget class="QLabel" name="label_40">
            <property name="geometry">
             <rect>
-             <x>70</x>
-             <y>160</y>
+             <x>90</x>
+             <y>150</y>
              <width>31</width>
              <height>16</height>
             </rect>
@@ -612,7 +612,7 @@
            <property name="geometry">
             <rect>
              <x>142</x>
-             <y>107</y>
+             <y>97</y>
              <width>61</width>
              <height>22</height>
             </rect>
@@ -631,7 +631,7 @@
            <property name="geometry">
             <rect>
              <x>70</x>
-             <y>107</y>
+             <y>97</y>
              <width>61</width>
              <height>22</height>
             </rect>
@@ -649,8 +649,8 @@
           <widget class="QSpinBox" name="spinBox_x0">
            <property name="geometry">
             <rect>
-             <x>90</x>
-             <y>140</y>
+             <x>110</x>
+             <y>130</y>
              <width>61</width>
              <height>22</height>
             </rect>
@@ -667,8 +667,8 @@
           <widget class="QSpinBox" name="spinBox_y0">
            <property name="geometry">
             <rect>
-             <x>90</x>
-             <y>160</y>
+             <x>110</x>
+             <y>150</y>
              <width>61</width>
              <height>22</height>
             </rect>
@@ -686,7 +686,7 @@
            <property name="geometry">
             <rect>
              <x>110</x>
-             <y>220</y>
+             <y>210</y>
              <width>93</width>
              <height>28</height>
             </rect>
@@ -708,7 +708,7 @@
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>50</y>
+             <y>40</y>
              <width>201</width>
              <height>31</height>
             </rect>
@@ -721,7 +721,7 @@
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>100</y>
+             <y>90</y>
              <width>61</width>
              <height>41</height>
             </rect>
@@ -735,7 +735,7 @@ pixels</string>
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>250</y>
+             <y>240</y>
              <width>81</width>
              <height>20</height>
             </rect>
@@ -748,7 +748,7 @@ pixels</string>
            <property name="geometry">
             <rect>
              <x>130</x>
-             <y>110</y>
+             <y>100</y>
              <width>20</width>
              <height>16</height>
             </rect>
@@ -767,7 +767,7 @@ pixels</string>
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>30</y>
+             <y>20</y>
              <width>91</width>
              <height>16</height>
             </rect>
@@ -780,7 +780,7 @@ pixels</string>
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>220</y>
+             <y>210</y>
              <width>93</width>
              <height>28</height>
             </rect>
@@ -799,7 +799,7 @@ pixels</string>
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>150</y>
+             <y>140</y>
              <width>61</width>
              <height>31</height>
             </rect>
@@ -844,7 +844,7 @@ pixels</string>
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>190</y>
+             <y>180</y>
              <width>161</width>
              <height>20</height>
             </rect>
@@ -864,8 +864,8 @@ pixels</string>
           <widget class="QPushButton" name="pushButton_save_pixels">
            <property name="geometry">
             <rect>
-             <x>10</x>
-             <y>130</y>
+             <x>20</x>
+             <y>150</y>
              <width>101</width>
              <height>24</height>
             </rect>
@@ -877,8 +877,8 @@ pixels</string>
           <widget class="QPushButton" name="pushButton_open_t3pa_file">
            <property name="geometry">
             <rect>
-             <x>10</x>
-             <y>170</y>
+             <x>20</x>
+             <y>190</y>
              <width>101</width>
              <height>61</height>
             </rect>
@@ -891,8 +891,8 @@ TOA-TOT</string>
           <widget class="QPushButton" name="pushButton_acquire_pixels">
            <property name="geometry">
             <rect>
-             <x>10</x>
-             <y>10</y>
+             <x>20</x>
+             <y>30</y>
              <width>101</width>
              <height>101</height>
             </rect>
@@ -940,14 +940,14 @@ frame</string>
         <widget class="QTabWidget" name="tabWidget">
          <property name="geometry">
           <rect>
-           <x>0</x>
+           <x>10</x>
            <y>10</y>
-           <width>245</width>
+           <width>261</width>
            <height>461</height>
           </rect>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="tab_4">
           <attribute name="title">
@@ -1789,6 +1789,122 @@ frame</string>
           <attribute name="title">
            <string>X-ray</string>
           </attribute>
+          <widget class="QPushButton" name="pushButton_get_spectrometer_configuration">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>80</y>
+             <width>211</width>
+             <height>31</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Get Spectrometer Configuration</string>
+           </property>
+          </widget>
+          <widget class="QSpinBox" name="spinBox_max_energy">
+           <property name="geometry">
+            <rect>
+             <x>130</x>
+             <y>30</y>
+             <width>81</width>
+             <height>22</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_49">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>30</y>
+             <width>101</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>max energy, keV</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_50">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>50</y>
+             <width>101</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>pulse throughput</string>
+           </property>
+          </widget>
+          <widget class="QSpinBox" name="spinBox_pulse_throughput">
+           <property name="geometry">
+            <rect>
+             <x>130</x>
+             <y>50</y>
+             <width>81</width>
+             <height>22</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_51">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>130</y>
+             <width>71</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Time ms</string>
+           </property>
+          </widget>
+          <widget class="QSpinBox" name="spinBox_xray_time">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>150</y>
+             <width>81</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="maximum">
+            <number>10000000</number>
+           </property>
+           <property name="value">
+            <number>100</number>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="pushButton_get_xray_spectrum">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>132</y>
+             <width>131</width>
+             <height>41</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Acquire
+X-Ray spectrum</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="pushButton_open_xray_spectrum">
+           <property name="geometry">
+            <rect>
+             <x>50</x>
+             <y>210</y>
+             <width>101</width>
+             <height>61</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Open X-Ray
+spectrum file</string>
+           </property>
+          </widget>
          </widget>
         </widget>
        </widget>
@@ -2167,7 +2283,7 @@ detector</string>
       <widget class="QLabel" name="label_image_frame_SEM">
        <property name="geometry">
         <rect>
-         <x>775</x>
+         <x>795</x>
          <y>15</y>
          <width>768</width>
          <height>525</height>
@@ -2195,7 +2311,7 @@ detector</string>
       <widget class="QLabel" name="label_measurement_type3_2">
        <property name="geometry">
         <rect>
-         <x>780</x>
+         <x>800</x>
          <y>0</y>
          <width>55</width>
          <height>16</height>
@@ -2208,7 +2324,7 @@ detector</string>
       <widget class="QPushButton" name="pushButton_set_beam_position">
        <property name="geometry">
         <rect>
-         <x>910</x>
+         <x>930</x>
          <y>550</y>
          <width>41</width>
          <height>44</height>
@@ -2221,7 +2337,7 @@ detector</string>
       <widget class="QLabel" name="label_36">
        <property name="geometry">
         <rect>
-         <x>790</x>
+         <x>810</x>
          <y>573</y>
          <width>51</width>
          <height>16</height>
@@ -2234,7 +2350,7 @@ detector</string>
       <widget class="QSpinBox" name="spinBox_beam_x">
        <property name="geometry">
         <rect>
-         <x>840</x>
+         <x>860</x>
          <y>551</y>
          <width>71</width>
          <height>22</height>
@@ -2247,7 +2363,7 @@ detector</string>
       <widget class="QLabel" name="label_35">
        <property name="geometry">
         <rect>
-         <x>790</x>
+         <x>810</x>
          <y>553</y>
          <width>51</width>
          <height>16</height>
@@ -2260,7 +2376,7 @@ detector</string>
       <widget class="QSpinBox" name="spinBox_beam_y">
        <property name="geometry">
         <rect>
-         <x>840</x>
+         <x>860</x>
          <y>571</y>
          <width>71</width>
          <height>22</height>
@@ -2279,7 +2395,7 @@ detector</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1597</width>
+     <width>1610</width>
      <height>26</height>
     </rect>
    </property>

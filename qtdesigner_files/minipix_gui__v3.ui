@@ -265,7 +265,7 @@
         <enum>Qt::LeftToRight</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -337,17 +337,17 @@
          </property>
          <item>
           <property name="text">
+           <string>EVENT_iTOT</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>TOA &amp; TOT</string>
           </property>
          </item>
          <item>
           <property name="text">
            <string>TOA</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>EVENT_iTOT</string>
           </property>
          </item>
         </widget>
@@ -406,7 +406,7 @@
           <double>10000000.000000000000000</double>
          </property>
          <property name="value">
-          <double>0.100000000000000</double>
+          <double>0.010000000000000</double>
          </property>
         </widget>
         <widget class="QPushButton" name="pushButton_select_directory">
@@ -528,7 +528,7 @@
           <double>200.000000000000000</double>
          </property>
          <property name="value">
-          <double>200.000000000000000</double>
+          <double>50.000000000000000</double>
          </property>
         </widget>
         <widget class="QLabel" name="label_34">
@@ -563,7 +563,7 @@
           </font>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab_6">
           <attribute name="title">
@@ -853,7 +853,7 @@ pixels</string>
             <string>plot while scanning?</string>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </widget>
@@ -947,7 +947,7 @@ frame</string>
           </rect>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab_4">
           <attribute name="title">

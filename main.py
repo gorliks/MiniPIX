@@ -5,6 +5,8 @@ import qimage2ndarray
 
 from importlib import reload  # Python 3.4+
 
+import threading
+
 import sys, time, os
 import numpy as np
 import h5py
@@ -705,7 +707,6 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
                                                    options=options)
         if file_name:
             print(file_name)
-            # data format files saved by PiXet detector
             if file_name.lower().endswith('.txt'):
                 data = np.loadtxt(file_name, skiprows=26)
                 data = np.transpose(data)
@@ -986,11 +987,11 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
         x0 =  self.spinBox_x0.value() # start scan from pixel x0
         y0 =  self.spinBox_y0.value() # start scan from pixel y0
 
-        # reinitialise the data storage
-        for supported_mode in self.supported_modes:
-            self.storage_dict[supported_mode] = storage.Storage()  # initialise container for data storage and handling
-            if self.active_modes[supported_mode] == True: # check if the mode is activated
-                self.storage_dict[supported_mode].initialise(i=stack_i, j=stack_j, Nx=256, Ny=256)  # TODO detector image Nx,Ny settings more generic
+        # # reinitialise the data storage
+        # for supported_mode in self.supported_modes:
+        #     self.storage_dict[supported_mode] = storage.Storage()  # initialise container for data storage and handling
+        #     if self.active_modes[supported_mode] == True: # check if the mode is activated
+        #         self.storage_dict[supported_mode].initialise(i=stack_i, j=stack_j, Nx=256, Ny=256)  # TODO detector image Nx,Ny settings more generic
 
         if self.DIR:
             self.stack_dir = self.DIR + '/stack_' + self.sample_id + '_' + stamp
@@ -1033,16 +1034,22 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
                     # get_data, get_data also does update_image
                     return_data = self.checkBox_plot_while_scanning.isChecked()
+
                     self.data = self.get_data(save_dir=self.stack_dir,
                                               file_name=file_name,
                                               return_data=return_data)
                     # self.bruker.beam_blank() # beam blanking by moving the beam to the corner of the image
 
-                    if return_data:
-                        for supported_mode in self.supported_modes:
-                            if self.active_modes[supported_mode] == True:
-                                self.storage_dict[supported_mode].stack.data[ii][jj] = \
-                                    self.data[supported_mode]
+                    plot_while_scanning = self.checkBox_plot_while_scanning.isChecked()
+                    if plot_while_scanning:
+                        self.ax.scatter(x0+ii, y0+jj, marker='o', c='red', s=10, alpha=0.5)
+                        self.ax.figure.canvas.draw()
+
+                    # if return_data:
+                    #     for supported_mode in self.supported_modes:
+                    #         if self.active_modes[supported_mode] == True:
+                    #             self.storage_dict[supported_mode].stack.data[ii][jj] = \
+                    #                 self.data[supported_mode]
 
                     self.repaint()  # update the GUI to show the progress
                     QtWidgets.QApplication.processEvents()
@@ -1077,40 +1084,39 @@ class GUIMainWindow(gui_main.Ui_MainWindow, QtWidgets.QMainWindow):
 
 
         # save the stacks
-        for supported_mode in self.supported_modes:
-            if self.active_modes[supported_mode] == True:
-                if self.checkBox_save_in_h5_format.isChecked():
-                    print('saving h5 format')
-                    file_name = supported_mode + '_stack_' + str(stack_i) + '_' + str(stack_j) + '.h5'
-                    file_name = os.path.join(self.stack_dir, file_name)
-                    self.storage_dict[supported_mode].stack.save(file_name)
-                if self.checkBox_save_in_hspy_format.isChecked():
-                    print('saving h5 format')
-                    file_name = supported_mode + '_stack_' + str(stack_i) + '_' + str(stack_j) + '.hspy'
-                    file_name = os.path.join(self.stack_dir, file_name)
-                    self.storage_dict[supported_mode].stack.save(file_name)
+        # for supported_mode in self.supported_modes:
+        #     if self.active_modes[supported_mode] == True:
+        #         if self.checkBox_save_in_h5_format.isChecked():
+        #             print('saving h5 format')
+        #             file_name = supported_mode + '_stack_' + str(stack_i) + '_' + str(stack_j) + '.h5'
+        #             file_name = os.path.join(self.stack_dir, file_name)
+        #             self.storage_dict[supported_mode].stack.save(file_name)
+        #         if self.checkBox_save_in_hspy_format.isChecked():
+        #             print('saving h5 format')
+        #             file_name = supported_mode + '_stack_' + str(stack_i) + '_' + str(stack_j) + '.hspy'
+        #             file_name = os.path.join(self.stack_dir, file_name)
+        #             self.storage_dict[supported_mode].stack.save(file_name)
 
 
-        # Plot the stacks
-        for supported_mode in self.supported_modes:
-            # self.storage.stack.plot() # plot the acquired stack using hyperspy's library
-            if self.active_modes[supported_mode] == True:
-                # convert hs.signals.Signal2D BaseSignal to EBSD (EBSDMasterPattern or VirtualBSEImage)
-                self.storage_dict[supported_mode].stack.set_signal_type("EBSD")
-                if self.checkBox_remove_static_background.isChecked():
-                    print('removing the static background')
-                    self.storage_dict[supported_mode].stack.remove_static_background(operation="subtract", relative=True)
-                if self.checkBox_remove_dynamic_background.isChecked():
-                    print('removing the dynamic background')
-                    self.storage_dict[supported_mode].stack.remove_dynamic_background(
-                                                    operation="subtract",  # Default
-                                                    filter_domain="frequency",  # Default
-                                                    std=8,  # Default is 1/8 of the pattern width
-                                                    truncate=4)  # Default)
-                self.storage_dict[supported_mode].stack.plot()
-                plt.title(supported_mode)
-
-        plt.show()
+        # # Plot the stacks
+        # for supported_mode in self.supported_modes:
+        #     # self.storage.stack.plot() # plot the acquired stack using hyperspy's library
+        #     if self.active_modes[supported_mode] == True:
+        #         # convert hs.signals.Signal2D BaseSignal to EBSD (EBSDMasterPattern or VirtualBSEImage)
+        #         self.storage_dict[supported_mode].stack.set_signal_type("EBSD")
+        #         if self.checkBox_remove_static_background.isChecked():
+        #             print('removing the static background')
+        #             self.storage_dict[supported_mode].stack.remove_static_background(operation="subtract", relative=True)
+        #         if self.checkBox_remove_dynamic_background.isChecked():
+        #             print('removing the dynamic background')
+        #             self.storage_dict[supported_mode].stack.remove_dynamic_background(
+        #                                             operation="subtract",  # Default
+        #                                             filter_domain="frequency",  # Default
+        #                                             std=8,  # Default is 1/8 of the pattern width
+        #                                             truncate=4)  # Default)
+        #         self.storage_dict[supported_mode].stack.plot()
+        #         plt.title(supported_mode)
+        # plt.show()
 
 
     ####################################################################################################################
